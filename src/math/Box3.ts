@@ -235,7 +235,7 @@ module Threets {
          return Box3.closestPoint.distanceToSquared(sphere.center) <= (sphere.radius * sphere.radius);
       }
 
-      public intersectsPlane(plane: any): boolean {
+      public intersectsPlane(plane: Plane): boolean {
          // We compute the minimum and maximum dot product values. If those values
          // are on the same side (back or front) of the plane, then there is no intersection.
          var min, max;
