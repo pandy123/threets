@@ -1,0 +1,24 @@
+{
+    "name": "threets",
+    "version": "1.0.0",
+    "description": "threejs is recoded with typescript ",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/pandy123/threets.git"
+    },
+    "keywords": [
+        "ts",
+        "threejs",
+        "node"
+    ],
+    "author": "Yanbei.HUANG,Zhennan.LI",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/pandy123/threets/issues"
+    },
+    "homepage": "https://github.com/pandy123/threets#readme"
+}
