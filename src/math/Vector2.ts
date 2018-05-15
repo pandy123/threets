@@ -1,4 +1,8 @@
 module Threets {
+   /**
+    * @author Yanbei.HUANG
+    * @description 2018/5/15
+    */
    export class Vector2 {
       /**x坐标 */
       public x: number;
@@ -10,12 +14,53 @@ module Threets {
          this.y = y || 0;
 
       }
+
+      /**
+       * 宽度
+       */
+      public get width() {
+         var self = this;
+         return {
+            get: function (): number {
+               return self.x;
+            },
+            set: function (value: number) {
+               self.x = value;
+            }
+         }
+      }
+
+      /**
+       * 高度
+       */
+      public get height() {
+         var self = this;
+         return {
+            get: function () {
+               return self.y;
+            },
+            set: function (value: number) {
+               self.y = value;
+            }
+
+         }
+
+      }
+
+      /**
+       * 复制
+       * @param v 
+       */
       public copy(v: Vector2): Vector2 {
          this.x = v.x;
          this.y = v.y;
          return this;
       }
 
+      /**
+       * 最小值
+       * @param v 
+       */
       public min(v: Vector2) {
 
          this.x = Math.min(this.x, v.x);
@@ -25,6 +70,10 @@ module Threets {
 
       }
 
+      /**
+       * 最大值
+       * @param v 
+       */
       public max(v: Vector2) {
 
          this.x = Math.max(this.x, v.x);
@@ -33,6 +82,12 @@ module Threets {
          return this;
 
       }
+
+      /**
+       * 设置
+       * @param x 
+       * @param y 
+       */
       public set(x: number, y: number) {
 
          this.x = x;
@@ -42,6 +97,10 @@ module Threets {
 
       }
 
+      /**
+       * 设置缩放值
+       * @param scalar 
+       */
       public setScalar(scalar: number) {
 
          this.x = scalar;
@@ -394,12 +453,7 @@ module Threets {
 
       }
 
-      public fromBufferAttribute(attribute: any, index: any, offset: any) {
-
-         if (offset !== undefined) {
-            console.warn('THREE.Vector2: offset has been removed from .fromBufferAttribute().');
-         }
-
+      public fromBufferAttribute(attribute: any, index: any) {
          this.x = attribute.getX(index);
          this.y = attribute.getY(index);
 
@@ -407,14 +461,18 @@ module Threets {
 
       }
 
-      public rotateAround(center: Vector2, angle: any) {
+      /**
+       * 
+       * @param center 
+       * @param angle Radian
+       */
+      public rotateAround(center: Vector2, angle: number) {
          var c = Math.cos(angle), s = Math.sin(angle);
          var x = this.x - center.x;
          var y = this.y - center.y;
          this.x = x * c - y * s + center.x;
          this.y = x * s + y * c + center.y;
          return this;
-
       }
    }
 }
