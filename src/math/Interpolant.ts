@@ -6,7 +6,7 @@ module Threets {
       public sampleValues: any;
       public valueSize: any;
 
-      constructor(parameterPositions, sampleValues: any, sampleSize: number, resultBuffer?: any) {
+      constructor(parameterPositions: any, sampleValues: any, sampleSize: number, resultBuffer?: any) {
          //TODO: samplevalues should be a Type.
          this.parameterPositions = parameterPositions;
          this._cachedIndex = 0;
@@ -128,11 +128,11 @@ module Threets {
          return result;
       }
       // Template methods for derived classes:
-      public interpolate_( ...args/* i1, t0, t, t1 */) {
+      public interpolate_(...args/* i1, t0, t, t1 */) {
          throw new Error('call to abstract method');
          // implementations shall return this.resultBuffer
       }
-      public intervalChanged_( ...args /* i1, t0, t1 */) {
+      public intervalChanged_(...args /* i1, t0, t1 */) {
          // empty
       }
 

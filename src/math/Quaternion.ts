@@ -43,7 +43,7 @@ module Threets {
          return qm.copy(qa).slerp(qb, t);
       }
 
-      public slerpFlat(dst: any, dstOffset: any, src0: any, srcOffset0: any, src1: any, srcOffset1: any, t: any) {
+      public static slerpFlat(dst: any, dstOffset: any, src0: any, srcOffset0: any, src1: any, srcOffset1: any, t: any) {
          // fuzz-free, array-based Quaternion SLERP operation
          var x0 = src0[srcOffset0 + 0],
             y0 = src0[srcOffset0 + 1],
@@ -276,7 +276,7 @@ module Threets {
          return this;
       }
 
-      public multiply(q:Quaternion, p?:Quaternion) {
+      public multiply(q: Quaternion, p?: Quaternion) {
          if (p !== undefined) {
             console.warn('THREE.Quaternion: .multiply() now only accepts one argument. Use .multiplyQuaternions( a, b ) instead.');
             return this.multiplyQuaternions(q, p);
