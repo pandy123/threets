@@ -11,11 +11,8 @@ module Threets {
          var result = this.resultBuffer,
             values = this.sampleValues,
             stride = this.valueSize,
-
             offset = i1 * stride,
-
             alpha = (t - t0) / (t1 - t0);
-
          for (var end = offset + stride; offset !== end; offset += 4) {
 
             Quaternion.slerpFlat(result, 0, values, offset - stride, values, offset, alpha);
