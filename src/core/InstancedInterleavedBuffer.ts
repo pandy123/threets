@@ -3,7 +3,7 @@ module Threets {
       public meshPerAttribute;
       public isInstancedInterleavedBuffer;
       constructor(array, stride, meshPerAttribute) {
-         super(array, stride, meshPerAttribute);
+         super(array, stride);
          this.meshPerAttribute = meshPerAttribute || 1;
          this.isInstancedInterleavedBuffer = true;
       }
