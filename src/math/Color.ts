@@ -374,7 +374,7 @@ module Threets {
 
             }
 
-            (hue as any) /= 6;
+            hue /= 6;
 
          }
 
