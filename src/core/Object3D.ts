@@ -1,5 +1,4 @@
 module Threets {
-   export class Layers { public mask: any; };//TODO:
    export class Object3D extends EventDispatcher {
       public static object3DId = 0;
       public static DefaultUp: Vector3 = new Vector3(0, 1, 0);
