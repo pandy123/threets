@@ -109,11 +109,11 @@ module Threets {
          } // validate_interval
          return this.interpolate_(i1, t0, t, t1);
       }
-      settings: null // optional, subclass-specific settings structure
+      public settings: any = null; // optional, subclass-specific settings structure
       // Note: The indirection allows central control of many interpolants.
       // --- Protected interface
-      DefaultSettings_: {}
-      public getSettings_() {
+      public DefaultSettings_: any = {};
+      public getSettings_(): any {
          return this.settings || this.DefaultSettings_;
       }
       public copySampleValue_(index) {
