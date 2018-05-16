@@ -178,7 +178,6 @@ module Threets {
             (point.x - this.min.x) / (this.max.x - this.min.x),
             (point.y - this.min.y) / (this.max.y - this.min.y)
          );
-
       }
 
       /**
