@@ -471,11 +471,11 @@ module Threets {
          }
       }
 
-      public clone(recursive) {
+      public clone(recursive?) {
          return new Object3D().copy(this, recursive);
       }
 
-      public copy(source, recursive) {
+      public copy(source, recursive?): any {
          if (recursive === undefined) recursive = true;
          this.name = source.name;
          this.up.copy(source.up);
