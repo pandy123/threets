@@ -1,4 +1,4 @@
-module THreets {
+module Threets {
    export class AnimationUtils {
       // same as Array.prototype.slice, but also works on typed arrays
       public static arraySlice(array, from, to) {
@@ -10,7 +10,7 @@ module THreets {
          return array.slice(from, to);
       }
       // converts an array to a specific type
-      public static convertArray(array, type, forceClone) {
+      public static convertArray(array, type, forceClone?) {
          if (!array || // let 'undefined' and 'null' pass
             !forceClone && array.constructor === type) return array;
          if (typeof type.BYTES_PER_ELEMENT === 'number') {
