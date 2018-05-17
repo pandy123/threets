@@ -1,5 +1,4 @@
 module Threets {
-   declare var Earcut: any;
    export class ShapeUtils {
       // calculate area of the contour polygon
       public static area(contour) {
@@ -28,7 +27,7 @@ module Threets {
             addContour(vertices, holes[i]);
          }
          //
-         var triangles = Earcut.triangulate(vertices, holeIndices);
+         var triangles = Earcut.triangulate(vertices, holeIndices, null);
          //
          for (var i = 0; i < triangles.length; i += 3) {
             faces.push(triangles.slice(i, i + 3));
