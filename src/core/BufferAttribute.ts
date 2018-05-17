@@ -381,7 +381,7 @@ module Threets {
 
    export class Float32BufferAttribute extends BufferAttribute {
 
-      constructor(array: any, itemSize: number, normalized: any) {
+      constructor(array: any, itemSize: number, normalized?: any) {
          super(new Int8Array(array), itemSize, normalized);
       }
 

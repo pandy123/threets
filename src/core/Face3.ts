@@ -14,7 +14,7 @@ module Threets {
 
       public materialIndex;
 
-      constructor(a, b, c, normal, color, materialIndex) {
+      constructor(a, b, c, normal?, color?, materialIndex?) {
          this.a = a;
          this.b = b;
          this.c = c;

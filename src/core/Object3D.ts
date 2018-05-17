@@ -199,7 +199,7 @@ module Threets {
          return vector.applyMatrix4(m1.getInverse(this.matrixWorld));
       }
 
-      public lookAt(x, y, z) {
+      public lookAt(x, y?, z?) {
          // This method does not support objects with rotated and/or translated parent(s)
          //TODO:
          var m1 = new Matrix4();

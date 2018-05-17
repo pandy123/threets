@@ -39,7 +39,7 @@ module Threets {
 
       }
 
-      public setIndex(index: number) {
+      public setIndex(index: number|Array<number>) {
 
          if (Array.isArray(index)) {
 

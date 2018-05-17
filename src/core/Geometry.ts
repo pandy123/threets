@@ -1,6 +1,4 @@
 module Threets {
-   declare var Face3;
-   declare var Object3D;
    export class Geometry extends EventDispatcher {
       public static geometryId = 0; // Geometry uses even numbers as Id
       public id: number = 0;
