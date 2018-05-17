@@ -6,10 +6,6 @@ module Threets {
 
       public DefaultInterpolation;
 
-      public InterpolantFactoryMethodLinear;
-
-      public InterpolantFactoryMethodSmooth;
-
       constructor(name, times, values, interpolation) {
          super(name, times, values, interpolation);
          this.ValueTypeName = 'string'
