@@ -36,8 +36,7 @@ module Threets {
 
       constructor() {
          super();
-         Object3D.object3DId++;
-         this.id = Object3D.object3DId;
+         this.id = Object3D.object3DId++;
 
          this.uuid = _Math.generateUUID();
 
