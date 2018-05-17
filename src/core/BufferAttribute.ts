@@ -12,7 +12,7 @@ module Threets {
       public updateRange: any;
       public isBufferAttribute: boolean;
 
-      constructor(array: any, itemSize: number, normalized: any) {
+      constructor(array: any, itemSize: any, normalized?: any) {
          if (Array.isArray(array)) {
             throw new TypeError('THREE.BufferAttribute: array should be a Typed Array.');
          }

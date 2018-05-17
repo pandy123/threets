@@ -3,7 +3,7 @@ module Threets {
       public type;
       public isArcCurve: boolean;
       constructor(aX, aY, aRadius, aStartAngle, aEndAngle, aClockwise) {
-         super(aX, aY, aRadius, aStartAngle, aEndAngle, aClockwise);
+         super(aX, aY, aRadius, aStartAngle, aEndAngle, aClockwise, null, null);
          this.type = 'ArcCurve';
          this.isArcCurve = true;
       }
