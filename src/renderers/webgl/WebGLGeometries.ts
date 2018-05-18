@@ -1,65 +1,73 @@
 module Threets {
 
 
-   export function WebGLGeometries(gl, attributes, info) {
+   export class WebGLGeometries {
 
-      var geometries = {};
-      var wireframeAttributes = {};
+      public geometries;
+      public gl;
+      public attributes;
+      public info;
+      public wireframeAttributes;
 
-      function onGeometryDispose(event) {
+      constructor(gl, attributes, info) {
+         this.geometries = {};
+         this.wireframeAttributes = {};
+      }
 
+      public onGeometryDispose(event) {
+         var geometries = this.geometries;
          var geometry = event.target;
          var buffergeometry = geometries[geometry.id];
 
          if (buffergeometry.index !== null) {
 
-            attributes.remove(buffergeometry.index);
+            this.attributes.remove(buffergeometry.index);
 
          }
 
          for (var name in buffergeometry.attributes) {
 
-            attributes.remove(buffergeometry.attributes[name]);
+            this.attributes.remove(buffergeometry.attributes[name]);
 
          }
 
-         geometry.removeEventListener('dispose', onGeometryDispose);
+         geometry.removeEventListener('dispose', this.onGeometryDispose);
 
          delete geometries[geometry.id];
 
          // TODO Remove duplicate code
 
-         var attribute = wireframeAttributes[geometry.id];
+         var attribute = this.wireframeAttributes[geometry.id];
 
          if (attribute) {
 
-            attributes.remove(attribute);
-            delete wireframeAttributes[geometry.id];
+            this.attributes.remove(attribute);
+            delete this.wireframeAttributes[geometry.id];
 
          }
 
-         attribute = wireframeAttributes[buffergeometry.id];
+         attribute = this.wireframeAttributes[buffergeometry.id];
 
          if (attribute) {
 
-            attributes.remove(attribute);
-            delete wireframeAttributes[buffergeometry.id];
+            this.attributes.remove(attribute);
+            delete this.wireframeAttributes[buffergeometry.id];
 
          }
 
          //
 
-         info.memory.geometries--;
+         this.info.memory.geometries--;
 
       }
 
-      function get(object, geometry) {
+      public get(object, geometry) {
 
-         var buffergeometry = geometries[geometry.id];
+         var buffergeometry = this.geometries[geometry.id];
 
          if (buffergeometry) return buffergeometry;
 
-         geometry.addEventListener('dispose', onGeometryDispose);
+         geometry.addEventListener('dispose', this.onGeometryDispose);
 
          if (geometry.isBufferGeometry) {
 
@@ -72,33 +80,29 @@ module Threets {
                geometry._bufferGeometry = new BufferGeometry().setFromObject(object);
 
             }
-
             buffergeometry = geometry._bufferGeometry;
-
          }
 
-         geometries[geometry.id] = buffergeometry;
-
-         info.memory.geometries++;
-
+         this.geometries[geometry.id] = buffergeometry;
+         this.info.memory.geometries++;
          return buffergeometry;
 
       }
 
-      function update(geometry) {
+      public update(geometry) {
 
          var index = geometry.index;
          var geometryAttributes = geometry.attributes;
 
          if (index !== null) {
 
-            attributes.update(index, gl.ELEMENT_ARRAY_BUFFER);
+            this.attributes.update(index, this.gl.ELEMENT_ARRAY_BUFFER);
 
          }
 
          for (var name in geometryAttributes) {
 
-            attributes.update(geometryAttributes[name], gl.ARRAY_BUFFER);
+            this.attributes.update(geometryAttributes[name], this.gl.ARRAY_BUFFER);
 
          }
 
@@ -112,7 +116,7 @@ module Threets {
 
             for (var i = 0, l = array.length; i < l; i++) {
 
-               attributes.update(array[i], gl.ARRAY_BUFFER);
+               this.attributes.update(array[i], this.gl.ARRAY_BUFFER);
 
             }
 
@@ -120,9 +124,9 @@ module Threets {
 
       }
 
-      function getWireframeAttribute(geometry) {
+      public getWireframeAttribute(geometry) {
 
-         var attribute = wireframeAttributes[geometry.id];
+         var attribute = this.wireframeAttributes[geometry.id];
 
          if (attribute) return attribute;
 
@@ -151,11 +155,11 @@ module Threets {
 
             var array = geometryAttributes.position.array;
 
-            for (var i = 0, l = (array.length / 3) - 1; i < l; i += 3) {
+            for (var i = 0, count = (array.length / 3) - 1; i < count; i += 3) {
 
-               var a = i + 0;
-               var b = i + 1;
-               var c = i + 2;
+               var a = i + 0 as any;
+               var b = i + 1 as any;
+               var c = i + 2 as any;
 
                indices.push(a, b, b, c, c, a);
 
@@ -167,24 +171,13 @@ module Threets {
 
          attribute = new (arrayMax(indices) > 65535 ? Uint32BufferAttribute : Uint16BufferAttribute)(indices, 1);
 
-         attributes.update(attribute, gl.ELEMENT_ARRAY_BUFFER);
+         this.attributes.update(attribute, this.gl.ELEMENT_ARRAY_BUFFER);
 
-         wireframeAttributes[geometry.id] = attribute;
+         this.wireframeAttributes[geometry.id] = attribute;
 
          return attribute;
 
       }
 
-      return {
-
-         get: get,
-         update: update,
-
-         getWireframeAttribute: getWireframeAttribute
-
-      };
-
    }
-
-
 }

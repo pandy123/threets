@@ -1,49 +1,111 @@
 module Threets {
 
 
-   export function WebGLCapabilities(gl, extensions, parameters) {
+   export class WebGLCapabilities {
+      public gl;
+      public extensions;
+      public parameters;
+      public maxAnisotropy;
+      public logarithmicDepthBuffer;
+      public maxTextures;
+      public maxVertexTextures;
+      public maxTextureSize;
+      public maxCubemapSize;
+      public maxAttributes;
+      public maxVertexUniforms;
+      public maxVaryings;
+      public maxFragmentUniforms;
+      public vertexTextures;
+      public floatFragmentTextures;
+      public floatVertexTextures;
+      public precision;
 
-      var maxAnisotropy;
+      constructor(gl, extensions, parameters) {
 
-      function getMaxAnisotropy() {
+         this.maxAnisotropy = null;
 
-         if (maxAnisotropy !== undefined) return maxAnisotropy;
+         this.logarithmicDepthBuffer = parameters.logarithmicDepthBuffer === true;
+         this.maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+         this.maxVertexTextures = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+         this.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+         this.maxCubemapSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
 
-         var extension = extensions.get('EXT_texture_filter_anisotropic');
+         this.maxAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+         this.maxVertexUniforms = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+         this.maxVaryings = gl.getParameter(gl.MAX_VARYING_VECTORS);
+         this.maxFragmentUniforms = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
 
-         if (extension !== null) {
-
-            maxAnisotropy = gl.getParameter(extension.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-
-         } else {
-
-            maxAnisotropy = 0;
-
-         }
-
-         return maxAnisotropy;
+         this.vertexTextures = this.maxVertexTextures > 0;
+         this.floatFragmentTextures = !!extensions.get('OES_texture_float');
+         this.floatVertexTextures = this.vertexTextures && this.floatFragmentTextures;
 
       }
 
-      function getMaxPrecision(precision) {
+      public getinstance() {
 
+         return {
+
+            getMaxAnisotropy: this.getMaxAnisotropy,
+            getMaxPrecision: this.getMaxPrecision,
+
+            precision: this.precision,
+            logarithmicDepthBuffer: this.logarithmicDepthBuffer,
+
+            maxTextures: this.maxTextures,
+            maxVertexTextures: this.maxVertexTextures,
+            maxTextureSize: this.maxTextureSize,
+            maxCubemapSize: this.maxCubemapSize,
+
+            maxAttributes: this.maxAttributes,
+            maxVertexUniforms: this.maxVertexUniforms,
+            maxVaryings: this.maxVaryings,
+            maxFragmentUniforms: this.maxFragmentUniforms,
+
+            vertexTextures: this.vertexTextures,
+            floatFragmentTextures: this.floatFragmentTextures,
+            floatVertexTextures: this.floatVertexTextures
+
+         };
+      }
+
+      public getMaxAnisotropy() {
+
+         if (this.maxAnisotropy !== undefined) return this.maxAnisotropy;
+
+         var extension = this.extensions.get('EXT_texture_filter_anisotropic');
+
+         if (extension !== null) {
+
+            this.maxAnisotropy = this.gl.getParameter(extension.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+
+         } else {
+
+            this.maxAnisotropy = 0;
+
+         }
+
+         return this.maxAnisotropy;
+
+      }
+
+      public getMaxPrecision(precision) {
+         this.precision = precision;
          if (precision === 'highp') {
 
-            if (gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.HIGH_FLOAT).precision > 0 &&
-               gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).precision > 0) {
+            if (this.gl.getShaderPrecisionFormat(this.gl.VERTEX_SHADER, this.gl.HIGH_FLOAT).precision > 0 &&
+               this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT).precision > 0) {
 
                return 'highp';
 
             }
 
             precision = 'mediump';
-
          }
 
          if (precision === 'mediump') {
 
-            if (gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.MEDIUM_FLOAT).precision > 0 &&
-               gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT).precision > 0) {
+            if (this.gl.getShaderPrecisionFormat(this.gl.VERTEX_SHADER, this.gl.MEDIUM_FLOAT).precision > 0 &&
+               this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.MEDIUM_FLOAT).precision > 0) {
 
                return 'mediump';
 
@@ -54,58 +116,5 @@ module Threets {
          return 'lowp';
 
       }
-
-      var precision = parameters.precision !== undefined ? parameters.precision : 'highp';
-      var maxPrecision = getMaxPrecision(precision);
-
-      if (maxPrecision !== precision) {
-
-         console.warn('THREE.WebGLRenderer:', precision, 'not supported, using', maxPrecision, 'instead.');
-         precision = maxPrecision;
-
-      }
-
-      var logarithmicDepthBuffer = parameters.logarithmicDepthBuffer === true;
-
-      var maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-      var maxVertexTextures = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-      var maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-      var maxCubemapSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-
-      var maxAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-      var maxVertexUniforms = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
-      var maxVaryings = gl.getParameter(gl.MAX_VARYING_VECTORS);
-      var maxFragmentUniforms = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
-
-      var vertexTextures = maxVertexTextures > 0;
-      var floatFragmentTextures = !!extensions.get('OES_texture_float');
-      var floatVertexTextures = vertexTextures && floatFragmentTextures;
-
-      return {
-
-         getMaxAnisotropy: getMaxAnisotropy,
-         getMaxPrecision: getMaxPrecision,
-
-         precision: precision,
-         logarithmicDepthBuffer: logarithmicDepthBuffer,
-
-         maxTextures: maxTextures,
-         maxVertexTextures: maxVertexTextures,
-         maxTextureSize: maxTextureSize,
-         maxCubemapSize: maxCubemapSize,
-
-         maxAttributes: maxAttributes,
-         maxVertexUniforms: maxVertexUniforms,
-         maxVaryings: maxVaryings,
-         maxFragmentUniforms: maxFragmentUniforms,
-
-         vertexTextures: vertexTextures,
-         floatFragmentTextures: floatFragmentTextures,
-         floatVertexTextures: floatVertexTextures
-
-      };
-
    }
-
-
 }

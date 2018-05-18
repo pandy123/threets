@@ -2,80 +2,75 @@ module Threets {
 
 
 
-   export function WebGLRenderState() {
+   export class WebGLRenderState {
+      public lights;
+      public lightsArray;
+      public shadowsArray;
+      public spritesArray;
+      public state;
+      constructor() {
+         this.lights = new WebGLLights();
+         this.lightsArray = [];
+         this.shadowsArray = [];
+         this.spritesArray = [];
+         this.state = {
+            lightsArray: this.lightsArray,
+            shadowsArray: this.shadowsArray,
+            spritesArray: this.spritesArray,
 
-      var lights = new WebGLLights();
+            lights: this.lights
+         };
+      }
 
-      var lightsArray = [];
-      var shadowsArray = [];
-      var spritesArray = [];
+      public init() {
 
-      function init() {
-
-         lightsArray.length = 0;
-         shadowsArray.length = 0;
-         spritesArray.length = 0;
+         this.lightsArray.length = 0;
+         this.shadowsArray.length = 0;
+         this.spritesArray.length = 0;
 
       }
 
-      function pushLight(light) {
+      public pushLight(light) {
 
-         lightsArray.push(light);
-
-      }
-
-      function pushShadow(shadowLight) {
-
-         shadowsArray.push(shadowLight);
+         this.lightsArray.push(light);
 
       }
 
-      function pushSprite(shadowLight) {
+      public pushShadow(shadowLight) {
 
-         spritesArray.push(shadowLight);
-
-      }
-
-      function setupLights(camera) {
-
-         lights.setup(lightsArray, shadowsArray, camera);
+         this.shadowsArray.push(shadowLight);
 
       }
 
-      var state = {
-         lightsArray: lightsArray,
-         shadowsArray: shadowsArray,
-         spritesArray: spritesArray,
+      public pushSprite(shadowLight) {
 
-         lights: lights
-      };
+         this.spritesArray.push(shadowLight);
 
-      return {
-         init: init,
-         state: state,
-         setupLights: setupLights,
+      }
 
-         pushLight: pushLight,
-         pushShadow: pushShadow,
-         pushSprite: pushSprite
-      };
+      public setupLights(camera) {
 
+         this.lights.setup(this.lightsArray, this.shadowsArray, camera);
+
+      }
    }
 
-   function WebGLRenderStates() {
+   export class WebGLRenderStates {
+      public renderStates;
+      constructor() {
+         this.renderStates = {};
+      }
 
-      var renderStates = {};
-
-      function get(scene, camera) {
+      public get(scene, camera) {
 
          var hash = scene.id + ',' + camera.id;
 
-         var renderState = renderStates[hash];
+         var renderState = this.renderStates[hash];
 
          if (renderState === undefined) {
 
             renderState = new WebGLRenderState();
-            renderStates[hash] = renderState;
+            this.renderStates[hash] = renderState;
 
          }
 
@@ -83,17 +78,11 @@ module Threets {
 
       }
 
-      function dispose() {
+      public dispose() {
 
-         renderStates = {};
+         this.renderStates = {};
 
       }
-
-      return {
-         get: get,
-         dispose: dispose
-      };
-
    }
 }
 

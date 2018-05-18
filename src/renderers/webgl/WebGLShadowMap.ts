@@ -2,96 +2,128 @@
 module Threets {
 
 
-   export function WebGLShadowMap(_renderer, _objects, maxTextureSize) {
+   export class WebGLShadowMap {
+      public _renderer;
+      public _objects;
+      public maxTextureSize;
+      public _frustum;
+      public _projScreenMatrix;
+      public _shadowMapSize;
+      public _maxShadowMapSize;
+      public _lookTarget;
+      public _lightPositionWorld;
+      public _MorphingFlag;
+      public _SkinningFlag;
+      public _NumberOfMaterialVariants;
+      public _depthMaterials;
+      public _distanceMaterials;
+      public _materialCache;
+      public enabled;
+      public autoUpdate;
+      public needsUpdate;
+      public type;
+      public shadowSide;
+      public cubeDirections;
+      public cubeUps;
+      public cube2DViewPorts;
 
-      var _frustum = new Frustum(),
-         _projScreenMatrix = new Matrix4(),
+      constructor(_renderer, _objects, maxTextureSize) {
+         this.enabled = false;
 
-         _shadowMapSize = new Vector2(),
-         _maxShadowMapSize = new Vector2(maxTextureSize, maxTextureSize),
+         this.autoUpdate = true;
+         this.needsUpdate = false;
 
-         _lookTarget = new Vector3(),
-         _lightPositionWorld = new Vector3(),
+         this.type = PCFShadowMap;
+         this._renderer = _renderer;
+         this._objects = _objects;
+         this.maxTextureSize = maxTextureSize;
 
-         _MorphingFlag = 1,
-         _SkinningFlag = 2,
+         this._frustum = new Frustum();
+         this._projScreenMatrix = new Matrix4();
 
-         _NumberOfMaterialVariants = (_MorphingFlag | _SkinningFlag) + 1,
+         this._shadowMapSize = new Vector2();
+         this._maxShadowMapSize = new Vector2(maxTextureSize, maxTextureSize);
 
-         _depthMaterials = new Array(_NumberOfMaterialVariants),
-         _distanceMaterials = new Array(_NumberOfMaterialVariants),
+         this._lookTarget = new Vector3();
+         this._lightPositionWorld = new Vector3();
 
-         _materialCache = {};
+         this._MorphingFlag = 1;
+         this._SkinningFlag = 2;
 
-      var shadowSide = { 0: BackSide, 1: FrontSide, 2: DoubleSide };
+         this._NumberOfMaterialVariants = (this._MorphingFlag | this._SkinningFlag) + 1;
 
-      var cubeDirections = [
-         new Vector3(1, 0, 0), new Vector3(- 1, 0, 0), new Vector3(0, 0, 1),
-         new Vector3(0, 0, - 1), new Vector3(0, 1, 0), new Vector3(0, - 1, 0)
-      ];
+         this._depthMaterials = new Array(this._NumberOfMaterialVariants);
+         this._distanceMaterials = new Array(this._NumberOfMaterialVariants);
 
-      var cubeUps = [
-         new Vector3(0, 1, 0), new Vector3(0, 1, 0), new Vector3(0, 1, 0),
-         new Vector3(0, 1, 0), new Vector3(0, 0, 1), new Vector3(0, 0, - 1)
-      ];
+         this._materialCache = {};
 
-      var cube2DViewPorts = [
-         new Vector4(), new Vector4(), new Vector4(),
-         new Vector4(), new Vector4(), new Vector4()
-      ];
+         this.shadowSide = { 0: BackSide, 1: FrontSide, 2: DoubleSide };
 
-      // init
+         this.cubeDirections = [
+            new Vector3(1, 0, 0), new Vector3(- 1, 0, 0), new Vector3(0, 0, 1),
+            new Vector3(0, 0, - 1), new Vector3(0, 1, 0), new Vector3(0, - 1, 0)
+         ];
 
-      for (var i = 0; i !== _NumberOfMaterialVariants; ++i) {
+         this.cubeUps = [
+            new Vector3(0, 1, 0), new Vector3(0, 1, 0), new Vector3(0, 1, 0),
+            new Vector3(0, 1, 0), new Vector3(0, 0, 1), new Vector3(0, 0, - 1)
+         ];
 
-         var useMorphing = (i & _MorphingFlag) !== 0;
-         var useSkinning = (i & _SkinningFlag) !== 0;
+         this.cube2DViewPorts = [
+            new Vector4(), new Vector4(), new Vector4(),
+            new Vector4(), new Vector4(), new Vector4()
+         ];
 
-         var depthMaterial = new MeshDepthMaterial({
+         // init
 
-            depthPacking: RGBADepthPacking,
+         for (var i = 0; i !== this._NumberOfMaterialVariants; ++i) {
 
-            morphTargets: useMorphing,
-            skinning: useSkinning
+            var useMorphing = (i & this._MorphingFlag) !== 0;
+            var useSkinning = (i & this._SkinningFlag) !== 0;
 
-         });
+            var depthMaterial = new MeshDepthMaterial({
 
-         _depthMaterials[i] = depthMaterial;
+               depthPacking: RGBADepthPacking,
 
-         //
+               morphTargets: useMorphing,
+               skinning: useSkinning
 
-         var distanceMaterial = new MeshDistanceMaterial({
+            });
 
-            morphTargets: useMorphing,
-            skinning: useSkinning
+            this._depthMaterials[i] = depthMaterial;
 
-         });
+            //
 
-         _distanceMaterials[i] = distanceMaterial;
+            var distanceMaterial = new MeshDistanceMaterial({
 
+               morphTargets: useMorphing,
+               skinning: useSkinning
+
+            });
+
+            this._distanceMaterials[i] = distanceMaterial;
+
+         }
+
+
+         this.enabled = false;
+
+         this.autoUpdate = true;
+         this.needsUpdate = false;
+
+         this.type = PCFShadowMap;
       }
 
-      //
+      public render(lights, scene, camera) {
 
-      var scope = this;
-
-      this.enabled = false;
-
-      this.autoUpdate = true;
-      this.needsUpdate = false;
-
-      this.type = PCFShadowMap;
-
-      this.render = function (lights, scene, camera) {
-
-         if (scope.enabled === false) return;
-         if (scope.autoUpdate === false && scope.needsUpdate === false) return;
+         if (this.enabled === false) return;
+         if (this.autoUpdate === false && this.needsUpdate === false) return;
 
          if (lights.length === 0) return;
 
          // TODO Clean up (needed in case of contextlost)
-         var _gl = _renderer.context;
-         var _state = _renderer.state;
+         var _gl = this._renderer.context;
+         var _state = this._renderer.state;
 
          // Set GL state for depth map.
          _state.disable(_gl.BLEND);
@@ -118,13 +150,13 @@ module Threets {
 
             var shadowCamera = shadow.camera;
 
-            _shadowMapSize.copy(shadow.mapSize);
-            _shadowMapSize.min(_maxShadowMapSize);
+            this._shadowMapSize.copy(shadow.mapSize);
+            this._shadowMapSize.min(this._maxShadowMapSize);
 
             if (isPointLight) {
 
-               var vpWidth = _shadowMapSize.x;
-               var vpHeight = _shadowMapSize.y;
+               var vpWidth = this._shadowMapSize.x;
+               var vpHeight = this._shadowMapSize.y;
 
                // These viewports map a cube-map onto a 2D texture with the
                // following orientation:
@@ -140,20 +172,20 @@ module Threets {
                // z - Negative z direction
 
                // positive X
-               cube2DViewPorts[0].set(vpWidth * 2, vpHeight, vpWidth, vpHeight);
+               this.cube2DViewPorts[0].set(vpWidth * 2, vpHeight, vpWidth, vpHeight);
                // negative X
-               cube2DViewPorts[1].set(0, vpHeight, vpWidth, vpHeight);
+               this.cube2DViewPorts[1].set(0, vpHeight, vpWidth, vpHeight);
                // positive Z
-               cube2DViewPorts[2].set(vpWidth * 3, vpHeight, vpWidth, vpHeight);
+               this.cube2DViewPorts[2].set(vpWidth * 3, vpHeight, vpWidth, vpHeight);
                // negative Z
-               cube2DViewPorts[3].set(vpWidth, vpHeight, vpWidth, vpHeight);
+               this.cube2DViewPorts[3].set(vpWidth, vpHeight, vpWidth, vpHeight);
                // positive Y
-               cube2DViewPorts[4].set(vpWidth * 3, 0, vpWidth, vpHeight);
+               this.cube2DViewPorts[4].set(vpWidth * 3, 0, vpWidth, vpHeight);
                // negative Y
-               cube2DViewPorts[5].set(vpWidth, 0, vpWidth, vpHeight);
+               this.cube2DViewPorts[5].set(vpWidth, 0, vpWidth, vpHeight);
 
-               _shadowMapSize.x *= 4.0;
-               _shadowMapSize.y *= 2.0;
+               this._shadowMapSize.x *= 4.0;
+               this._shadowMapSize.y *= 2.0;
 
             }
 
@@ -161,7 +193,7 @@ module Threets {
 
                var pars = { minFilter: NearestFilter, magFilter: NearestFilter, format: RGBAFormat };
 
-               shadow.map = new WebGLRenderTarget(_shadowMapSize.x, _shadowMapSize.y, pars);
+               shadow.map = new WebGLRenderTarget(this._shadowMapSize.x, this._shadowMapSize.y, pars);
                shadow.map.texture.name = light.name + ".shadowMap";
 
                shadowCamera.updateProjectionMatrix();
@@ -177,8 +209,8 @@ module Threets {
             var shadowMap = shadow.map;
             var shadowMatrix = shadow.matrix;
 
-            _lightPositionWorld.setFromMatrixPosition(light.matrixWorld);
-            shadowCamera.position.copy(_lightPositionWorld);
+            this._lightPositionWorld.setFromMatrixPosition(light.matrixWorld);
+            shadowCamera.position.copy(this._lightPositionWorld);
 
             if (isPointLight) {
 
@@ -187,14 +219,14 @@ module Threets {
                // for point lights we set the shadow matrix to be a translation-only matrix
                // equal to inverse of the light's position
 
-               shadowMatrix.makeTranslation(- _lightPositionWorld.x, - _lightPositionWorld.y, - _lightPositionWorld.z);
+               shadowMatrix.makeTranslation(- this._lightPositionWorld.x, - this._lightPositionWorld.y, - this._lightPositionWorld.z);
 
             } else {
 
                faceCount = 1;
 
-               _lookTarget.setFromMatrixPosition(light.target.matrixWorld);
-               shadowCamera.lookAt(_lookTarget);
+               this._lookTarget.setFromMatrixPosition(light.target.matrixWorld);
+               shadowCamera.lookAt(this._lookTarget);
                shadowCamera.updateMatrixWorld();
 
                // compute shadow matrix
@@ -211,8 +243,8 @@ module Threets {
 
             }
 
-            _renderer.setRenderTarget(shadowMap);
-            _renderer.clear();
+            this._renderer.setRenderTarget(shadowMap);
+            this._renderer.clear();
 
             // render shadow map for each cube face (if omni-directional) or
             // run a single pass if not
@@ -221,46 +253,45 @@ module Threets {
 
                if (isPointLight) {
 
-                  _lookTarget.copy(shadowCamera.position);
-                  _lookTarget.add(cubeDirections[face]);
-                  shadowCamera.up.copy(cubeUps[face]);
-                  shadowCamera.lookAt(_lookTarget);
+                  this._lookTarget.copy(shadowCamera.position);
+                  this._lookTarget.add(this.cubeDirections[face]);
+                  shadowCamera.up.copy(this.cubeUps[face]);
+                  shadowCamera.lookAt(this._lookTarget);
                   shadowCamera.updateMatrixWorld();
 
-                  var vpDimensions = cube2DViewPorts[face];
+                  var vpDimensions = this.cube2DViewPorts[face];
                   _state.viewport(vpDimensions);
 
                }
 
                // update camera matrices and frustum
 
-               _projScreenMatrix.multiplyMatrices(shadowCamera.projectionMatrix, shadowCamera.matrixWorldInverse);
-               _frustum.setFromMatrix(_projScreenMatrix);
+               this._projScreenMatrix.multiplyMatrices(shadowCamera.projectionMatrix, shadowCamera.matrixWorldInverse);
+               this._frustum.setFromMatrix(this._projScreenMatrix);
 
                // set object matrices & frustum culling
-
-               renderObject(scene, camera, shadowCamera, isPointLight);
+               this.renderObject(scene, camera, shadowCamera, isPointLight);
 
             }
 
          }
 
-         scope.needsUpdate = false;
+         this.needsUpdate = false;
 
       };
 
-      function getDepthMaterial(object, material, isPointLight, lightPositionWorld, shadowCameraNear, shadowCameraFar) {
+      public getDepthMaterial(object, material, isPointLight, lightPositionWorld, shadowCameraNear, shadowCameraFar) {
 
          var geometry = object.geometry;
 
          var result = null;
 
-         var materialVariants = _depthMaterials;
+         var materialVariants = this._depthMaterials;
          var customMaterial = object.customDepthMaterial;
 
          if (isPointLight) {
 
-            materialVariants = _distanceMaterials;
+            materialVariants = this._distanceMaterials;
             customMaterial = object.customDistanceMaterial;
 
          }
@@ -293,8 +324,8 @@ module Threets {
 
             var variantIndex = 0;
 
-            if (useMorphing) variantIndex |= _MorphingFlag;
-            if (useSkinning) variantIndex |= _SkinningFlag;
+            if (useMorphing) variantIndex |= this._MorphingFlag;
+            if (useSkinning) variantIndex |= this._SkinningFlag;
 
             result = materialVariants[variantIndex];
 
@@ -304,7 +335,7 @@ module Threets {
 
          }
 
-         if (_renderer.localClippingEnabled &&
+         if (this._renderer.localClippingEnabled &&
             material.clipShadows === true &&
             material.clippingPlanes.length !== 0) {
 
@@ -313,12 +344,12 @@ module Threets {
 
             var keyA = result.uuid, keyB = material.uuid;
 
-            var materialsForVariant = _materialCache[keyA];
+            var materialsForVariant = this._materialCache[keyA];
 
             if (materialsForVariant === undefined) {
 
                materialsForVariant = {};
-               _materialCache[keyA] = materialsForVariant;
+               this._materialCache[keyA] = materialsForVariant;
 
             }
 
@@ -338,7 +369,7 @@ module Threets {
          result.visible = material.visible;
          result.wireframe = material.wireframe;
 
-         result.side = (material.shadowSide != null) ? material.shadowSide : shadowSide[material.side];
+         result.side = (material.shadowSide != null) ? material.shadowSide : this.shadowSide[material.side];
 
          result.clipShadows = material.clipShadows;
          result.clippingPlanes = material.clippingPlanes;
@@ -359,7 +390,7 @@ module Threets {
 
       }
 
-      function renderObject(object, camera, shadowCamera, isPointLight) {
+      public renderObject(object, camera, shadowCamera, isPointLight) {
 
          if (object.visible === false) return;
 
@@ -367,11 +398,11 @@ module Threets {
 
          if (visible && (object.isMesh || object.isLine || object.isPoints)) {
 
-            if (object.castShadow && (!object.frustumCulled || _frustum.intersectsObject(object))) {
+            if (object.castShadow && (!object.frustumCulled || this._frustum.intersectsObject(object))) {
 
                object.modelViewMatrix.multiplyMatrices(shadowCamera.matrixWorldInverse, object.matrixWorld);
 
-               var geometry = _objects.update(object);
+               var geometry = this._objects.update(object);
                var material = object.material;
 
                if (Array.isArray(material)) {
@@ -385,8 +416,8 @@ module Threets {
 
                      if (groupMaterial && groupMaterial.visible) {
 
-                        var depthMaterial = getDepthMaterial(object, groupMaterial, isPointLight, _lightPositionWorld, shadowCamera.near, shadowCamera.far);
-                        _renderer.renderBufferDirect(shadowCamera, null, geometry, depthMaterial, object, group);
+                        var depthMaterial = this.getDepthMaterial(object, groupMaterial, isPointLight, this._lightPositionWorld, shadowCamera.near, shadowCamera.far);
+                        this._renderer.renderBufferDirect(shadowCamera, null, geometry, depthMaterial, object, group);
 
                      }
 
@@ -394,8 +425,8 @@ module Threets {
 
                } else if (material.visible) {
 
-                  var depthMaterial = getDepthMaterial(object, material, isPointLight, _lightPositionWorld, shadowCamera.near, shadowCamera.far);
-                  _renderer.renderBufferDirect(shadowCamera, null, geometry, depthMaterial, object, null);
+                  var depthMaterial = this.getDepthMaterial(object, material, isPointLight, this._lightPositionWorld, shadowCamera.near, shadowCamera.far);
+                  this._renderer.renderBufferDirect(shadowCamera, null, geometry, depthMaterial, object, null);
 
                }
 
@@ -407,7 +438,7 @@ module Threets {
 
          for (var i = 0, l = children.length; i < l; i++) {
 
-            renderObject(children[i], camera, shadowCamera, isPointLight);
+            this.renderObject(children[i], camera, shadowCamera, isPointLight);
 
          }
 

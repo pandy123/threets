@@ -1,15 +1,19 @@
-/**
- * @author mrdoob / http://mrdoob.com/
- */
 module Threets {
 
 
-   export function WebGLAttributes(gl) {
+   export class WebGLAttributes {
+      public gl;
+      public buffers;
+      constructor(gl) {
 
-      var buffers = new WeakMap();
+         var buffers = new WeakMap();
+         this.gl = gl;
+         this.buffers = buffers;
 
-      function createBuffer(attribute, bufferType) {
+      }
 
+      public createBuffer(attribute, bufferType) {
+         var gl = this.gl;
          var array = attribute.array;
          var usage = attribute.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW;
 
@@ -65,7 +69,8 @@ module Threets {
 
       }
 
-      function updateBuffer(buffer, attribute, bufferType) {
+      public updateBuffer(buffer, attribute, bufferType) {
+         var gl = this.gl;
 
          var array = attribute.array;
          var updateRange = attribute.updateRange;
@@ -99,7 +104,8 @@ module Threets {
 
       //
 
-      function get(attribute) {
+      public get(attribute) {
+         var buffers = this.buffers;
 
          if (attribute.isInterleavedBufferAttribute) attribute = attribute.data;
 
@@ -107,8 +113,9 @@ module Threets {
 
       }
 
-      function remove(attribute) {
-
+      public remove(attribute) {
+         var buffers = this.buffers;
+         var gl = this.gl;
          if (attribute.isInterleavedBufferAttribute) attribute = attribute.data;
 
          var data = buffers.get(attribute);
@@ -123,34 +130,26 @@ module Threets {
 
       }
 
-      function update(attribute, bufferType) {
-
+      public update(attribute, bufferType) {
+         var buffers = this.buffers;
+         var gl = this.gl;
          if (attribute.isInterleavedBufferAttribute) attribute = attribute.data;
 
          var data = buffers.get(attribute);
 
          if (data === undefined) {
 
-            buffers.set(attribute, createBuffer(attribute, bufferType));
+            buffers.set(attribute, this.createBuffer(attribute, bufferType));
 
          } else if (data.version < attribute.version) {
 
-            updateBuffer(data.buffer, attribute, bufferType);
+            this.updateBuffer(data.buffer, attribute, bufferType);
 
             data.version = attribute.version;
 
          }
 
       }
-
-      return {
-
-         get: get,
-         remove: remove,
-         update: update
-
-      };
-
    }
 
 }

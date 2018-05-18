@@ -1,27 +1,38 @@
 module Threets {
 
 
-   export function WebGLBufferRenderer(gl, extensions, info) {
+   export class WebGLBufferRenderer {
+      public mode;
+      public gl;
+      public extensions;
+      public info
 
-      var mode;
+      constructor(gl, extensions, info) {
+         this.gl = gl;
+         this.extensions = extensions;
+         this.info = info;
+         this.mode = null;
 
-      function setMode(value) {
-
-         mode = value;
-
-      }
-
-      function render(start, count) {
-
-         gl.drawArrays(mode, start, count);
-
-         info.update(count, mode);
 
       }
 
-      function renderInstances(geometry, start, count) {
+      public setMode(value) {
 
-         var extension = extensions.get('ANGLE_instanced_arrays');
+         this.mode = value;
+
+      }
+
+      public render(start, count) {
+
+         this.gl.drawArrays(this.mode, start, count);
+
+         this.info.update(count, this.mode);
+
+      }
+
+      public renderInstances(geometry, start, count) {
+
+         var extension = this.extensions.get('ANGLE_instanced_arrays');
 
          if (extension === null) {
 
@@ -30,19 +41,11 @@ module Threets {
 
          }
 
-         extension.drawArraysInstancedANGLE(mode, start, count, geometry.maxInstancedCount);
+         extension.drawArraysInstancedANGLE(this.mode, start, count, geometry.maxInstancedCount);
 
-         info.update(count, mode, geometry.maxInstancedCount);
+         this.info.update(count, this.mode, geometry.maxInstancedCount);
 
       }
-
-      //
-
-      this.setMode = setMode;
-      this.render = render;
-      this.renderInstances = renderInstances;
-
    }
-
 
 }

@@ -2,20 +2,34 @@ module Threets {
 
 
 
-   export function WebGLSpriteRenderer(renderer, gl, state, textures, capabilities) {
+   export class WebGLSpriteRenderer {
+      public renderer;
+      public gl;
+      public state;
+      public textures;
+      public capabilities;
+      public vertexBuffer;
+      public elementBuffer;
+      public program;
+      public attributes;
+      public uniforms;
+      public texture;
+      public spritePosition;
+      public spriteRotation;
+      public spriteScale;
 
-      var vertexBuffer, elementBuffer;
-      var program, attributes, uniforms;
+      constructor(renderer, gl, state, textures, capabilities) {
+         this.renderer = renderer;
+         this.gl = gl;
+         this.state = state;
+         this.textures = textures;
+         this.capabilities = capabilities;
+         this.spritePosition = new Vector3();
+         this.spriteRotation = new Quaternion();
+         this.spriteScale = new Vector3();
+      }
 
-      var texture;
-
-      // decompose matrixWorld
-
-      var spritePosition = new Vector3();
-      var spriteRotation = new Quaternion();
-      var spriteScale = new Vector3();
-
-      function init() {
+      public init() {
 
          var vertices = new Float32Array([
             - 0.5, - 0.5, 0, 0,
@@ -29,27 +43,28 @@ module Threets {
             0, 2, 3
          ]);
 
-         vertexBuffer = gl.createBuffer();
-         elementBuffer = gl.createBuffer();
+         this.vertexBuffer = this.gl.createBuffer();
+         this.elementBuffer = this.gl.createBuffer();
 
-         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+         this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
 
-         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
-         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, faces, gl.STATIC_DRAW);
+         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+         this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, faces, this.gl.STATIC_DRAW);
 
-         program = createProgram();
+         this.program = this.createProgram();
 
-         attributes = {
-            position: gl.getAttribLocation(program, 'position'),
-            uv: gl.getAttribLocation(program, 'uv')
+         this.attributes = {
+            position: this.gl.getAttribLocation(this.program, 'position'),
+            uv: this.gl.getAttribLocation(this.program, 'uv')
          };
+         var gl = this.gl;
+         var program = this.program;
+         this.uniforms = {
+            uvOffset: this.gl.getUniformLocation(this.program, 'uvOffset'),
+            uvScale: this.gl.getUniformLocation(this.program, 'uvScale'),
 
-         uniforms = {
-            uvOffset: gl.getUniformLocation(program, 'uvOffset'),
-            uvScale: gl.getUniformLocation(program, 'uvScale'),
-
-            rotation: gl.getUniformLocation(program, 'rotation'),
+            rotation: this.gl.getUniformLocation(program, 'rotation'),
             center: gl.getUniformLocation(program, 'center'),
             scale: gl.getUniformLocation(program, 'scale'),
 
@@ -71,28 +86,33 @@ module Threets {
          };
 
          var canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
-         canvas.width = 8;
-         canvas.height = 8;
+         (canvas as any).width = 8;
+         (canvas as any).height = 8;
 
-         var context = canvas.getContext('2d');
+         var context = (canvas as any).getContext('2d');
          context.fillStyle = 'white';
          context.fillRect(0, 0, 8, 8);
 
-         texture = new CanvasTexture(canvas);
+         this.texture = new CanvasTexture(canvas);
 
       }
 
-      this.render = function (sprites, scene, camera) {
-
+      public render(sprites, scene, camera) {
+         var state = this.state;
          if (sprites.length === 0) return;
 
          // setup gl
 
-         if (program === undefined) {
+         if (this.program === undefined) {
 
-            init();
+            this.init();
 
          }
+         var program = this.program;
+         var attributes = this.attributes;
+         var gl = this.gl;
+         var uniforms = this.uniforms;
+
 
          state.useProgram(program);
 
@@ -104,11 +124,11 @@ module Threets {
          state.disable(gl.CULL_FACE);
          state.enable(gl.BLEND);
 
-         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
          gl.vertexAttribPointer(attributes.position, 2, gl.FLOAT, false, 2 * 8, 0);
          gl.vertexAttribPointer(attributes.uv, 2, gl.FLOAT, false, 2 * 8, 8);
 
-         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
+         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
 
          gl.uniformMatrix4fv(uniforms.projectionMatrix, false, camera.projectionMatrix.elements);
 
@@ -162,7 +182,7 @@ module Threets {
 
          }
 
-         sprites.sort(painterSortStable);
+         sprites.sort(this.painterSortStable);
 
          // render all sprites
 
@@ -176,15 +196,15 @@ module Threets {
 
             if (material.visible === false) continue;
 
-            sprite.onBeforeRender(renderer, scene, camera, undefined, material, undefined);
+            sprite.onBeforeRender(this.renderer, scene, camera, undefined, material, undefined);
 
             gl.uniform1f(uniforms.alphaTest, material.alphaTest);
             gl.uniformMatrix4fv(uniforms.modelViewMatrix, false, sprite.modelViewMatrix.elements);
 
-            sprite.matrixWorld.decompose(spritePosition, spriteRotation, spriteScale);
+            sprite.matrixWorld.decompose(this.spritePosition, this.spriteRotation, this.spriteScale);
 
-            scale[0] = spriteScale.x;
-            scale[1] = spriteScale.y;
+            scale[0] = this.spriteScale.x;
+            scale[1] = this.spriteScale.y;
 
             center[0] = sprite.center.x - 0.5;
             center[1] = sprite.center.y - 0.5;
@@ -228,11 +248,11 @@ module Threets {
             state.buffers.depth.setMask(material.depthWrite);
             state.buffers.color.setMask(material.colorWrite);
 
-            textures.setTexture2D(material.map || texture, 0);
+            this.textures.setTexture2D(material.map || this.texture, 0);
 
             gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 
-            sprite.onAfterRender(renderer, scene, camera, undefined, material, undefined);
+            sprite.onAfterRender(this.renderer, scene, camera, undefined, material, undefined);
 
          }
 
@@ -244,7 +264,8 @@ module Threets {
 
       };
 
-      function createProgram() {
+      public createProgram() {
+         var gl = this.gl;
 
          var program = gl.createProgram();
 
@@ -253,7 +274,7 @@ module Threets {
 
          gl.shaderSource(vertexShader, [
 
-            'precision ' + capabilities.precision + ' float;',
+            'precision ' + this.capabilities.precision + ' float;',
 
             '#define SHADER_NAME ' + 'SpriteMaterial',
 
@@ -296,7 +317,7 @@ module Threets {
 
          gl.shaderSource(fragmentShader, [
 
-            'precision ' + capabilities.precision + ' float;',
+            'precision ' + this.capabilities.precision + ' float;',
 
             '#define SHADER_NAME ' + 'SpriteMaterial',
 
@@ -358,7 +379,7 @@ module Threets {
 
       }
 
-      function painterSortStable(a, b) {
+      public painterSortStable(a, b) {
 
          if (a.renderOrder !== b.renderOrder) {
 

@@ -1,6 +1,8 @@
 
 module Threets {
 
+
+
    function painterSortStable(a, b) {
 
       if (a.renderOrder !== b.renderOrder) {
@@ -45,26 +47,29 @@ module Threets {
 
    }
 
-   function WebGLRenderList() {
+   export class WebGLRenderList {
+      public renderItems;
+      public renderItemsIndex;
+      public opaque;
+      public transparent;
+      constructor() {
+         this.renderItems = [];
+         this.renderItemsIndex = 0;
+         this.opaque = [];
+         this.transparent = [];
+      }
 
-      var renderItems = [];
-      var renderItemsIndex = 0;
+      public init() {
 
-      var opaque = [];
-      var transparent = [];
-
-      function init() {
-
-         renderItemsIndex = 0;
-
-         opaque.length = 0;
-         transparent.length = 0;
+         this.renderItemsIndex = 0;
+         this.opaque.length = 0;
+         this.transparent.length = 0;
 
       }
 
-      function push(object, geometry, material, z, group) {
+      public push(object, geometry, material, z, group) {
 
-         var renderItem = renderItems[renderItemsIndex];
+         var renderItem = this.renderItems[this.renderItemsIndex];
 
          if (renderItem === undefined) {
 
@@ -79,7 +84,7 @@ module Threets {
                group: group
             };
 
-            renderItems[renderItemsIndex] = renderItem;
+            this.renderItems[this.renderItemsIndex] = renderItem;
 
          } else {
 
@@ -94,46 +99,40 @@ module Threets {
 
          }
 
-         (material.transparent === true ? transparent : opaque).push(renderItem);
+         (material.transparent === true ? this.transparent : this.opaque).push(renderItem);
 
-         renderItemsIndex++;
-
-      }
-
-      function sort() {
-
-         if (opaque.length > 1) opaque.sort(painterSortStable);
-         if (transparent.length > 1) transparent.sort(reversePainterSortStable);
+         this.renderItemsIndex++;
 
       }
 
-      return {
-         opaque: opaque,
-         transparent: transparent,
+      public sort() {
 
-         init: init,
-         push: push,
+         if (this.opaque.length > 1) this.opaque.sort(painterSortStable);
+         if (this.transparent.length > 1) this.transparent.sort(reversePainterSortStable);
 
-         sort: sort
-      };
+      }
+
+
 
    }
 
-   export function WebGLRenderLists() {
+   export class WebGLRenderLists {
 
-      var lists = {};
+      public lists;
 
-      function get(scene, camera) {
+      constructor() {
+         this.lists = {};
+      }
+
+      public get(scene, camera) {
 
          var hash = scene.id + ',' + camera.id;
-         var list = lists[hash];
+         var list = this.lists[hash];
 
          if (list === undefined) {
-
             // console.log( 'THREE.WebGLRenderLists:', hash );
-
             list = new WebGLRenderList();
-            lists[hash] = list;
+            this.lists[hash] = list;
 
          }
 
@@ -141,16 +140,11 @@ module Threets {
 
       }
 
-      function dispose() {
+      public dispose() {
 
-         lists = {};
+         this.lists = {};
 
       }
-
-      return {
-         get: get,
-         dispose: dispose
-      };
 
    }
 

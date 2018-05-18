@@ -2,59 +2,63 @@
 module Threets {
 
 
-   export function WebGLPrograms(renderer, extensions, capabilities) {
+   export class WebGLPrograms {
+      public renderer;
+      public extensions;
+      public capabilities;
+      public programs;
+      public shaderIDs;
+      public parameterNames;
 
-      var programs = [];
+      constructor(renderer, extensions, capabilities) {
 
-      var shaderIDs = {
-         MeshDepthMaterial: 'depth',
-         MeshDistanceMaterial: 'distanceRGBA',
-         MeshNormalMaterial: 'normal',
-         MeshBasicMaterial: 'basic',
-         MeshLambertMaterial: 'lambert',
-         MeshPhongMaterial: 'phong',
-         MeshToonMaterial: 'phong',
-         MeshStandardMaterial: 'physical',
-         MeshPhysicalMaterial: 'physical',
-         LineBasicMaterial: 'basic',
-         LineDashedMaterial: 'dashed',
-         PointsMaterial: 'points',
-         ShadowMaterial: 'shadow'
-      };
+         this.programs = [];
+         this.renderer = renderer;
+         this.extensions = extensions;
+         this.capabilities = capabilities;
 
-      var parameterNames = [
-         "precision", "supportsVertexTextures", "map", "mapEncoding", "envMap", "envMapMode", "envMapEncoding",
-         "lightMap", "aoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "displacementMap", "specularMap",
-         "roughnessMap", "metalnessMap", "gradientMap",
-         "alphaMap", "combine", "vertexColors", "fog", "useFog", "fogExp",
-         "flatShading", "sizeAttenuation", "logarithmicDepthBuffer", "skinning",
-         "maxBones", "useVertexTexture", "morphTargets", "morphNormals",
-         "maxMorphTargets", "maxMorphNormals", "premultipliedAlpha",
-         "numDirLights", "numPointLights", "numSpotLights", "numHemiLights", "numRectAreaLights",
-         "shadowMapEnabled", "shadowMapType", "toneMapping", 'physicallyCorrectLights',
-         "alphaTest", "doubleSided", "flipSided", "numClippingPlanes", "numClipIntersection", "depthPacking", "dithering"
-      ];
+         this.shaderIDs = {
+            MeshDepthMaterial: 'depth',
+            MeshDistanceMaterial: 'distanceRGBA',
+            MeshNormalMaterial: 'normal',
+            MeshBasicMaterial: 'basic',
+            MeshLambertMaterial: 'lambert',
+            MeshPhongMaterial: 'phong',
+            MeshToonMaterial: 'phong',
+            MeshStandardMaterial: 'physical',
+            MeshPhysicalMaterial: 'physical',
+            LineBasicMaterial: 'basic',
+            LineDashedMaterial: 'dashed',
+            PointsMaterial: 'points',
+            ShadowMaterial: 'shadow'
+         };
 
+         this.parameterNames = [
+            "precision", "supportsVertexTextures", "map", "mapEncoding", "envMap", "envMapMode", "envMapEncoding",
+            "lightMap", "aoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "displacementMap", "specularMap",
+            "roughnessMap", "metalnessMap", "gradientMap",
+            "alphaMap", "combine", "vertexColors", "fog", "useFog", "fogExp",
+            "flatShading", "sizeAttenuation", "logarithmicDepthBuffer", "skinning",
+            "maxBones", "useVertexTexture", "morphTargets", "morphNormals",
+            "maxMorphTargets", "maxMorphNormals", "premultipliedAlpha",
+            "numDirLights", "numPointLights", "numSpotLights", "numHemiLights", "numRectAreaLights",
+            "shadowMapEnabled", "shadowMapType", "toneMapping", 'physicallyCorrectLights',
+            "alphaTest", "doubleSided", "flipSided", "numClippingPlanes", "numClipIntersection", "depthPacking", "dithering"
+         ];
 
-      function allocateBones(object) {
+      }
+      public allocateBones(object) {
 
          var skeleton = object.skeleton;
          var bones = skeleton.bones;
 
-         if (capabilities.floatVertexTextures) {
+         if (this.capabilities.floatVertexTextures) {
 
             return 1024;
 
          } else {
 
-            // default for when object is not specified
-            // ( for example when prebuilding shader to be used with multiple objects )
-            //
-            //  - leave some extra space for other uniforms
-            //  - limit here is ANGLE's 254 max uniform vectors
-            //    (up to 54 should be safe)
-
-            var nVertexUniforms = capabilities.maxVertexUniforms;
+            var nVertexUniforms = this.capabilities.maxVertexUniforms;
             var nVertexMatrices = Math.floor((nVertexUniforms - 20) / 4);
 
             var maxBones = Math.min(nVertexMatrices, bones.length);
@@ -72,7 +76,7 @@ module Threets {
 
       }
 
-      function getTextureEncodingFromMap(map, gammaOverrideLinear) {
+      public getTextureEncodingFromMap(map, gammaOverrideLinear) {
 
          var encoding;
 
@@ -102,19 +106,19 @@ module Threets {
 
       }
 
-      this.getParameters = function (material, lights, shadows, fog, nClipPlanes, nClipIntersection, object) {
+      public getParameters(material, lights, shadows, fog, nClipPlanes, nClipIntersection, object) {
 
-         var shaderID = shaderIDs[material.type];
+         var shaderID = this.shaderIDs[material.type];
 
          // heuristics to create shader parameters according to lights in the scene
          // (not to blow over maxLights budget)
 
-         var maxBones = object.isSkinnedMesh ? allocateBones(object) : 0;
-         var precision = capabilities.precision;
+         var maxBones = object.isSkinnedMesh ? this.allocateBones(object) : 0;
+         var precision = this.capabilities.precision;
 
          if (material.precision !== null) {
 
-            precision = capabilities.getMaxPrecision(material.precision);
+            precision = this.capabilities.getMaxPrecision(material.precision);
 
             if (precision !== material.precision) {
 
@@ -124,20 +128,20 @@ module Threets {
 
          }
 
-         var currentRenderTarget = renderer.getRenderTarget();
+         var currentRenderTarget = this.renderer.getRenderTarget();
 
          var parameters = {
 
             shaderID: shaderID,
 
             precision: precision,
-            supportsVertexTextures: capabilities.vertexTextures,
-            outputEncoding: getTextureEncodingFromMap((!currentRenderTarget) ? null : currentRenderTarget.texture, renderer.gammaOutput),
+            supportsVertexTextures: this.capabilities.vertexTextures,
+            outputEncoding: this.getTextureEncodingFromMap((!currentRenderTarget) ? null : currentRenderTarget.texture, this.renderer.gammaOutput),
             map: !!material.map,
-            mapEncoding: getTextureEncodingFromMap(material.map, renderer.gammaInput),
+            mapEncoding: this.getTextureEncodingFromMap(material.map, this.renderer.gammaInput),
             envMap: !!material.envMap,
             envMapMode: material.envMap && material.envMap.mapping,
-            envMapEncoding: getTextureEncodingFromMap(material.envMap, renderer.gammaInput),
+            envMapEncoding: this.getTextureEncodingFromMap(material.envMap, this.renderer.gammaInput),
             envMapCubeUV: (!!material.envMap) && ((material.envMap.mapping === CubeUVReflectionMapping) || (material.envMap.mapping === CubeUVRefractionMapping)),
             lightMap: !!material.lightMap,
             aoMap: !!material.aoMap,
@@ -164,16 +168,16 @@ module Threets {
             flatShading: material.flatShading,
 
             sizeAttenuation: material.sizeAttenuation,
-            logarithmicDepthBuffer: capabilities.logarithmicDepthBuffer,
+            logarithmicDepthBuffer: this.capabilities.logarithmicDepthBuffer,
 
             skinning: material.skinning && maxBones > 0,
             maxBones: maxBones,
-            useVertexTexture: capabilities.floatVertexTextures,
+            useVertexTexture: this.capabilities.floatVertexTextures,
 
             morphTargets: material.morphTargets,
             morphNormals: material.morphNormals,
-            maxMorphTargets: renderer.maxMorphTargets,
-            maxMorphNormals: renderer.maxMorphNormals,
+            maxMorphTargets: this.renderer.maxMorphTargets,
+            maxMorphNormals: this.renderer.maxMorphNormals,
 
             numDirLights: lights.directional.length,
             numPointLights: lights.point.length,
@@ -186,11 +190,11 @@ module Threets {
 
             dithering: material.dithering,
 
-            shadowMapEnabled: renderer.shadowMap.enabled && object.receiveShadow && shadows.length > 0,
-            shadowMapType: renderer.shadowMap.type,
+            shadowMapEnabled: this.renderer.shadowMap.enabled && object.receiveShadow && shadows.length > 0,
+            shadowMapType: this.renderer.shadowMap.type,
 
-            toneMapping: renderer.toneMapping,
-            physicallyCorrectLights: renderer.physicallyCorrectLights,
+            toneMapping: this.renderer.toneMapping,
+            physicallyCorrectLights: this.renderer.physicallyCorrectLights,
 
             premultipliedAlpha: material.premultipliedAlpha,
 
@@ -206,7 +210,7 @@ module Threets {
 
       };
 
-      this.getProgramCode = function (material, parameters) {
+      public getProgramCode(material, parameters) {
 
          var array = [];
 
@@ -232,28 +236,28 @@ module Threets {
 
          }
 
-         for (var i = 0; i < parameterNames.length; i++) {
+         for (var i = 0; i < this.parameterNames.length; i++) {
 
-            array.push(parameters[parameterNames[i]]);
+            array.push(parameters[this.parameterNames[i]]);
 
          }
 
          array.push(material.onBeforeCompile.toString());
 
-         array.push(renderer.gammaOutput);
+         array.push(this.renderer.gammaOutput);
 
          return array.join();
 
       };
 
-      this.acquireProgram = function (material, shader, parameters, code) {
+      public acquireProgram(material, shader, parameters, code) {
 
          var program;
 
          // Check if code has been already compiled
-         for (var p = 0, pl = programs.length; p < pl; p++) {
+         for (var p = 0, pl = this.programs.length; p < pl; p++) {
 
-            var programInfo = programs[p];
+            var programInfo = this.programs[p];
 
             if (programInfo.code === code) {
 
@@ -268,8 +272,8 @@ module Threets {
 
          if (program === undefined) {
 
-            program = new WebGLProgram(renderer, extensions, code, material, shader, parameters);
-            programs.push(program);
+            program = new WebGLProgram(this.renderer, this.extensions, code, material, shader, parameters);
+            this.programs.push(program);
 
          }
 
@@ -277,14 +281,14 @@ module Threets {
 
       };
 
-      this.releaseProgram = function (program) {
+      public releaseProgram(program) {
 
          if (--program.usedTimes === 0) {
 
             // Remove from unordered set
-            var i = programs.indexOf(program);
-            programs[i] = programs[programs.length - 1];
-            programs.pop();
+            var i = this.programs.indexOf(program);
+            this.programs[i] = this.programs[this.programs.length - 1];
+            this.programs.pop();
 
             // Free WebGL resources
             program.destroy();
@@ -294,8 +298,6 @@ module Threets {
       };
 
       // Exposed for resource monitoring & error feedback via renderer.info:
-      this.programs = programs;
-
    }
 
 }

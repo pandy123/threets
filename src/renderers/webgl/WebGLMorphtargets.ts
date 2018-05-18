@@ -7,18 +7,22 @@ module Threets {
 
    }
 
-   export function WebGLMorphtargets(gl) {
+   export class WebGLMorphtargets {
+      public gl;
+      public influencesList;
+      public morphInfluences;
+      constructor(gl) {
 
-      var influencesList = {};
-      var morphInfluences = new Float32Array(8);
+         this.influencesList = {};
+         this.morphInfluences = new Float32Array(8);
+      }
 
-      function update(object, geometry, material, program) {
 
+      public update(object, geometry, material, program) {
          var objectInfluences = object.morphTargetInfluences;
-
          var length = objectInfluences.length;
 
-         var influences = influencesList[geometry.id];
+         var influences = this.influencesList[geometry.id];
 
          if (influences === undefined) {
 
@@ -32,7 +36,7 @@ module Threets {
 
             }
 
-            influencesList[geometry.id] = influences;
+            this.influencesList[geometry.id] = influences;
 
          }
 
@@ -83,26 +87,21 @@ module Threets {
                   if (morphTargets) geometry.addAttribute('morphTarget' + i, morphTargets[index]);
                   if (morphNormals) geometry.addAttribute('morphNormal' + i, morphNormals[index]);
 
-                  morphInfluences[i] = value;
+                  this.morphInfluences[i] = value;
                   continue;
 
                }
 
             }
 
-            morphInfluences[i] = 0;
+            this.morphInfluences[i] = 0;
 
          }
 
-         program.getUniforms().setValue(gl, 'morphTargetInfluences', morphInfluences);
+         program.getUniforms().setValue(this.gl, 'morphTargetInfluences', this.morphInfluences);
 
       }
 
-      return {
-
-         update: update
-
-      };
 
    }
 

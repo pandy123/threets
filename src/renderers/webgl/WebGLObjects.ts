@@ -1,20 +1,27 @@
 module Threets {
 
 
-   export function WebGLObjects(geometries, info) {
+   export class WebGLObjects {
+      public geometries;
+      public info;
+      public updateList;
+      constructor(geometries, info) {
+         this.geometries = geometries;
+         this.info = info;
 
-      var updateList = {};
+         this.updateList = {};
+      }
 
-      function update(object) {
+      public update(object) {
 
-         var frame = info.render.frame;
+         var frame = this.info.render.frame;
 
          var geometry = object.geometry;
-         var buffergeometry = geometries.get(object, geometry);
+         var buffergeometry = this.geometries.get(object, geometry);
 
          // Update once per frame
 
-         if (updateList[buffergeometry.id] !== frame) {
+         if (this.updateList[buffergeometry.id] !== frame) {
 
             if (geometry.isGeometry) {
 
@@ -22,9 +29,9 @@ module Threets {
 
             }
 
-            geometries.update(buffergeometry);
+            this.geometries.update(buffergeometry);
 
-            updateList[buffergeometry.id] = frame;
+            this.updateList[buffergeometry.id] = frame;
 
          }
 
@@ -32,19 +39,9 @@ module Threets {
 
       }
 
-      function dispose() {
-
-         updateList = {};
-
+      public dispose() {
+         this.updateList = {};
       }
-
-      return {
-
-         update: update,
-         dispose: dispose
-
-      };
-
    }
 
 }

@@ -1,36 +1,44 @@
 module Threets {
 
 
-   export function WebGLIndexedBufferRenderer(gl, extensions, info) {
+   export class WebGLIndexedBufferRenderer {
+      public mode;
+      public type;
+      public bytesPerElement;
+      public gl;
+      public extensions;
+      public info;
+      constructor(gl, extensions, info) {
 
-      var mode;
+         this.gl = gl;
+         this.extensions = extensions;
+         this.info = info;
+      }
 
-      function setMode(value) {
+      public setMode(value) {
+         this.mode = value;
+      }
 
-         mode = value;
+
+
+      public setIndex(value) {
+
+         this.type = value.type;
+         this.bytesPerElement = value.bytesPerElement;
 
       }
 
-      var type, bytesPerElement;
+      public render(start, count) {
 
-      function setIndex(value) {
+         this.gl.drawElements(this.mode, count, this.type, start * this.bytesPerElement);
 
-         type = value.type;
-         bytesPerElement = value.bytesPerElement;
-
-      }
-
-      function render(start, count) {
-
-         gl.drawElements(mode, count, type, start * bytesPerElement);
-
-         info.update(count, mode);
+         this.info.update(count, this.mode);
 
       }
 
-      function renderInstances(geometry, start, count) {
+      public renderInstances(geometry, start, count) {
 
-         var extension = extensions.get('ANGLE_instanced_arrays');
+         var extension = this.extensions.get('ANGLE_instanced_arrays');
 
          if (extension === null) {
 
@@ -39,19 +47,13 @@ module Threets {
 
          }
 
-         extension.drawElementsInstancedANGLE(mode, count, type, start * bytesPerElement, geometry.maxInstancedCount);
+         extension.drawElementsInstancedANGLE(this.mode, count, this.type, start * this.bytesPerElement, geometry.maxInstancedCount);
 
-         info.update(count, mode, geometry.maxInstancedCount);
+         this.info.update(count, this.mode, geometry.maxInstancedCount);
 
       }
 
       //
-
-      this.setMode = setMode;
-      this.setIndex = setIndex;
-      this.render = render;
-      this.renderInstances = renderInstances;
-
    }
 
 
