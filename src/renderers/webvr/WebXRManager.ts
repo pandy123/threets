@@ -1,146 +1,152 @@
-/**
- * @author mrdoob / http://mrdoob.com/
- */
+module Threets {
 
-import { Matrix4 } from '../../math/Matrix4.js';
-import { Vector4 } from '../../math/Vector4.js';
-import { Vector3 } from '../../math/Vector3.js';
-import { Quaternion } from '../../math/Quaternion.js';
-import { ArrayCamera } from '../../cameras/ArrayCamera.js';
-import { PerspectiveCamera } from '../../cameras/PerspectiveCamera.js';
 
-function WebXRManager( gl ) {
 
-	var scope = this;
+   export class WebXRManager {
 
-	var device = null;
-	var session = null;
+      public frameOfRef;
+      public session;
+      public device;
+      public isExclusive;
+      public pose;
+      public enabled;
+      public gl;
+      public cameraL;
+      public cameraR;
+      public cameraVR;
 
-	var frameOfRef = null;
-	var isExclusive = false;
+      public framCallback;
 
-	var pose = null;
+      constructor(gl) {
 
-	function isPresenting() {
+         var scope = this;
+         this.gl = gl;
 
-		return session !== null && frameOfRef !== null;
+         this.device = null;
+         this.session = null;
 
-	}
+         this.frameOfRef = null;
+         this.isExclusive = false;
 
-	//
+         this.pose = null;
+         //
+         this.cameraL = new PerspectiveCamera();
+         this.cameraL.layers.enable(1);
+         this.cameraL.viewport = new Vector4();
 
-	var cameraL = new PerspectiveCamera();
-	cameraL.layers.enable( 1 );
-	cameraL.viewport = new Vector4();
+         this.cameraR = new PerspectiveCamera();
+         this.cameraR.layers.enable(2);
+         this.cameraR.viewport = new Vector4();
 
-	var cameraR = new PerspectiveCamera();
-	cameraR.layers.enable( 2 );
-	cameraR.viewport = new Vector4();
+         var cameraVR = new ArrayCamera([this.cameraL, this.cameraR]);
+         cameraVR.layers.enable(1);
+         cameraVR.layers.enable(2);
 
-	var cameraVR = new ArrayCamera( [ cameraL, cameraR ] );
-	cameraVR.layers.enable( 1 );
-	cameraVR.layers.enable( 2 );
+         //
+         this.enabled = false;
+      }
 
-	//
+      public isPresenting() {
 
-	this.enabled = false;
+         return this.session !== null && this.frameOfRef !== null;
 
-	this.getDevice = function () {
+      }
 
-		return device;
+      public getDevice() {
 
-	};
+         return this.device;
 
-	this.setDevice = function ( value ) {
+      };
 
-		if ( value !== undefined ) device = value;
+      public setDevice(value) {
 
-		gl.setCompatibleXRDevice( value );
+         if (value !== undefined) this.device = value;
 
-	};
+         this.gl.setCompatibleXRDevice(value);
 
-	this.setSession = function ( value ) {
+      };
 
-		session = value;
+      public setSession(value) {
 
-		if ( session !== null ) {
+         this.session = value;
 
-			session.baseLayer = new XRWebGLLayer( session, gl );
-			session.requestFrameOfReference( 'stage' ).then( function ( value ) {
+         if (this.session !== null) {
 
-				frameOfRef = value;
-				isExclusive = session.exclusive;
+            this.session.baseLayer = new XRWebGLLayer(this.session, this.gl);
+            this.session.requestFrameOfReference('stage').then(function (value) {
 
-			} );
+               this.frameOfRef = value;
+               this.isExclusive = this.session.exclusive;
 
-		}
+            });
 
-	};
+         }
 
-	this.getCamera = function ( camera ) {
+      };
 
-		return isPresenting() ? cameraVR : camera;
+      public getCamera(camera) {
 
-	};
+         return this.isPresenting() ? this.cameraVR : camera;
 
-	this.isPresenting = isPresenting;
+      };
 
-	this.requestAnimationFrame = function ( callback ) {
+      public onFrame(time, frame) {
 
-		function onFrame( time, frame ) {
+         this.pose = frame.getDevicePose(this.frameOfRef);
 
-			pose = frame.getDevicePose( frameOfRef );
+         var layer = this.session.baseLayer;
+         var views = frame.views;
 
-			var layer = session.baseLayer;
-			var views = frame.views;
+         for (var i = 0; i < views.length; i++) {
 
-			for ( var i = 0; i < views.length; i ++ ) {
+            var view = views[i];
+            var viewport = layer.getViewport(view);
+            var viewMatrix = this.pose.getViewMatrix(view);
 
-				var view = views[ i ];
-				var viewport = layer.getViewport( view );
-				var viewMatrix = pose.getViewMatrix( view );
+            var camera = this.cameraVR.cameras[i];
+            camera.projectionMatrix.fromArray(view.projectionMatrix);
+            camera.matrixWorldInverse.fromArray(viewMatrix);
+            camera.matrixWorld.getInverse(camera.matrixWorldInverse);
+            camera.viewport.set(viewport.x, viewport.y, viewport.width, viewport.height);
 
-				var camera = cameraVR.cameras[ i ];
-				camera.projectionMatrix.fromArray( view.projectionMatrix );
-				camera.matrixWorldInverse.fromArray( viewMatrix );
-				camera.matrixWorld.getInverse( camera.matrixWorldInverse );
-				camera.viewport.set( viewport.x, viewport.y, viewport.width, viewport.height );
+            if (i === 0) {
 
-				if ( i === 0 ) {
+               this.cameraVR.matrixWorld.copy(camera.matrixWorld);
+               this.cameraVR.matrixWorldInverse.copy(camera.matrixWorldInverse);
 
-					cameraVR.matrixWorld.copy( camera.matrixWorld );
-					cameraVR.matrixWorldInverse.copy( camera.matrixWorldInverse );
+               // HACK (mrdoob)
+               // https://github.com/w3c/webvr/issues/203
 
-					// HACK (mrdoob)
-					// https://github.com/w3c/webvr/issues/203
+               this.cameraVR.projectionMatrix.copy(camera.projectionMatrix);
 
-					cameraVR.projectionMatrix.copy( camera.projectionMatrix );
+            }
 
-				}
+         }
 
-			}
+         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.session.baseLayer.framebuffer);
 
-			gl.bindFramebuffer( gl.FRAMEBUFFER, session.baseLayer.framebuffer );
+         if (this.framCallback) {
+            this.framCallback();
 
-			callback();
+         }
+      }
 
-		}
+      public requestAnimationFrame(callback) {
+         this.framCallback = callback;
+         this.session.requestAnimationFrame(this.onFrame);
+      };
 
-		session.requestAnimationFrame( onFrame );
+      // DEPRECATED
 
-	};
+      public getStandingMatrix() {
 
-	// DEPRECATED
+         console.warn('THREE.WebXRManager: getStandingMatrix() is no longer needed.');
+         return new Matrix4();
 
-	this.getStandingMatrix = function () {
+      };
 
-		console.warn( 'THREE.WebXRManager: getStandingMatrix() is no longer needed.' );
-		return new THREE.Matrix4();
+      public submitFrame() { };
 
-	};
+   }
 
-	this.submitFrame = function () {};
 
-}
-
-export { WebXRManager };
