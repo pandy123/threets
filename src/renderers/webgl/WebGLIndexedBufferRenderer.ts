@@ -1,59 +1,58 @@
-/**
- * @author mrdoob / http://mrdoob.com/
- */
+module Threets {
 
-function WebGLIndexedBufferRenderer( gl, extensions, info ) {
 
-	var mode;
+   export function WebGLIndexedBufferRenderer(gl, extensions, info) {
 
-	function setMode( value ) {
+      var mode;
 
-		mode = value;
+      function setMode(value) {
 
-	}
+         mode = value;
 
-	var type, bytesPerElement;
+      }
 
-	function setIndex( value ) {
+      var type, bytesPerElement;
 
-		type = value.type;
-		bytesPerElement = value.bytesPerElement;
+      function setIndex(value) {
 
-	}
+         type = value.type;
+         bytesPerElement = value.bytesPerElement;
 
-	function render( start, count ) {
+      }
 
-		gl.drawElements( mode, count, type, start * bytesPerElement );
+      function render(start, count) {
 
-		info.update( count, mode );
+         gl.drawElements(mode, count, type, start * bytesPerElement);
 
-	}
+         info.update(count, mode);
 
-	function renderInstances( geometry, start, count ) {
+      }
 
-		var extension = extensions.get( 'ANGLE_instanced_arrays' );
+      function renderInstances(geometry, start, count) {
 
-		if ( extension === null ) {
+         var extension = extensions.get('ANGLE_instanced_arrays');
 
-			console.error( 'THREE.WebGLIndexedBufferRenderer: using THREE.InstancedBufferGeometry but hardware does not support extension ANGLE_instanced_arrays.' );
-			return;
+         if (extension === null) {
 
-		}
+            console.error('THREE.WebGLIndexedBufferRenderer: using THREE.InstancedBufferGeometry but hardware does not support extension ANGLE_instanced_arrays.');
+            return;
 
-		extension.drawElementsInstancedANGLE( mode, count, type, start * bytesPerElement, geometry.maxInstancedCount );
+         }
 
-		info.update( count, mode, geometry.maxInstancedCount );
+         extension.drawElementsInstancedANGLE(mode, count, type, start * bytesPerElement, geometry.maxInstancedCount);
 
-	}
+         info.update(count, mode, geometry.maxInstancedCount);
 
-	//
+      }
 
-	this.setMode = setMode;
-	this.setIndex = setIndex;
-	this.render = render;
-	this.renderInstances = renderInstances;
+      //
+
+      this.setMode = setMode;
+      this.setIndex = setIndex;
+      this.render = render;
+      this.renderInstances = renderInstances;
+
+   }
+
 
 }
-
-
-export { WebGLIndexedBufferRenderer };

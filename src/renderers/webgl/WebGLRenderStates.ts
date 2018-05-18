@@ -1,102 +1,100 @@
-/**
- * @author Mugen87 / https://github.com/Mugen87
- */
+module Threets {
 
-import { WebGLLights } from './WebGLLights.js';
 
-function WebGLRenderState() {
 
-	var lights = new WebGLLights();
+   export function WebGLRenderState() {
 
-	var lightsArray = [];
-	var shadowsArray = [];
-	var spritesArray = [];
+      var lights = new WebGLLights();
 
-	function init() {
+      var lightsArray = [];
+      var shadowsArray = [];
+      var spritesArray = [];
 
-		lightsArray.length = 0;
-		shadowsArray.length = 0;
-		spritesArray.length = 0;
+      function init() {
 
-	}
+         lightsArray.length = 0;
+         shadowsArray.length = 0;
+         spritesArray.length = 0;
 
-	function pushLight( light ) {
+      }
 
-		lightsArray.push( light );
+      function pushLight(light) {
 
-	}
+         lightsArray.push(light);
 
-	function pushShadow( shadowLight ) {
+      }
 
-		shadowsArray.push( shadowLight );
+      function pushShadow(shadowLight) {
 
-	}
+         shadowsArray.push(shadowLight);
 
-	function pushSprite( shadowLight ) {
+      }
 
-		spritesArray.push( shadowLight );
+      function pushSprite(shadowLight) {
 
-	}
+         spritesArray.push(shadowLight);
 
-	function setupLights( camera ) {
+      }
 
-		lights.setup( lightsArray, shadowsArray, camera );
+      function setupLights(camera) {
 
-	}
+         lights.setup(lightsArray, shadowsArray, camera);
 
-	var state = {
-		lightsArray: lightsArray,
-		shadowsArray: shadowsArray,
-		spritesArray: spritesArray,
+      }
 
-		lights: lights
-	};
+      var state = {
+         lightsArray: lightsArray,
+         shadowsArray: shadowsArray,
+         spritesArray: spritesArray,
 
-	return {
-		init: init,
-		state: state,
-		setupLights: setupLights,
+         lights: lights
+      };
 
-		pushLight: pushLight,
-		pushShadow: pushShadow,
-		pushSprite: pushSprite
-	};
+      return {
+         init: init,
+         state: state,
+         setupLights: setupLights,
 
+         pushLight: pushLight,
+         pushShadow: pushShadow,
+         pushSprite: pushSprite
+      };
+
+   }
+
+   function WebGLRenderStates() {
+
+      var renderStates = {};
+
+      function get(scene, camera) {
+
+         var hash = scene.id + ',' + camera.id;
+
+         var renderState = renderStates[hash];
+
+         if (renderState === undefined) {
+
+            renderState = new WebGLRenderState();
+            renderStates[hash] = renderState;
+
+         }
+
+         return renderState;
+
+      }
+
+      function dispose() {
+
+         renderStates = {};
+
+      }
+
+      return {
+         get: get,
+         dispose: dispose
+      };
+
+   }
 }
 
-function WebGLRenderStates() {
 
-	var renderStates = {};
-
-	function get( scene, camera ) {
-
-		var hash = scene.id + ',' + camera.id;
-
-		var renderState = renderStates[ hash ];
-
-		if ( renderState === undefined ) {
-
-			renderState = new WebGLRenderState();
-			renderStates[ hash ] = renderState;
-
-		}
-
-		return renderState;
-
-	}
-
-	function dispose() {
-
-		renderStates = {};
-
-	}
-
-	return {
-		get: get,
-		dispose: dispose
-	};
-
-}
-
-
-export { WebGLRenderStates };

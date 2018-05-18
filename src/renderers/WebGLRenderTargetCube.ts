@@ -1,22 +1,20 @@
-import { WebGLRenderTarget } from './WebGLRenderTarget.js';
+module Threets {
 
-/**
- * @author alteredq / http://alteredqualia.com
- */
 
-function WebGLRenderTargetCube( width, height, options ) {
+   export class WebGLRenderTargetCube extends WebGLRenderTarget {
+      public activeCubeFace;
+      public activeMipMapLevel;
+      public isWebGLRenderTargetCube;
+      constructor(width, height, options) {
 
-	WebGLRenderTarget.call( this, width, height, options );
+         super(width, height, options);
 
-	this.activeCubeFace = 0; // PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5
-	this.activeMipMapLevel = 0;
+         this.activeCubeFace = 0; // PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5
+         this.activeMipMapLevel = 0;
+         this.isWebGLRenderTargetCube = true;
 
+      }
+
+   }
 }
 
-WebGLRenderTargetCube.prototype = Object.create( WebGLRenderTarget.prototype );
-WebGLRenderTargetCube.prototype.constructor = WebGLRenderTargetCube;
-
-WebGLRenderTargetCube.prototype.isWebGLRenderTargetCube = true;
-
-
-export { WebGLRenderTargetCube };

@@ -1,49 +1,48 @@
-/**
- * @author mrdoob / http://mrdoob.com/
- */
+module Threets {
 
-function WebGLBufferRenderer( gl, extensions, info ) {
 
-	var mode;
+   export function WebGLBufferRenderer(gl, extensions, info) {
 
-	function setMode( value ) {
+      var mode;
 
-		mode = value;
+      function setMode(value) {
 
-	}
+         mode = value;
 
-	function render( start, count ) {
+      }
 
-		gl.drawArrays( mode, start, count );
+      function render(start, count) {
 
-		info.update( count, mode );
+         gl.drawArrays(mode, start, count);
 
-	}
+         info.update(count, mode);
 
-	function renderInstances( geometry, start, count ) {
+      }
 
-		var extension = extensions.get( 'ANGLE_instanced_arrays' );
+      function renderInstances(geometry, start, count) {
 
-		if ( extension === null ) {
+         var extension = extensions.get('ANGLE_instanced_arrays');
 
-			console.error( 'THREE.WebGLBufferRenderer: using THREE.InstancedBufferGeometry but hardware does not support extension ANGLE_instanced_arrays.' );
-			return;
+         if (extension === null) {
 
-		}
+            console.error('THREE.WebGLBufferRenderer: using THREE.InstancedBufferGeometry but hardware does not support extension ANGLE_instanced_arrays.');
+            return;
 
-		extension.drawArraysInstancedANGLE( mode, start, count, geometry.maxInstancedCount );
+         }
 
-		info.update( count, mode, geometry.maxInstancedCount );
+         extension.drawArraysInstancedANGLE(mode, start, count, geometry.maxInstancedCount);
 
-	}
+         info.update(count, mode, geometry.maxInstancedCount);
 
-	//
+      }
 
-	this.setMode = setMode;
-	this.render = render;
-	this.renderInstances = renderInstances;
+      //
+
+      this.setMode = setMode;
+      this.render = render;
+      this.renderInstances = renderInstances;
+
+   }
+
 
 }
-
-
-export { WebGLBufferRenderer };

@@ -1,387 +1,382 @@
-/**
- * @author mikael emtinger / http://gomo.se/
- * @author alteredq / http://alteredqualia.com/
- */
+module Threets {
 
-import { CanvasTexture } from '../../textures/CanvasTexture.js';
-import { Vector3 } from '../../math/Vector3.js';
-import { Quaternion } from '../../math/Quaternion.js';
 
-function WebGLSpriteRenderer( renderer, gl, state, textures, capabilities ) {
 
-	var vertexBuffer, elementBuffer;
-	var program, attributes, uniforms;
+   export function WebGLSpriteRenderer(renderer, gl, state, textures, capabilities) {
 
-	var texture;
+      var vertexBuffer, elementBuffer;
+      var program, attributes, uniforms;
 
-	// decompose matrixWorld
+      var texture;
 
-	var spritePosition = new Vector3();
-	var spriteRotation = new Quaternion();
-	var spriteScale = new Vector3();
+      // decompose matrixWorld
 
-	function init() {
+      var spritePosition = new Vector3();
+      var spriteRotation = new Quaternion();
+      var spriteScale = new Vector3();
 
-		var vertices = new Float32Array( [
-			- 0.5, - 0.5, 0, 0,
-			  0.5, - 0.5, 1, 0,
-			  0.5, 0.5, 1, 1,
-			- 0.5, 0.5, 0, 1
-		] );
+      function init() {
 
-		var faces = new Uint16Array( [
-			0, 1, 2,
-			0, 2, 3
-		] );
+         var vertices = new Float32Array([
+            - 0.5, - 0.5, 0, 0,
+            0.5, - 0.5, 1, 0,
+            0.5, 0.5, 1, 1,
+            - 0.5, 0.5, 0, 1
+         ]);
 
-		vertexBuffer = gl.createBuffer();
-		elementBuffer = gl.createBuffer();
+         var faces = new Uint16Array([
+            0, 1, 2,
+            0, 2, 3
+         ]);
 
-		gl.bindBuffer( gl.ARRAY_BUFFER, vertexBuffer );
-		gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW );
+         vertexBuffer = gl.createBuffer();
+         elementBuffer = gl.createBuffer();
 
-		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, elementBuffer );
-		gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, faces, gl.STATIC_DRAW );
+         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-		program = createProgram();
+         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
+         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, faces, gl.STATIC_DRAW);
 
-		attributes = {
-			position: gl.getAttribLocation( program, 'position' ),
-			uv: gl.getAttribLocation( program, 'uv' )
-		};
+         program = createProgram();
 
-		uniforms = {
-			uvOffset: gl.getUniformLocation( program, 'uvOffset' ),
-			uvScale: gl.getUniformLocation( program, 'uvScale' ),
+         attributes = {
+            position: gl.getAttribLocation(program, 'position'),
+            uv: gl.getAttribLocation(program, 'uv')
+         };
 
-			rotation: gl.getUniformLocation( program, 'rotation' ),
-			center: gl.getUniformLocation( program, 'center' ),
-			scale: gl.getUniformLocation( program, 'scale' ),
+         uniforms = {
+            uvOffset: gl.getUniformLocation(program, 'uvOffset'),
+            uvScale: gl.getUniformLocation(program, 'uvScale'),
 
-			color: gl.getUniformLocation( program, 'color' ),
-			map: gl.getUniformLocation( program, 'map' ),
-			opacity: gl.getUniformLocation( program, 'opacity' ),
+            rotation: gl.getUniformLocation(program, 'rotation'),
+            center: gl.getUniformLocation(program, 'center'),
+            scale: gl.getUniformLocation(program, 'scale'),
 
-			modelViewMatrix: gl.getUniformLocation( program, 'modelViewMatrix' ),
-			projectionMatrix: gl.getUniformLocation( program, 'projectionMatrix' ),
+            color: gl.getUniformLocation(program, 'color'),
+            map: gl.getUniformLocation(program, 'map'),
+            opacity: gl.getUniformLocation(program, 'opacity'),
 
-			fogType: gl.getUniformLocation( program, 'fogType' ),
-			fogDensity: gl.getUniformLocation( program, 'fogDensity' ),
-			fogNear: gl.getUniformLocation( program, 'fogNear' ),
-			fogFar: gl.getUniformLocation( program, 'fogFar' ),
-			fogColor: gl.getUniformLocation( program, 'fogColor' ),
-			fogDepth: gl.getUniformLocation( program, 'fogDepth' ),
+            modelViewMatrix: gl.getUniformLocation(program, 'modelViewMatrix'),
+            projectionMatrix: gl.getUniformLocation(program, 'projectionMatrix'),
 
-			alphaTest: gl.getUniformLocation( program, 'alphaTest' )
-		};
+            fogType: gl.getUniformLocation(program, 'fogType'),
+            fogDensity: gl.getUniformLocation(program, 'fogDensity'),
+            fogNear: gl.getUniformLocation(program, 'fogNear'),
+            fogFar: gl.getUniformLocation(program, 'fogFar'),
+            fogColor: gl.getUniformLocation(program, 'fogColor'),
+            fogDepth: gl.getUniformLocation(program, 'fogDepth'),
 
-		var canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
-		canvas.width = 8;
-		canvas.height = 8;
+            alphaTest: gl.getUniformLocation(program, 'alphaTest')
+         };
 
-		var context = canvas.getContext( '2d' );
-		context.fillStyle = 'white';
-		context.fillRect( 0, 0, 8, 8 );
+         var canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
+         canvas.width = 8;
+         canvas.height = 8;
 
-		texture = new CanvasTexture( canvas );
+         var context = canvas.getContext('2d');
+         context.fillStyle = 'white';
+         context.fillRect(0, 0, 8, 8);
 
-	}
+         texture = new CanvasTexture(canvas);
 
-	this.render = function ( sprites, scene, camera ) {
+      }
 
-		if ( sprites.length === 0 ) return;
+      this.render = function (sprites, scene, camera) {
 
-		// setup gl
+         if (sprites.length === 0) return;
 
-		if ( program === undefined ) {
+         // setup gl
 
-			init();
+         if (program === undefined) {
 
-		}
+            init();
 
-		state.useProgram( program );
+         }
 
-		state.initAttributes();
-		state.enableAttribute( attributes.position );
-		state.enableAttribute( attributes.uv );
-		state.disableUnusedAttributes();
+         state.useProgram(program);
 
-		state.disable( gl.CULL_FACE );
-		state.enable( gl.BLEND );
+         state.initAttributes();
+         state.enableAttribute(attributes.position);
+         state.enableAttribute(attributes.uv);
+         state.disableUnusedAttributes();
 
-		gl.bindBuffer( gl.ARRAY_BUFFER, vertexBuffer );
-		gl.vertexAttribPointer( attributes.position, 2, gl.FLOAT, false, 2 * 8, 0 );
-		gl.vertexAttribPointer( attributes.uv, 2, gl.FLOAT, false, 2 * 8, 8 );
+         state.disable(gl.CULL_FACE);
+         state.enable(gl.BLEND);
 
-		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, elementBuffer );
+         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+         gl.vertexAttribPointer(attributes.position, 2, gl.FLOAT, false, 2 * 8, 0);
+         gl.vertexAttribPointer(attributes.uv, 2, gl.FLOAT, false, 2 * 8, 8);
 
-		gl.uniformMatrix4fv( uniforms.projectionMatrix, false, camera.projectionMatrix.elements );
+         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
 
-		state.activeTexture( gl.TEXTURE0 );
-		gl.uniform1i( uniforms.map, 0 );
+         gl.uniformMatrix4fv(uniforms.projectionMatrix, false, camera.projectionMatrix.elements);
 
-		var oldFogType = 0;
-		var sceneFogType = 0;
-		var fog = scene.fog;
+         state.activeTexture(gl.TEXTURE0);
+         gl.uniform1i(uniforms.map, 0);
 
-		if ( fog ) {
+         var oldFogType = 0;
+         var sceneFogType = 0;
+         var fog = scene.fog;
 
-			gl.uniform3f( uniforms.fogColor, fog.color.r, fog.color.g, fog.color.b );
+         if (fog) {
 
-			if ( fog.isFog ) {
+            gl.uniform3f(uniforms.fogColor, fog.color.r, fog.color.g, fog.color.b);
 
-				gl.uniform1f( uniforms.fogNear, fog.near );
-				gl.uniform1f( uniforms.fogFar, fog.far );
+            if (fog.isFog) {
 
-				gl.uniform1i( uniforms.fogType, 1 );
-				oldFogType = 1;
-				sceneFogType = 1;
+               gl.uniform1f(uniforms.fogNear, fog.near);
+               gl.uniform1f(uniforms.fogFar, fog.far);
 
-			} else if ( fog.isFogExp2 ) {
+               gl.uniform1i(uniforms.fogType, 1);
+               oldFogType = 1;
+               sceneFogType = 1;
 
-				gl.uniform1f( uniforms.fogDensity, fog.density );
+            } else if (fog.isFogExp2) {
 
-				gl.uniform1i( uniforms.fogType, 2 );
-				oldFogType = 2;
-				sceneFogType = 2;
+               gl.uniform1f(uniforms.fogDensity, fog.density);
 
-			}
+               gl.uniform1i(uniforms.fogType, 2);
+               oldFogType = 2;
+               sceneFogType = 2;
 
-		} else {
+            }
 
-			gl.uniform1i( uniforms.fogType, 0 );
-			oldFogType = 0;
-			sceneFogType = 0;
+         } else {
 
-		}
+            gl.uniform1i(uniforms.fogType, 0);
+            oldFogType = 0;
+            sceneFogType = 0;
 
+         }
 
-		// update positions and sort
 
-		for ( var i = 0, l = sprites.length; i < l; i ++ ) {
+         // update positions and sort
 
-			var sprite = sprites[ i ];
+         for (var i = 0, l = sprites.length; i < l; i++) {
 
-			sprite.modelViewMatrix.multiplyMatrices( camera.matrixWorldInverse, sprite.matrixWorld );
-			sprite.z = - sprite.modelViewMatrix.elements[ 14 ];
+            var sprite = sprites[i];
 
-		}
+            sprite.modelViewMatrix.multiplyMatrices(camera.matrixWorldInverse, sprite.matrixWorld);
+            sprite.z = - sprite.modelViewMatrix.elements[14];
 
-		sprites.sort( painterSortStable );
+         }
 
-		// render all sprites
+         sprites.sort(painterSortStable);
 
-		var scale = [];
-		var center = [];
+         // render all sprites
 
-		for ( var i = 0, l = sprites.length; i < l; i ++ ) {
+         var scale = [];
+         var center = [];
 
-			var sprite = sprites[ i ];
-			var material = sprite.material;
+         for (var i = 0, l = sprites.length; i < l; i++) {
 
-			if ( material.visible === false ) continue;
+            var sprite = sprites[i];
+            var material = sprite.material;
 
-			sprite.onBeforeRender( renderer, scene, camera, undefined, material, undefined );
+            if (material.visible === false) continue;
 
-			gl.uniform1f( uniforms.alphaTest, material.alphaTest );
-			gl.uniformMatrix4fv( uniforms.modelViewMatrix, false, sprite.modelViewMatrix.elements );
+            sprite.onBeforeRender(renderer, scene, camera, undefined, material, undefined);
 
-			sprite.matrixWorld.decompose( spritePosition, spriteRotation, spriteScale );
+            gl.uniform1f(uniforms.alphaTest, material.alphaTest);
+            gl.uniformMatrix4fv(uniforms.modelViewMatrix, false, sprite.modelViewMatrix.elements);
 
-			scale[ 0 ] = spriteScale.x;
-			scale[ 1 ] = spriteScale.y;
+            sprite.matrixWorld.decompose(spritePosition, spriteRotation, spriteScale);
 
-			center[ 0 ] = sprite.center.x - 0.5;
-			center[ 1 ] = sprite.center.y - 0.5;
+            scale[0] = spriteScale.x;
+            scale[1] = spriteScale.y;
 
-			var fogType = 0;
+            center[0] = sprite.center.x - 0.5;
+            center[1] = sprite.center.y - 0.5;
 
-			if ( scene.fog && material.fog ) {
+            var fogType = 0;
 
-				fogType = sceneFogType;
+            if (scene.fog && material.fog) {
 
-			}
+               fogType = sceneFogType;
 
-			if ( oldFogType !== fogType ) {
+            }
 
-				gl.uniform1i( uniforms.fogType, fogType );
-				oldFogType = fogType;
+            if (oldFogType !== fogType) {
 
-			}
+               gl.uniform1i(uniforms.fogType, fogType);
+               oldFogType = fogType;
 
-			if ( material.map !== null ) {
+            }
 
-				gl.uniform2f( uniforms.uvOffset, material.map.offset.x, material.map.offset.y );
-				gl.uniform2f( uniforms.uvScale, material.map.repeat.x, material.map.repeat.y );
+            if (material.map !== null) {
 
-			} else {
+               gl.uniform2f(uniforms.uvOffset, material.map.offset.x, material.map.offset.y);
+               gl.uniform2f(uniforms.uvScale, material.map.repeat.x, material.map.repeat.y);
 
-				gl.uniform2f( uniforms.uvOffset, 0, 0 );
-				gl.uniform2f( uniforms.uvScale, 1, 1 );
+            } else {
 
-			}
+               gl.uniform2f(uniforms.uvOffset, 0, 0);
+               gl.uniform2f(uniforms.uvScale, 1, 1);
 
-			gl.uniform1f( uniforms.opacity, material.opacity );
-			gl.uniform3f( uniforms.color, material.color.r, material.color.g, material.color.b );
+            }
 
-			gl.uniform1f( uniforms.rotation, material.rotation );
-			gl.uniform2fv( uniforms.center, center );
-			gl.uniform2fv( uniforms.scale, scale );
+            gl.uniform1f(uniforms.opacity, material.opacity);
+            gl.uniform3f(uniforms.color, material.color.r, material.color.g, material.color.b);
 
-			state.setBlending( material.blending, material.blendEquation, material.blendSrc, material.blendDst, material.blendEquationAlpha, material.blendSrcAlpha, material.blendDstAlpha, material.premultipliedAlpha );
-			state.buffers.depth.setTest( material.depthTest );
-			state.buffers.depth.setMask( material.depthWrite );
-			state.buffers.color.setMask( material.colorWrite );
+            gl.uniform1f(uniforms.rotation, material.rotation);
+            gl.uniform2fv(uniforms.center, center);
+            gl.uniform2fv(uniforms.scale, scale);
 
-			textures.setTexture2D( material.map || texture, 0 );
+            state.setBlending(material.blending, material.blendEquation, material.blendSrc, material.blendDst, material.blendEquationAlpha, material.blendSrcAlpha, material.blendDstAlpha, material.premultipliedAlpha);
+            state.buffers.depth.setTest(material.depthTest);
+            state.buffers.depth.setMask(material.depthWrite);
+            state.buffers.color.setMask(material.colorWrite);
 
-			gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0 );
+            textures.setTexture2D(material.map || texture, 0);
 
-			sprite.onAfterRender( renderer, scene, camera, undefined, material, undefined );
+            gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 
-		}
+            sprite.onAfterRender(renderer, scene, camera, undefined, material, undefined);
 
-		// restore gl
+         }
 
-		state.enable( gl.CULL_FACE );
+         // restore gl
 
-		state.reset();
+         state.enable(gl.CULL_FACE);
 
-	};
+         state.reset();
 
-	function createProgram() {
+      };
 
-		var program = gl.createProgram();
+      function createProgram() {
 
-		var vertexShader = gl.createShader( gl.VERTEX_SHADER );
-		var fragmentShader = gl.createShader( gl.FRAGMENT_SHADER );
+         var program = gl.createProgram();
 
-		gl.shaderSource( vertexShader, [
+         var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+         var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 
-			'precision ' + capabilities.precision + ' float;',
+         gl.shaderSource(vertexShader, [
 
-			'#define SHADER_NAME ' + 'SpriteMaterial',
+            'precision ' + capabilities.precision + ' float;',
 
-			'uniform mat4 modelViewMatrix;',
-			'uniform mat4 projectionMatrix;',
-			'uniform float rotation;',
-			'uniform vec2 center;',
-			'uniform vec2 scale;',
-			'uniform vec2 uvOffset;',
-			'uniform vec2 uvScale;',
+            '#define SHADER_NAME ' + 'SpriteMaterial',
 
-			'attribute vec2 position;',
-			'attribute vec2 uv;',
+            'uniform mat4 modelViewMatrix;',
+            'uniform mat4 projectionMatrix;',
+            'uniform float rotation;',
+            'uniform vec2 center;',
+            'uniform vec2 scale;',
+            'uniform vec2 uvOffset;',
+            'uniform vec2 uvScale;',
 
-			'varying vec2 vUV;',
-			'varying float fogDepth;',
+            'attribute vec2 position;',
+            'attribute vec2 uv;',
 
-			'void main() {',
+            'varying vec2 vUV;',
+            'varying float fogDepth;',
 
-			'	vUV = uvOffset + uv * uvScale;',
+            'void main() {',
 
-			'	vec2 alignedPosition = ( position - center ) * scale;',
+            '	vUV = uvOffset + uv * uvScale;',
 
-			'	vec2 rotatedPosition;',
-			'	rotatedPosition.x = cos( rotation ) * alignedPosition.x - sin( rotation ) * alignedPosition.y;',
-			'	rotatedPosition.y = sin( rotation ) * alignedPosition.x + cos( rotation ) * alignedPosition.y;',
+            '	vec2 alignedPosition = ( position - center ) * scale;',
 
-			'	vec4 mvPosition;',
+            '	vec2 rotatedPosition;',
+            '	rotatedPosition.x = cos( rotation ) * alignedPosition.x - sin( rotation ) * alignedPosition.y;',
+            '	rotatedPosition.y = sin( rotation ) * alignedPosition.x + cos( rotation ) * alignedPosition.y;',
 
-			'	mvPosition = modelViewMatrix * vec4( 0.0, 0.0, 0.0, 1.0 );',
-			'	mvPosition.xy += rotatedPosition;',
+            '	vec4 mvPosition;',
 
-			'	gl_Position = projectionMatrix * mvPosition;',
+            '	mvPosition = modelViewMatrix * vec4( 0.0, 0.0, 0.0, 1.0 );',
+            '	mvPosition.xy += rotatedPosition;',
 
-			'	fogDepth = - mvPosition.z;',
+            '	gl_Position = projectionMatrix * mvPosition;',
 
-			'}'
+            '	fogDepth = - mvPosition.z;',
 
-		].join( '\n' ) );
+            '}'
 
-		gl.shaderSource( fragmentShader, [
+         ].join('\n'));
 
-			'precision ' + capabilities.precision + ' float;',
+         gl.shaderSource(fragmentShader, [
 
-			'#define SHADER_NAME ' + 'SpriteMaterial',
+            'precision ' + capabilities.precision + ' float;',
 
-			'uniform vec3 color;',
-			'uniform sampler2D map;',
-			'uniform float opacity;',
+            '#define SHADER_NAME ' + 'SpriteMaterial',
 
-			'uniform int fogType;',
-			'uniform vec3 fogColor;',
-			'uniform float fogDensity;',
-			'uniform float fogNear;',
-			'uniform float fogFar;',
-			'uniform float alphaTest;',
+            'uniform vec3 color;',
+            'uniform sampler2D map;',
+            'uniform float opacity;',
 
-			'varying vec2 vUV;',
-			'varying float fogDepth;',
+            'uniform int fogType;',
+            'uniform vec3 fogColor;',
+            'uniform float fogDensity;',
+            'uniform float fogNear;',
+            'uniform float fogFar;',
+            'uniform float alphaTest;',
 
-			'void main() {',
+            'varying vec2 vUV;',
+            'varying float fogDepth;',
 
-			'	vec4 texture = texture2D( map, vUV );',
+            'void main() {',
 
-			'	gl_FragColor = vec4( color * texture.xyz, texture.a * opacity );',
+            '	vec4 texture = texture2D( map, vUV );',
 
-			'	if ( gl_FragColor.a < alphaTest ) discard;',
+            '	gl_FragColor = vec4( color * texture.xyz, texture.a * opacity );',
 
-			'	if ( fogType > 0 ) {',
+            '	if ( gl_FragColor.a < alphaTest ) discard;',
 
-			'		float fogFactor = 0.0;',
+            '	if ( fogType > 0 ) {',
 
-			'		if ( fogType == 1 ) {',
+            '		float fogFactor = 0.0;',
 
-			'			fogFactor = smoothstep( fogNear, fogFar, fogDepth );',
+            '		if ( fogType == 1 ) {',
 
-			'		} else {',
+            '			fogFactor = smoothstep( fogNear, fogFar, fogDepth );',
 
-			'			const float LOG2 = 1.442695;',
-			'			fogFactor = exp2( - fogDensity * fogDensity * fogDepth * fogDepth * LOG2 );',
-			'			fogFactor = 1.0 - clamp( fogFactor, 0.0, 1.0 );',
+            '		} else {',
 
-			'		}',
+            '			const float LOG2 = 1.442695;',
+            '			fogFactor = exp2( - fogDensity * fogDensity * fogDepth * fogDepth * LOG2 );',
+            '			fogFactor = 1.0 - clamp( fogFactor, 0.0, 1.0 );',
 
-			'		gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );',
+            '		}',
 
-			'	}',
+            '		gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );',
 
-			'}'
+            '	}',
 
-		].join( '\n' ) );
+            '}'
 
-		gl.compileShader( vertexShader );
-		gl.compileShader( fragmentShader );
+         ].join('\n'));
 
-		gl.attachShader( program, vertexShader );
-		gl.attachShader( program, fragmentShader );
+         gl.compileShader(vertexShader);
+         gl.compileShader(fragmentShader);
 
-		gl.linkProgram( program );
+         gl.attachShader(program, vertexShader);
+         gl.attachShader(program, fragmentShader);
 
-		return program;
+         gl.linkProgram(program);
 
-	}
+         return program;
 
-	function painterSortStable( a, b ) {
+      }
 
-		if ( a.renderOrder !== b.renderOrder ) {
+      function painterSortStable(a, b) {
 
-			return a.renderOrder - b.renderOrder;
+         if (a.renderOrder !== b.renderOrder) {
 
-		} else if ( a.z !== b.z ) {
+            return a.renderOrder - b.renderOrder;
 
-			return b.z - a.z;
+         } else if (a.z !== b.z) {
 
-		} else {
+            return b.z - a.z;
 
-			return b.id - a.id;
+         } else {
 
-		}
+            return b.id - a.id;
 
-	}
+         }
 
+      }
+
+   }
 }
 
 
-export { WebGLSpriteRenderer };

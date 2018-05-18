@@ -1,255 +1,254 @@
-/**
- * @author mrdoob / http://mrdoob.com/
- */
+module Threets {
 
-import { Matrix4 } from '../../math/Matrix4.js';
-import { Vector3 } from '../../math/Vector3.js';
-import { Vector4 } from '../../math/Vector4.js';
-import { Quaternion } from '../../math/Quaternion.js';
-import { ArrayCamera } from '../../cameras/ArrayCamera.js';
-import { PerspectiveCamera } from '../../cameras/PerspectiveCamera.js';
 
-function WebVRManager( renderer ) {
 
-	var scope = this;
+   export class WebVRManager {
 
-	var device = null;
-	var frameData = null;
+      public isPresenting;
+      public enabled;
+      public userHeight;
+      public device;
 
-	var poseTarget = null;
+      constructor(renderer) {
 
-	var standingMatrix = new Matrix4();
-	var standingMatrixInverse = new Matrix4();
+         var scope = this;
 
-	if ( typeof window !== 'undefined' && 'VRFrameData' in window ) {
+         var device = null;
+         var frameData = null;
 
-		frameData = new window.VRFrameData();
-		window.addEventListener( 'vrdisplaypresentchange', onVRDisplayPresentChange, false );
+         var poseTarget = null;
 
-	}
+         var standingMatrix = new Matrix4();
+         var standingMatrixInverse = new Matrix4();
 
-	var matrixWorldInverse = new Matrix4();
-	var tempQuaternion = new Quaternion();
-	var tempPosition = new Vector3();
+         if (typeof window !== 'undefined' && 'VRFrameData' in window) {
 
-	var cameraL = new PerspectiveCamera();
-	cameraL.bounds = new Vector4( 0.0, 0.0, 0.5, 1.0 );
-	cameraL.layers.enable( 1 );
+            frameData = new (window as any).VRFrameData();
+            window.addEventListener('vrdisplaypresentchange', onVRDisplayPresentChange, false);
 
-	var cameraR = new PerspectiveCamera();
-	cameraR.bounds = new Vector4( 0.5, 0.0, 0.5, 1.0 );
-	cameraR.layers.enable( 2 );
+         }
 
-	var cameraVR = new ArrayCamera( [ cameraL, cameraR ] );
-	cameraVR.layers.enable( 1 );
-	cameraVR.layers.enable( 2 );
+         var matrixWorldInverse = new Matrix4();
+         var tempQuaternion = new Quaternion();
+         var tempPosition = new Vector3();
 
-	//
+         var cameraL = new PerspectiveCamera(null, null, null, null);
+         cameraL.bounds = new Vector4(0.0, 0.0, 0.5, 1.0);
+         cameraL.layers.enable(1);
 
-	function isPresenting() {
+         var cameraR = new PerspectiveCamera(null, null, null, null);
+         cameraR.bounds = new Vector4(0.5, 0.0, 0.5, 1.0);
+         cameraR.layers.enable(2);
 
-		return device !== null && device.isPresenting === true;
+         var cameraVR = new ArrayCamera([cameraL, cameraR]);
+         cameraVR.layers.enable(1);
+         cameraVR.layers.enable(2);
 
-	}
+         this.isPresenting = isPresenting;
+         //
 
-	var currentSize, currentPixelRatio;
+         this.enabled = false;
+         this.userHeight = 1.6;
+         this.device = device;
+      }
 
-	function onVRDisplayPresentChange() {
+      function isPresenting() {
 
-		if ( isPresenting() ) {
+      return device !== null && device.isPresenting === true;
 
-			var eyeParameters = device.getEyeParameters( 'left' );
-			var renderWidth = eyeParameters.renderWidth;
-			var renderHeight = eyeParameters.renderHeight;
+   }
 
-			currentPixelRatio = renderer.getPixelRatio();
-			currentSize = renderer.getSize();
+   var currentSize, currentPixelRatio;
 
-			renderer.setDrawingBufferSize( renderWidth * 2, renderHeight, 1 );
+   function onVRDisplayPresentChange() {
 
-		} else if ( scope.enabled ) {
+      if (isPresenting()) {
 
-			renderer.setDrawingBufferSize( currentSize.width, currentSize.height, currentPixelRatio );
+         var eyeParameters = device.getEyeParameters('left');
+         var renderWidth = eyeParameters.renderWidth;
+         var renderHeight = eyeParameters.renderHeight;
 
-		}
+         currentPixelRatio = renderer.getPixelRatio();
+         currentSize = renderer.getSize();
 
-	}
+         renderer.setDrawingBufferSize(renderWidth * 2, renderHeight, 1);
 
-	//
+      } else if (scope.enabled) {
 
-	this.enabled = false;
-	this.userHeight = 1.6;
+         renderer.setDrawingBufferSize(currentSize.width, currentSize.height, currentPixelRatio);
 
-	this.getDevice = function () {
+      }
 
-		return device;
+   }
 
-	};
+      public getDevice() {
 
-	this.setDevice = function ( value ) {
+      return this.device;
 
-		if ( value !== undefined ) device = value;
+   };
 
-	};
+      public setDevice(value) {
 
-	this.setPoseTarget = function ( object ) {
+      if (value !== undefined) device = value;
 
-		if ( object !== undefined ) poseTarget = object;
+   };
 
-	};
+      public setPoseTarget(object) {
 
-	this.getCamera = function ( camera ) {
+      if (object !== undefined) poseTarget = object;
 
-		if ( device === null ) return camera;
+   };
 
-		device.depthNear = camera.near;
-		device.depthFar = camera.far;
+      public getCamera(camera) {
 
-		device.getFrameData( frameData );
+      if (device === null) return camera;
 
-		//
+      device.depthNear = camera.near;
+      device.depthFar = camera.far;
 
-		var stageParameters = device.stageParameters;
+      device.getFrameData(frameData);
 
-		if ( stageParameters ) {
+      //
 
-			standingMatrix.fromArray( stageParameters.sittingToStandingTransform );
+      var stageParameters = device.stageParameters;
 
-		} else {
+      if (stageParameters) {
 
-			standingMatrix.makeTranslation( 0, scope.userHeight, 0 );
+         standingMatrix.fromArray(stageParameters.sittingToStandingTransform);
 
-		}
+      } else {
 
+         standingMatrix.makeTranslation(0, scope.userHeight, 0);
 
-		var pose = frameData.pose;
-		var poseObject = poseTarget !== null ? poseTarget : camera;
+      }
 
-		// We want to manipulate poseObject by its position and quaternion components since users may rely on them.
-		poseObject.matrix.copy( standingMatrix );
-		poseObject.matrix.decompose( poseObject.position, poseObject.quaternion, poseObject.scale );
 
-		if ( pose.orientation !== null ) {
+      var pose = frameData.pose;
+      var poseObject = poseTarget !== null ? poseTarget : camera;
 
-			tempQuaternion.fromArray( pose.orientation );
-			poseObject.quaternion.multiply( tempQuaternion );
+      // We want to manipulate poseObject by its position and quaternion components since users may rely on them.
+      poseObject.matrix.copy(standingMatrix);
+      poseObject.matrix.decompose(poseObject.position, poseObject.quaternion, poseObject.scale);
 
-		}
+      if (pose.orientation !== null) {
 
-		if ( pose.position !== null ) {
+         tempQuaternion.fromArray(pose.orientation);
+         poseObject.quaternion.multiply(tempQuaternion);
 
-			tempQuaternion.setFromRotationMatrix( standingMatrix );
-			tempPosition.fromArray( pose.position );
-			tempPosition.applyQuaternion( tempQuaternion );
-			poseObject.position.add( tempPosition );
+      }
 
-		}
+      if (pose.position !== null) {
 
-		poseObject.updateMatrixWorld();
+         tempQuaternion.setFromRotationMatrix(standingMatrix);
+         tempPosition.fromArray(pose.position);
+         tempPosition.applyQuaternion(tempQuaternion);
+         poseObject.position.add(tempPosition);
 
-		if ( device.isPresenting === false ) return camera;
+      }
 
-		//
+      poseObject.updateMatrixWorld();
 
-		cameraL.near = camera.near;
-		cameraR.near = camera.near;
+      if (device.isPresenting === false) return camera;
 
-		cameraL.far = camera.far;
-		cameraR.far = camera.far;
+      //
 
-		cameraVR.matrixWorld.copy( camera.matrixWorld );
-		cameraVR.matrixWorldInverse.copy( camera.matrixWorldInverse );
+      cameraL.near = camera.near;
+      cameraR.near = camera.near;
 
-		cameraL.matrixWorldInverse.fromArray( frameData.leftViewMatrix );
-		cameraR.matrixWorldInverse.fromArray( frameData.rightViewMatrix );
+      cameraL.far = camera.far;
+      cameraR.far = camera.far;
 
-		// TODO (mrdoob) Double check this code
+      cameraVR.matrixWorld.copy(camera.matrixWorld);
+      cameraVR.matrixWorldInverse.copy(camera.matrixWorldInverse);
 
-		standingMatrixInverse.getInverse( standingMatrix );
+      cameraL.matrixWorldInverse.fromArray(frameData.leftViewMatrix);
+      cameraR.matrixWorldInverse.fromArray(frameData.rightViewMatrix);
 
-		cameraL.matrixWorldInverse.multiply( standingMatrixInverse );
-		cameraR.matrixWorldInverse.multiply( standingMatrixInverse );
+      // TODO (mrdoob) Double check this code
 
-		var parent = poseObject.parent;
+      standingMatrixInverse.getInverse(standingMatrix);
 
-		if ( parent !== null ) {
+      cameraL.matrixWorldInverse.multiply(standingMatrixInverse);
+      cameraR.matrixWorldInverse.multiply(standingMatrixInverse);
 
-			matrixWorldInverse.getInverse( parent.matrixWorld );
+      var parent = poseObject.parent;
 
-			cameraL.matrixWorldInverse.multiply( matrixWorldInverse );
-			cameraR.matrixWorldInverse.multiply( matrixWorldInverse );
+      if (parent !== null) {
 
-		}
+         matrixWorldInverse.getInverse(parent.matrixWorld);
 
-		// envMap and Mirror needs camera.matrixWorld
+         cameraL.matrixWorldInverse.multiply(matrixWorldInverse);
+         cameraR.matrixWorldInverse.multiply(matrixWorldInverse);
 
-		cameraL.matrixWorld.getInverse( cameraL.matrixWorldInverse );
-		cameraR.matrixWorld.getInverse( cameraR.matrixWorldInverse );
+      }
 
-		cameraL.projectionMatrix.fromArray( frameData.leftProjectionMatrix );
-		cameraR.projectionMatrix.fromArray( frameData.rightProjectionMatrix );
+      // envMap and Mirror needs camera.matrixWorld
 
-		// HACK (mrdoob)
-		// https://github.com/w3c/webvr/issues/203
+      cameraL.matrixWorld.getInverse(cameraL.matrixWorldInverse);
+      cameraR.matrixWorld.getInverse(cameraR.matrixWorldInverse);
 
-		cameraVR.projectionMatrix.copy( cameraL.projectionMatrix );
+      cameraL.projectionMatrix.fromArray(frameData.leftProjectionMatrix);
+      cameraR.projectionMatrix.fromArray(frameData.rightProjectionMatrix);
 
-		//
+      // HACK (mrdoob)
+      // https://github.com/w3c/webvr/issues/203
 
-		var layers = device.getLayers();
+      cameraVR.projectionMatrix.copy(cameraL.projectionMatrix);
 
-		if ( layers.length ) {
+      //
 
-			var layer = layers[ 0 ];
+      var layers = device.getLayers();
 
-			if ( layer.leftBounds !== null && layer.leftBounds.length === 4 ) {
+      if (layers.length) {
 
-				cameraL.bounds.fromArray( layer.leftBounds );
+         var layer = layers[0];
 
-			}
+         if (layer.leftBounds !== null && layer.leftBounds.length === 4) {
 
-			if ( layer.rightBounds !== null && layer.rightBounds.length === 4 ) {
+            cameraL.bounds.fromArray(layer.leftBounds);
 
-				cameraR.bounds.fromArray( layer.rightBounds );
+         }
 
-			}
+         if (layer.rightBounds !== null && layer.rightBounds.length === 4) {
 
-		}
+            cameraR.bounds.fromArray(layer.rightBounds);
 
-		return cameraVR;
+         }
 
-	};
+      }
 
-	this.getStandingMatrix = function () {
+      return cameraVR;
 
-		return standingMatrix;
+   };
 
-	};
+      public getStandingMatrix() {
 
-	this.isPresenting = isPresenting;
+      return standingMatrix;
 
-	this.requestAnimationFrame = function ( callback ) {
+   };
 
-		device.requestAnimationFrame( callback );
 
-	};
 
-	this.submitFrame = function () {
+      public requestAnimationFrame(callback) {
 
-		if ( isPresenting() ) device.submitFrame();
+      device.requestAnimationFrame(callback);
 
-	};
+   };
 
-	this.dispose = function () {
+      public submitFrame() {
 
-		if ( typeof window !== 'undefined' ) {
+      if (isPresenting()) device.submitFrame();
 
-			window.removeEventListener( 'vrdisplaypresentchange', onVRDisplayPresentChange );
+   };
 
-		}
+      public dispose() {
 
-	};
+      if (typeof window !== 'undefined') {
+
+         window.removeEventListener('vrdisplaypresentchange', onVRDisplayPresentChange);
+
+      }
+   };
 
 }
 
-export { WebVRManager };

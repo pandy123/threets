@@ -1,112 +1,111 @@
-/**
- * @author mrdoob / http://mrdoob.com/
- */
+module Threets {
 
-function WebGLCapabilities( gl, extensions, parameters ) {
 
-	var maxAnisotropy;
+   export function WebGLCapabilities(gl, extensions, parameters) {
 
-	function getMaxAnisotropy() {
+      var maxAnisotropy;
 
-		if ( maxAnisotropy !== undefined ) return maxAnisotropy;
+      function getMaxAnisotropy() {
 
-		var extension = extensions.get( 'EXT_texture_filter_anisotropic' );
+         if (maxAnisotropy !== undefined) return maxAnisotropy;
 
-		if ( extension !== null ) {
+         var extension = extensions.get('EXT_texture_filter_anisotropic');
 
-			maxAnisotropy = gl.getParameter( extension.MAX_TEXTURE_MAX_ANISOTROPY_EXT );
+         if (extension !== null) {
 
-		} else {
+            maxAnisotropy = gl.getParameter(extension.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
 
-			maxAnisotropy = 0;
+         } else {
 
-		}
+            maxAnisotropy = 0;
 
-		return maxAnisotropy;
+         }
 
-	}
+         return maxAnisotropy;
 
-	function getMaxPrecision( precision ) {
+      }
 
-		if ( precision === 'highp' ) {
+      function getMaxPrecision(precision) {
 
-			if ( gl.getShaderPrecisionFormat( gl.VERTEX_SHADER, gl.HIGH_FLOAT ).precision > 0 &&
-			     gl.getShaderPrecisionFormat( gl.FRAGMENT_SHADER, gl.HIGH_FLOAT ).precision > 0 ) {
+         if (precision === 'highp') {
 
-				return 'highp';
+            if (gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.HIGH_FLOAT).precision > 0 &&
+               gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).precision > 0) {
 
-			}
+               return 'highp';
 
-			precision = 'mediump';
+            }
 
-		}
+            precision = 'mediump';
 
-		if ( precision === 'mediump' ) {
+         }
 
-			if ( gl.getShaderPrecisionFormat( gl.VERTEX_SHADER, gl.MEDIUM_FLOAT ).precision > 0 &&
-			     gl.getShaderPrecisionFormat( gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT ).precision > 0 ) {
+         if (precision === 'mediump') {
 
-				return 'mediump';
+            if (gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.MEDIUM_FLOAT).precision > 0 &&
+               gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT).precision > 0) {
 
-			}
+               return 'mediump';
 
-		}
+            }
 
-		return 'lowp';
+         }
 
-	}
+         return 'lowp';
 
-	var precision = parameters.precision !== undefined ? parameters.precision : 'highp';
-	var maxPrecision = getMaxPrecision( precision );
+      }
 
-	if ( maxPrecision !== precision ) {
+      var precision = parameters.precision !== undefined ? parameters.precision : 'highp';
+      var maxPrecision = getMaxPrecision(precision);
 
-		console.warn( 'THREE.WebGLRenderer:', precision, 'not supported, using', maxPrecision, 'instead.' );
-		precision = maxPrecision;
+      if (maxPrecision !== precision) {
 
-	}
+         console.warn('THREE.WebGLRenderer:', precision, 'not supported, using', maxPrecision, 'instead.');
+         precision = maxPrecision;
 
-	var logarithmicDepthBuffer = parameters.logarithmicDepthBuffer === true;
+      }
 
-	var maxTextures = gl.getParameter( gl.MAX_TEXTURE_IMAGE_UNITS );
-	var maxVertexTextures = gl.getParameter( gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS );
-	var maxTextureSize = gl.getParameter( gl.MAX_TEXTURE_SIZE );
-	var maxCubemapSize = gl.getParameter( gl.MAX_CUBE_MAP_TEXTURE_SIZE );
+      var logarithmicDepthBuffer = parameters.logarithmicDepthBuffer === true;
 
-	var maxAttributes = gl.getParameter( gl.MAX_VERTEX_ATTRIBS );
-	var maxVertexUniforms = gl.getParameter( gl.MAX_VERTEX_UNIFORM_VECTORS );
-	var maxVaryings = gl.getParameter( gl.MAX_VARYING_VECTORS );
-	var maxFragmentUniforms = gl.getParameter( gl.MAX_FRAGMENT_UNIFORM_VECTORS );
+      var maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+      var maxVertexTextures = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+      var maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+      var maxCubemapSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
 
-	var vertexTextures = maxVertexTextures > 0;
-	var floatFragmentTextures = !! extensions.get( 'OES_texture_float' );
-	var floatVertexTextures = vertexTextures && floatFragmentTextures;
+      var maxAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+      var maxVertexUniforms = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+      var maxVaryings = gl.getParameter(gl.MAX_VARYING_VECTORS);
+      var maxFragmentUniforms = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
 
-	return {
+      var vertexTextures = maxVertexTextures > 0;
+      var floatFragmentTextures = !!extensions.get('OES_texture_float');
+      var floatVertexTextures = vertexTextures && floatFragmentTextures;
 
-		getMaxAnisotropy: getMaxAnisotropy,
-		getMaxPrecision: getMaxPrecision,
+      return {
 
-		precision: precision,
-		logarithmicDepthBuffer: logarithmicDepthBuffer,
+         getMaxAnisotropy: getMaxAnisotropy,
+         getMaxPrecision: getMaxPrecision,
 
-		maxTextures: maxTextures,
-		maxVertexTextures: maxVertexTextures,
-		maxTextureSize: maxTextureSize,
-		maxCubemapSize: maxCubemapSize,
+         precision: precision,
+         logarithmicDepthBuffer: logarithmicDepthBuffer,
 
-		maxAttributes: maxAttributes,
-		maxVertexUniforms: maxVertexUniforms,
-		maxVaryings: maxVaryings,
-		maxFragmentUniforms: maxFragmentUniforms,
+         maxTextures: maxTextures,
+         maxVertexTextures: maxVertexTextures,
+         maxTextureSize: maxTextureSize,
+         maxCubemapSize: maxCubemapSize,
 
-		vertexTextures: vertexTextures,
-		floatFragmentTextures: floatFragmentTextures,
-		floatVertexTextures: floatVertexTextures
+         maxAttributes: maxAttributes,
+         maxVertexUniforms: maxVertexUniforms,
+         maxVaryings: maxVaryings,
+         maxFragmentUniforms: maxFragmentUniforms,
 
-	};
+         vertexTextures: vertexTextures,
+         floatFragmentTextures: floatFragmentTextures,
+         floatVertexTextures: floatVertexTextures
+
+      };
+
+   }
+
 
 }
-
-
-export { WebGLCapabilities };
