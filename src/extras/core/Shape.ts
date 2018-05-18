@@ -5,7 +5,7 @@ module Threets {
       public type;
       public holes;
 
-      constructor(points) {
+      constructor(points?) {
          super(points)
          this.uuid = _Math.generateUUID();
          this.type = 'Shape';

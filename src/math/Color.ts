@@ -34,7 +34,7 @@ module Threets {
       public r: number;
       public g: number;
       public b: number;
-      constructor(r: any, g?: number, b?: number) {
+      constructor(r?: any, g?: number, b?: number) {
          this.r = null as any;
          this.g = null as any;
          this.b = null as any;
@@ -481,7 +481,7 @@ module Threets {
 
       }
 
-      public fromArray(array: Array<number>, offset: number) {
+      public fromArray(array: Array<number>, offset?: number) {
 
          if (offset === undefined) offset = 0;
          this.r = array[offset];

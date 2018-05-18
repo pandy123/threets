@@ -4,7 +4,7 @@ module Threets {
 
       public manager;
 
-      constructor(manager) {
+      constructor(manager?) {
          this.manager = (manager !== undefined) ? manager : DefaultLoadingManager;
       }
 

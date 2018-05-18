@@ -430,7 +430,7 @@ module Threets {
 
       }
 
-      public fromArray(array: Array<number>, offset: number) {
+      public fromArray(array: Array<number>, offset?: number) {
 
          if (offset === undefined) offset = 0;
 

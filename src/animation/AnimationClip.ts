@@ -81,7 +81,7 @@ module Threets {
          }
          return null;
       }
-      public static CreateClipsFromMorphTargetSequences(morphTargets, fps, noLoop) {
+      public static CreateClipsFromMorphTargetSequences(morphTargets, fps, noLoop?) {
          var animationToMorphTargets = {};
          // tested with https://regex101.com/ on trick sequences
          // such flamingo_flyA_003, flamingo_run1_003, crdeath0059
