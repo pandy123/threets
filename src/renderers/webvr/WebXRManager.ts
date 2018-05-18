@@ -148,5 +148,4 @@ module Threets {
       public submitFrame() { };
 
    }
-
-
+}

@@ -1,4 +1,6 @@
 module Threets {
+
+   declare var WebGLClipping;
    export class WebGLRenderer {
       private parameters: any;
       private _canvas: any;
@@ -49,9 +51,9 @@ module Threets {
       private _currentArrayCamera: any;
       private _currentViewport: Vector4;
       private _currentScissor: Vector4;
-      private _currentScissorTest: any,
+      private _currentScissorTest: any;
       //
-      private _usedTextureUnits: number,
+      private _usedTextureUnits: number;
       //
       private _width: number;
       private _height: number;
@@ -844,11 +846,11 @@ module Threets {
                         var group = groups[i];
                         var groupMaterial = material[group.materialIndex];
                         if (groupMaterial && groupMaterial.visible) {
-                           this.currentRenderList.push(object, geometry, groupMaterial, _vector3.z, group);
+                           this.currentRenderList.push(object, geometry, groupMaterial, this._vector3.z, group);
                         }
                      }
                   } else if (material.visible) {
-                     this.currentRenderList.push(object, geometry, material, _vector3.z, null);
+                     this.currentRenderList.push(object, geometry, material, this._vector3.z, null);
                   }
                }
             }
@@ -1193,7 +1195,7 @@ module Threets {
          // common matrices
          p_uniforms.setValue(this._gl, 'modelViewMatrix', object.modelViewMatrix);
          p_uniforms.setValue(this._gl, 'normalMatrix', object.normalMatrix);
-         p_uniforms.setValuethis.(this._gl, 'modelMatrix', object.matrixWorld);
+         p_uniforms.setValue(this._gl, 'modelMatrix', object.matrixWorld);
          return program;
       }
       // Uniforms (refresh uniforms objects)
@@ -1565,9 +1567,9 @@ module Threets {
          var glType = this.utils.convert(dstTexture.type);
          this.setTexture2D(dstTexture, 0);
          if (srcTexture.isDataTexture) {
-            this._gl.texSubImage2D(_gl.TEXTURE_2D, level || 0, position.x, position.y, width, height, glFormat, glType, srcTexture.image.data);
+            this._gl.texSubImage2D(this._gl.TEXTURE_2D, level || 0, position.x, position.y, width, height, glFormat, glType, srcTexture.image.data);
          } else {
-            this._gl.texSubImage2D(_gl.TEXTURE_2D, level || 0, position.x, position.y, glFormat, glType, srcTexture.image);
+            this._gl.texSubImage2D(this._gl.TEXTURE_2D, level || 0, position.x, position.y, glFormat, glType, srcTexture.image);
          }
       }
    }

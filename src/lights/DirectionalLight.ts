@@ -20,7 +20,7 @@ module Threets {
          this.target = new Object3D();
 
          this.shadow = new DirectionalLightShadow();
-         this.isDirectionalLight = true,
+         this.isDirectionalLight = true;
 
       }
 
