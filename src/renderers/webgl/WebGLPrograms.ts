@@ -146,7 +146,7 @@ module Threets {
             lightMap: !!material.lightMap,
             aoMap: !!material.aoMap,
             emissiveMap: !!material.emissiveMap,
-            emissiveMapEncoding: getTextureEncodingFromMap(material.emissiveMap, renderer.gammaInput),
+            emissiveMapEncoding: this.getTextureEncodingFromMap(material.emissiveMap, this.renderer.gammaInput),
             bumpMap: !!material.bumpMap,
             normalMap: !!material.normalMap,
             displacementMap: !!material.displacementMap,

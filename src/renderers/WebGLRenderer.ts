@@ -181,9 +181,9 @@ module Threets {
                powerPreference: this._powerPreference
             };
             // event listeners must be registered before WebGL context is created, see #12753
-            this._canvas.addEventListener('webglcontextlost', onContextLost, false);
-            this._canvas.addEventListener('webglcontextrestored', onContextRestore, false);
-            this._gl = this._context || this._canvas.getContext('webgl', contextAttributes) || this._canvas.getContext('experimental-webgl', contextAttributes);
+            this._canvas.addEventListener('webglcontextlost', this.onContextLost, false);
+            this._canvas.addEventListener('webglcontextrestored', this.onContextRestore, false);
+            this._gl = this._context || this._canvas.getContext('webgl', this.contextAttributes) || this._canvas.getContext('experimental-webgl', this.contextAttributes);
             if (this._gl === null) {
                if (this._canvas.getContext('webgl') !== null) {
                   throw new Error('Error creating WebGL context with your selected attributes.');
@@ -1184,8 +1184,8 @@ module Threets {
             }
             // RectAreaLight Texture
             // TODO (mrdoob): Find a nicer implementation
-            if (m_uniforms.ltc_1 !== undefined) m_uniforms.ltc_1.value = UniformsLib.LTC_1;
-            if (m_uniforms.ltc_2 !== undefined) m_uniforms.ltc_2.value = UniformsLib.LTC_2;
+            if (m_uniforms.ltc_1 !== undefined) m_uniforms.ltc_1.value = (UniformsLib as any).LTC_1;
+            if (m_uniforms.ltc_2 !== undefined) m_uniforms.ltc_2.value = (UniformsLib as any).LTC_2;
             WebGLUniforms.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
          }
          if (material.isShaderMaterial && material.uniformsNeedUpdate === true) {

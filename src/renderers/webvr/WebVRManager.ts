@@ -1,7 +1,5 @@
 module Threets {
-
-
-
+   declare var window;
    export class WebVRManager {
 
       public enabled;
@@ -257,7 +255,7 @@ module Threets {
 
          if (typeof window !== 'undefined') {
 
-            window.removeEventListener('vrdisplaypresentchange', onVRDisplayPresentChange);
+            window.removeEventListener('vrdisplaypresentchange', this.onVRDisplayPresentChange);
 
          }
       };

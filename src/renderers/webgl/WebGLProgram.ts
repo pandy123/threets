@@ -626,7 +626,7 @@ module Threets {
 
          if (this.cachedUniforms === undefined) {
 
-            this.cachedUniforms = new WebGLUniforms(gl, program, renderer);
+            this.cachedUniforms = new WebGLUniforms(this.gl, this.program, this.renderer);
 
          }
 

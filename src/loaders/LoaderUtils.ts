@@ -1,5 +1,6 @@
 module Threets {
    declare var TextDecoder: any;
+   declare var escape: any;
    export class LoaderUtils {
 
       public static decodeText(array) {

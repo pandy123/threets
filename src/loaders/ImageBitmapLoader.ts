@@ -1,4 +1,5 @@
 module Threets {
+   declare var createImageBitmap;
    export class ImageBitmapLoader {
       public path: any;
       public options: any;
