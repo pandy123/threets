@@ -17,7 +17,7 @@ module Threets {
 
          this.color = color;
 
-         var geometry = new OctahedronBufferGeometry(size);
+         var geometry = new OctahedronBufferGeometry(size, null);
          geometry.rotateY(Math.PI * 0.5);
 
          this.material = new MeshBasicMaterial({ wireframe: true, fog: false });

@@ -10,7 +10,7 @@ module Threets {
          this.light = light;
          this.light.updateMatrixWorld();
          this.color = color;
-         var geometry = new SphereBufferGeometry(sphereSize, 4, 2);
+         var geometry = new SphereBufferGeometry(sphereSize, 4, 2, null, null, null, null);
          var material = new MeshBasicMaterial({ wireframe: true, fog: false });
 
          Mesh.call(this, geometry, material);

@@ -169,7 +169,7 @@ module Threets {
 
          // console.timeEnd( 'wireframe' );
 
-         attribute = new (arrayMax(indices) > 65535 ? Uint32BufferAttribute : Uint16BufferAttribute)(indices, 1);
+         attribute = new (arrayMax(indices) > 65535 ? Uint32BufferAttribute : Uint16BufferAttribute)(indices, 1, null);
 
          this.attributes.update(attribute, this.gl.ELEMENT_ARRAY_BUFFER);
 

@@ -110,7 +110,7 @@ module Threets {
          if (this.curves.length > 0) {
 
             // if a previous curve is present, attempt to join
-            var firstPoint = curve.getPoint(0);
+            var firstPoint = curve.getPoint(0, null);
 
             if (!firstPoint.equals(this.currentPoint)) {
 
@@ -122,7 +122,7 @@ module Threets {
 
          this.curves.push(curve);
 
-         var lastPoint = curve.getPoint(1);
+         var lastPoint = curve.getPoint(1, null);
          this.currentPoint.copy(lastPoint);
 
       }

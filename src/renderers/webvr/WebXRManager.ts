@@ -1,6 +1,6 @@
 module Threets {
 
-
+   declare var XRWebGLLayer: any;
 
    export class WebXRManager {
 
@@ -30,11 +30,11 @@ module Threets {
 
          this.pose = null;
          //
-         this.cameraL = new PerspectiveCamera();
+         this.cameraL = new PerspectiveCamera(null, null, null, null);
          this.cameraL.layers.enable(1);
          this.cameraL.viewport = new Vector4();
 
-         this.cameraR = new PerspectiveCamera();
+         this.cameraR = new PerspectiveCamera(null, null, null, null);
          this.cameraR.layers.enable(2);
          this.cameraR.viewport = new Vector4();
 

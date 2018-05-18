@@ -44,7 +44,7 @@ module Threets {
 
          if (this.currentColorClear.equals(this.color) === false) {
 
-            gl.clearColor(r, g, b, a);
+            this.gl.clearColor(r, g, b, a);
             this.currentColorClear.copy(this.color);
 
          }
@@ -53,8 +53,7 @@ module Threets {
 
       public reset() {
 
-         locked;
-
+         this.locked = null;
          this.currentColorMask;
          this.currentColorClear.set(- 1, 0, 0, 0); // set to invalid state
 

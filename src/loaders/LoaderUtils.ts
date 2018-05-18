@@ -1,5 +1,7 @@
 module Threets {
+   declare var TextDecoder: any;
    export class LoaderUtils {
+
       public static decodeText(array) {
          if (typeof TextDecoder !== 'undefined') {
             return new TextDecoder().decode(array);

@@ -37,7 +37,7 @@ module Threets {
          if (typeof window !== 'undefined' && 'VRFrameData' in window) {
 
             this.frameData = new (window as any).VRFrameData();
-            window.addEventListener('vrdisplaypresentchange', onVRDisplayPresentChange, false);
+            window.addEventListener('vrdisplaypresentchange', this.onVRDisplayPresentChange, false);
 
          }
 

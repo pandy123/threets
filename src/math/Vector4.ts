@@ -1,4 +1,4 @@
-namespace Threets {
+module Threets {
    export class Vector4 {
       public x: number;
       public y: number;

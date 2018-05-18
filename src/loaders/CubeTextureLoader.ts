@@ -24,7 +24,7 @@ module Threets {
 
             loader.load(urls[i], function (image) {
 
-               texture.images[i] = image;
+               (texture as any).images[i] = image;
 
                loaded++;
 

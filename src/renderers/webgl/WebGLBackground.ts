@@ -67,7 +67,7 @@ module Threets {
 
             if (this.boxMesh === undefined) {
                this.boxMesh = new Mesh(
-                  new BoxBufferGeometry(1, 1, 1),
+                  new BoxBufferGeometry(1, 1, 1, null, null, null),
                   new ShaderMaterial({
                      uniforms: ShaderLib.cube.uniforms,
                      vertexShader: ShaderLib.cube.vertexShader,
@@ -103,7 +103,7 @@ module Threets {
                this.planeCamera = new OrthographicCamera(- 1, 1, 1, - 1, 0, 1);
 
                this.planeMesh = new Mesh(
-                  new PlaneBufferGeometry(2, 2),
+                  new PlaneBufferGeometry(2, 2, null, null),
                   new MeshBasicMaterial({ depthTest: false, depthWrite: false, fog: false })
                );
                this.objects.update(this.planeMesh);
