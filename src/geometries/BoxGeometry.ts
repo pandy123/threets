@@ -2,7 +2,7 @@ module Threets {
    export class BoxGeometry extends Geometry {
       public parameters: any;// { width: any; height: any; depth: any; widthSegments: any; heightSegments: any; depthSegments: any; };
       public type: string;
-      constructor(width, height, depth, widthSegments, heightSegments, depthSegments) {
+      constructor(width, height, depth, widthSegments?, heightSegments?, depthSegments?) {
          super();
          //Geometry.call(this);
          this.type = 'BoxGeometry';

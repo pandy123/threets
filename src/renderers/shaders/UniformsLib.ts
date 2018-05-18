@@ -2,7 +2,7 @@
 module Threets {
 
 
-   var UniformsLib = {
+   export var UniformsLib = {
 
       common: {
 

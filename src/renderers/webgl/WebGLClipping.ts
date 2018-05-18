@@ -110,7 +110,7 @@ module Threets {
 
       }
 
-      function projectPlanes(planes, camera, dstOffset, skipTransform) {
+      function projectPlanes(planes?, camera?, dstOffset?, skipTransform?) {
 
          var nPlanes = planes !== null ? planes.length : 0,
             dstArray = null;

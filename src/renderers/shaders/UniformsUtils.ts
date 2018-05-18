@@ -1,8 +1,5 @@
 module Threets {
-
-
-
-   var UniformsUtils = {
+   export var UniformsUtils = {
 
       merge: function (uniforms) {
 
