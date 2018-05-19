@@ -22,7 +22,7 @@ module THREE {
         public scale: Vector3;
 
         public modelViewMatrix: Matrix4;
-        public normalMatrix: Matrix4;
+        public normalMatrix: Matrix3;
 
         public matrix: Matrix4;
         public matrixWorld: Matrix4;
@@ -55,15 +55,18 @@ module THREE {
             this.rotation = new Euler();
             this.quaternion = new Quaternion();
             this.scale = new Vector3(1, 1, 1);
-            this.rotation.onChange(this.onRotationChange);
-            this.quaternion.onChange(this.onQuaternionChange);
+            this.rotation.onChange(this.onRotationChange());
+            this.quaternion.onChange(this.onQuaternionChange());
 
             this.matrix = new Matrix4();
+            this.modelViewMatrix = new Matrix4();
             this.matrixWorld = new Matrix4();
+            this.normalMatrix = new Matrix3();
             this.matrixAutoUpdate = Object3D.DefaultMatrixAutoUpdate;
             this.matrixWorldNeedsUpdate = false;
             this.layers = new Layers();
             this.visible = true;
+
             this.castShadow = false;
             this.receiveShadow = false;
             this.frustumCulled = true;
@@ -72,13 +75,15 @@ module THREE {
         }
 
         public onRotationChange() {
-            this.quaternion.setFromEuler(this.rotation, false);
+            return () => {
+                this.quaternion.setFromEuler(this.rotation, false);
+            }
         }
 
         public onQuaternionChange() {
-
-            this.rotation.setFromQuaternion(this.quaternion, undefined, false);
-
+            return () => {
+                this.rotation.setFromQuaternion(this.quaternion, undefined, false);
+            }
         }
 
 

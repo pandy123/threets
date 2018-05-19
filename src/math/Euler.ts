@@ -1,6 +1,5 @@
 /// <reference path="./Quaternion.ts" />
 module THREE {
-    declare var _Math: any;
     export class Euler {
         public _x: number;
         public _y: number;
@@ -141,11 +140,12 @@ module THREE {
             return this;
         }
 
-        public static matrix: any;//= new Matrix4();
+        //public static matrix: any;//= new Matrix4();
         // public setFromQuaternion() {
         public setFromQuaternion(q: any, order: string, update?: boolean) {
-            Euler.matrix.makeRotationFromQuaternion(q);
-            return this.setFromRotationMatrix(Euler.matrix, order, update);
+            var matrix = new Matrix4();
+            matrix.makeRotationFromQuaternion(q);
+            return this.setFromRotationMatrix(matrix, order, update);
         }
 
         public setFromVector3(v: Vector3, order?: string): Euler {
