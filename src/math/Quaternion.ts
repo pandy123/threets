@@ -1,6 +1,5 @@
 ///<reference path="./Vector3.ts" />
 module Threets {
-    declare var Vector3: any;
     export class Quaternion {
         public _x: number;
         public _y: number;
@@ -210,27 +209,28 @@ module Threets {
             return this;
         }
 
-        public static v1 = new Vector3();
+        //public static v1 = new Vector3();
         // public setFromUnitVectors() {
         // assumes direction vectors vFrom and vTo are normalized
         public setFromUnitVectors(vFrom: any, vTo: any) {
+            var v1 = new Vector3();
             var r;
             var EPS = 0.000001;
-            if (Quaternion.v1 === undefined) Quaternion.v1 = new Vector3();
+            if (v1 === undefined) v1 = new Vector3();
             r = vFrom.dot(vTo) + 1;
             if (r < EPS) {
                 r = 0;
                 if (Math.abs(vFrom.x) > Math.abs(vFrom.z)) {
-                    Quaternion.v1.set(- vFrom.y, vFrom.x, 0);
+                    v1.set(- vFrom.y, vFrom.x, 0);
                 } else {
-                    Quaternion.v1.set(0, - vFrom.z, vFrom.y);
+                    v1.set(0, - vFrom.z, vFrom.y);
                 }
             } else {
-                Quaternion.v1.crossVectors(vFrom, vTo);
+                v1.crossVectors(vFrom, vTo);
             }
-            this._x = Quaternion.v1.x;
-            this._y = Quaternion.v1.y;
-            this._z = Quaternion.v1.z;
+            this._x = v1.x;
+            this._y = v1.y;
+            this._z = v1.z;
             this._w = r;
             return this.normalize();
         }
