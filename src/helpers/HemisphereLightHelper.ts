@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class HemisphereLightHelper extends Object3D {
       public light;
       public color;

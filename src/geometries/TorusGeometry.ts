@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class TorusGeometry extends Geometry {
       constructor(radius, tube, radialSegments, tubularSegments, arc) {
          super();

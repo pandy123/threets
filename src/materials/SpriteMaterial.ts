@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class SpriteMaterial extends Material {
       color: Color;
       map: any;

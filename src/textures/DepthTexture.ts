@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
     export class DepthTexture extends Texture {
         public isDepthTexture: boolean = true;
         constructor(width, height, type, mapping, wrapS, wrapT, magFilter, minFilter, anisotropy, format) {

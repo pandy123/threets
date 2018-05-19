@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Matrix3 {
       public elements: Array<number>;
       public isMatrix3: boolean = true;

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Box3 {
       public min: Vector3;
       public max: Vector3;
@@ -117,7 +117,7 @@ module Threets {
 
       public getCenter(target?: Vector3): Vector3 {
          if (target === undefined) {
-            console.warn('Threets.Box3: .getCenter() target is now required');
+            console.warn('THREE.Box3: .getCenter() target is now required');
             target = new Vector3();
          }
          return this.isEmpty() ? target.set(0, 0, 0) : target.addVectors(this.min, this.max).multiplyScalar(0.5);
@@ -125,7 +125,7 @@ module Threets {
 
       public getSize(target?: Vector3): Vector3 {
          if (target === undefined) {
-            console.warn('Threets.Box3: .getSize() target is now required');
+            console.warn('THREE.Box3: .getSize() target is now required');
             target = new Vector3();
          }
          return this.isEmpty() ? target.set(0, 0, 0) : target.subVectors(this.max, this.min);
@@ -198,7 +198,7 @@ module Threets {
          // This can potentially have a divide by zero if the box
          // has a size dimension of 0.
          if (target === undefined) {
-            console.warn('Threets.Box3: .getParameter() target is now required');
+            console.warn('THREE.Box3: .getParameter() target is now required');
             target = new Vector3();
          }
          return target.set(
@@ -342,7 +342,7 @@ module Threets {
 
       public clampPoint(point: Vector3, target?: Vector3) {
          if (target === undefined) {
-            console.warn('Threets.Box3: .clampPoint() target is now required');
+            console.warn('THREE.Box3: .clampPoint() target is now required');
             target = new Vector3();
          }
          return target.copy(point).clamp(this.min, this.max);
@@ -357,7 +357,7 @@ module Threets {
       //public static v1 = new Vector3();
       public getBoundingSphere(target?: Sphere) {
          if (target === undefined) {
-            console.warn('Threets.Box3: .getBoundingSphere() target is now required');
+            console.warn('THREE.Box3: .getBoundingSphere() target is now required');
             target = new Sphere();
          }
          this.getCenter(target.center);

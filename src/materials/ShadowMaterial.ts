@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class ShadowMaterial extends Material {
       color: Color;
       public isShadowMaterial: boolean = true;

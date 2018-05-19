@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class LOD extends Object3D {
       public levels: any[];
       constructor() {

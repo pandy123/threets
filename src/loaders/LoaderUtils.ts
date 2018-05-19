@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    declare var TextDecoder: any;
    declare var escape: any;
    export class LoaderUtils {

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class FogExp2 {
       density: any;
       color: Color;

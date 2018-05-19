@@ -1,5 +1,5 @@
 
-module Threets {
+module THREE {
    var bufferGeometryId = 1; // BufferGeometry uses odd numbers as Id
    export class BufferGeometry extends EventDispatcher {
       public id: number;

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class TubeGeometry extends Geometry {
       public binormals: any;
       public normals: any;

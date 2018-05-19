@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Curve {
       public type: string;
       public arcLengthDivisions: number;

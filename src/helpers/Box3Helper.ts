@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Box3Helper extends LineSegments {
 
       public type;

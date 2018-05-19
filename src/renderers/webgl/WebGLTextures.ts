@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    declare var WebGL2RenderingContext, ImageBitmap;
    export class WebGLTextures {
       private _isWebGL2: any;

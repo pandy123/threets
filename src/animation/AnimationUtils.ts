@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class AnimationUtils {
       // same as Array.prototype.slice, but also works on typed arrays
       public static arraySlice(array, from, to) {

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class TetrahedronGeometry extends Geometry {
       constructor(radius, detail) {
          super(); this.type = 'TetrahedronGeometry';

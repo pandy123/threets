@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class EdgesGeometry extends BufferGeometry {
       constructor(geometry, thresholdAngle) {
          super();

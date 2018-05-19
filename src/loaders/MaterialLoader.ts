@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class MaterialLoader {
       public manager: any;
       public textures: any;

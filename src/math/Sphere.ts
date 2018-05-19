@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Sphere {
       public center: Vector3;
       public radius: number;

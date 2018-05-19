@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class CircleGeometry extends Geometry {
       public parameters: any;// { radius: any; segments: any; thetaStart: any; thetaLength: any; };
       public type: string;

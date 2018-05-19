@@ -1,7 +1,7 @@
 ///<reference path="./UniformsUtils"/>
 ///<reference path="./UniformsLib"/>
 ///<reference path="./ShaderChunk"/>
-module Threets {
+module THREE {
 
     export var ShaderLib = {
 

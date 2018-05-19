@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class ShapeGeometry extends Geometry {
       constructor(shapes, curveSegments) {
          super();

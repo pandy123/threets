@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Scene extends Object3D {
       public autoUpdate: boolean;
       public overrideMaterial: any;

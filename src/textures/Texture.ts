@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Texture extends EventDispatcher {
       public id: number;
       public uuid: string;

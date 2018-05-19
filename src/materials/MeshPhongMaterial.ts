@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class MeshPhongMaterial extends Material {
       public color: Color;
       public specular: Color;

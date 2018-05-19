@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    var programIdCount = 0;
 
    function getEncodingComponents(encoding) {

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    //TODO:
    declare var UniformsUtils;
    export class ShaderMaterial extends Material {

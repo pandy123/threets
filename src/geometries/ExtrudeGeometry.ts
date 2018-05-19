@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class ExtrudeGeometry extends Geometry {
       constructor(shapes, options) {
          super();

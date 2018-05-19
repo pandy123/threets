@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
 
    export class SplineCurve extends Curve {
       public type;

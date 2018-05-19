@@ -1,6 +1,6 @@
 
 
-module Threets {
+module THREE {
 
    export class Camera extends Object3D {
 

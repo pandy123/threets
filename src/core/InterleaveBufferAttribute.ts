@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class InterleavedBufferAttribute {
       public data: any;
       public itemSize: any;

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Vector4 {
       public x: number;
       public y: number;

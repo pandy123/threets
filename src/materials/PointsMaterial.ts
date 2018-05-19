@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class PointsMaterial extends Material {
       public color: Color;
       public map: any;

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class ShapeUtils {
       // calculate area of the contour polygon
       public static area(contour) {

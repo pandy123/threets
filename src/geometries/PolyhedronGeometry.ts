@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class PolyhedronGeometry extends Geometry {
       constructor(vertices, indices, radius, detail) {
          super();

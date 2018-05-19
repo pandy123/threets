@@ -1,5 +1,5 @@
 
-module Threets {
+module THREE {
 
    export class WebGLRenderTarget extends EventDispatcher {
       public width;

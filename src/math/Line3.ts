@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Line3 {
       public start: Vector3;
       public end: Vector3;

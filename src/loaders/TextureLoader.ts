@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class TextureLoader {
       public path: any;
       public manager: any;

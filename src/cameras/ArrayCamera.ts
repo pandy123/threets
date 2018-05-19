@@ -1,5 +1,5 @@
 /// <reference path="./PerspectiveCamera.ts" />
-module Threets {
+module THREE {
 
     export class ArrayCamera extends PerspectiveCamera {
         public cameras: any;

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Plane {
       public normal: Vector3;
       public constant: number;

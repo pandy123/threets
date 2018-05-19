@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export var Earcut = {
 
       triangulate: function (data, holeIndices, dim) {

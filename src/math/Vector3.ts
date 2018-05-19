@@ -1,5 +1,5 @@
 /// <reference path="./Quaternion.ts" />
-module Threets {
+module THREE {
     declare var _Math: any;
     export class Vector3 {
         public x: number;

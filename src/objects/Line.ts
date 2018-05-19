@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    //TODO:
    declare var LineBasicMaterial;
    export class Line extends Object3D {

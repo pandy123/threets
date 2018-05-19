@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    class Params {
       public Mesh: any;
       public Line: any;
@@ -14,7 +14,7 @@ module Threets {
          this.Sprite = Sprite || {};
       }
       public get PointCloud() {
-         console.warn('Threets.Raycaster: params.PointCloud has been renamed to params.Points.');
+         console.warn('THREE.Raycaster: params.PointCloud has been renamed to params.Points.');
          return;
       }
    }

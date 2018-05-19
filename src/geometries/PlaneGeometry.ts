@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class PlaneGeometry extends Geometry {
       constructor(width, height, widthSegments, heightSegments) {
          super();

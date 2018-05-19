@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
 
    export class QuaternionKeyframeTrack extends KeyframeTrack {
       public ValueTypeName: string;

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class SkinnedMesh extends Mesh {
       skeleton: any;
       bindMatrixInverse: Matrix4;

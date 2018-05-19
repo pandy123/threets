@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Fog {
       public far: any;
       public near: any;

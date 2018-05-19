@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class MeshStandardMaterial extends Material {
       public defines: any;// { 'STANDARD': string; };
       public color: Color;

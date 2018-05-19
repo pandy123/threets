@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class _Math {
       public static DEG2RAD: number = Math.PI / 180;
       public static RAD2DEG: number = 180 / Math.PI;

@@ -1,7 +1,7 @@
 
 /// <reference path="./InterleavedBuffer.ts" />
 
-module Threets {
+module THREE {
     export class InstancedInterleavedBuffer extends InterleavedBuffer {
         public meshPerAttribute;
         public isInstancedInterleavedBuffer;

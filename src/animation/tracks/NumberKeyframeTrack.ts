@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
 
    export class NumberKeyframeTrack extends KeyframeTrack {
       public ValueTypeName: any;

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    var RESERVED_CHARS_RE = '\\[\\]\\.:\\/';
    export class Composite {
       public _targetGroup: any;

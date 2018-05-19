@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class ParametricGeometry extends Geometry {
       constructor(func, slices, stacks) {
          super();

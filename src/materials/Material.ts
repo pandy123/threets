@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Material extends EventDispatcher {
       public id: number;
       public uuid: string;

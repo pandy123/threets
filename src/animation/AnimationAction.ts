@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class AnimationAction {
       public _mixer: any;
       public _clip: any;

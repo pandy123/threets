@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Group extends Object3D {
       public isGroup: boolean = true;
       constructor() {

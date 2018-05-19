@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class ObjectLoader {
       public crossOrigin: any;
       public manager: any;

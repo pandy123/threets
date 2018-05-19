@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class InterleavedBuffer {
       public array: any;
       public stride: any;

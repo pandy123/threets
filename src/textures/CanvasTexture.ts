@@ -1,5 +1,5 @@
 /// <reference path="./Texture.ts" />
-module Threets {
+module THREE {
     export class CanvasTexture extends Texture {
         public isCanvasTexture: boolean = true;
         constructor(canvas?, mapping?, wrapS?, wrapT?, magFilter?, minFilter?, format?, type?, anisotropy?) {

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    //TODO:
    declare var SpriteMaterial;
    export class Sprite extends Object3D {

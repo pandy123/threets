@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
 
    export class PositionalAudio extends Audio {
       public panner: any;

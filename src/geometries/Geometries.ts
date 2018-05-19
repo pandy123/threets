@@ -14,7 +14,7 @@
 /// <reference path="./ShapeGeometry.ts" />
 
 
-module Threets {
+module THREE {
     export var Geometries: any = {
         "WireframeGeometry": WireframeGeometry,
         "ParametricGeometry": ParametricGeometry,

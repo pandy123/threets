@@ -1,5 +1,5 @@
 
-module Threets {
+module THREE {
 
 
    export var UniformsLib = {

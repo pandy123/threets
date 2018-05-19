@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class WireframeGeometry extends BufferGeometry {
       constructor(geometry) {
          super();

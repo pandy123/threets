@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class AnimationObjectGroup {
       public stats: any;// { objects: { readonly total: any; readonly inUse: number; }; readonly bindingsPerObject: number; };
       public _bindingsIndicesByPath: {};

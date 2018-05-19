@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Shape extends Path {
 
       public uuid;

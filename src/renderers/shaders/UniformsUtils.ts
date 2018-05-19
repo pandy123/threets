@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export var UniformsUtils = {
 
       merge: function (uniforms) {

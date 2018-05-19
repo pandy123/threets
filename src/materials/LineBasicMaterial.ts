@@ -1,5 +1,5 @@
 /// <reference path="./Material.ts" />
-module Threets {
+module THREE {
     export class LineBasicMaterial extends Material {
         linejoin: string;
         linecap: string;

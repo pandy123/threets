@@ -1,5 +1,5 @@
 /// <reference path="./CylinderGeometry" />
-module Threets {
+module THREE {
     export class ConeGeometry extends CylinderGeometry {
 
         constructor(radius, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength) {

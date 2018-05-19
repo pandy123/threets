@@ -1,7 +1,5 @@
-/**
- * @author mrdoob / http://mrdoob.com/
- */
-module Threets {
+
+module THREE {
    export function arrayMin(array) {
 
       if (array.length === 0) return Infinity;

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class GridHelper extends LineSegments {
       constructor(size, divisions, color1, color2) {
          super(null, null);

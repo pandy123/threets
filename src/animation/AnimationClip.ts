@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class AnimationClip {
       public name: string;
       public tracks: any;

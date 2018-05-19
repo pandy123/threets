@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class ColorBuffer {
       public gl;
       public currentColorMask;

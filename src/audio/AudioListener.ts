@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
 
    export class AudioListener extends Object3D {
       public type: string;

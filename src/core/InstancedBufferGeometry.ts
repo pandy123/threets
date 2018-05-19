@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class InstancedBufferGeometry extends BufferGeometry {
       public type;
       public maxInstancedCount;

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class LoadingManager {
       public isLoading: boolean = false;
       public itemsLoaded: number = 0;

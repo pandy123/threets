@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Path extends CurvePath {
       public type;
       public currentPoint;

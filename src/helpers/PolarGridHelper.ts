@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class PolarGridHelper extends LineSegments {
 
       constructor(radius, radials, circles, divisions, color1, color2) {

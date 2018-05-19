@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Loader {
       public static Handlers: any = {
          handlers: [],

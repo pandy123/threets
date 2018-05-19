@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
     export class CubeTexture extends Texture {
 
         constructor(images?, mapping?, wrapS?, wrapT?, magFilter?, minFilter?, format?, type?, anisotropy?, encoding?) {

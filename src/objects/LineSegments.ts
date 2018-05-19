@@ -1,5 +1,5 @@
 /// <reference path="./Line.ts" />
-module Threets {
+module THREE {
     export class LineSegments extends Line {
         public isLineSegments: boolean = true;
         constructor(geometry, material) {

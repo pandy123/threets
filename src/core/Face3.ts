@@ -1,5 +1,5 @@
 
-module Threets {
+module THREE {
    export class Face3 {
 
       public a;

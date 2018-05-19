@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class RawShaderMaterial extends ShaderMaterial {
       public type: string;
       public isRawShaderMaterial = true;

@@ -1,7 +1,7 @@
 
 /// <reference path="./../math/Vector3" />
 
-module Threets {
+module THREE {
     export class Object3D extends EventDispatcher {
         public static object3DId = 0;
         public static DefaultUp: Vector3 = new Vector3(0, 1, 0);

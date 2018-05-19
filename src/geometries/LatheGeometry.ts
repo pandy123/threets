@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class LatheGeometry extends Geometry {
       constructor(points, segments, phiStart, phiLength) {
          super();

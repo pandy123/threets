@@ -1,5 +1,5 @@
 /// <reference path="../objects/Mesh.ts" />
-module Threets {
+module THREE {
     export class PointLightHelper extends Mesh {
 
         public color;

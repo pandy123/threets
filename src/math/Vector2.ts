@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    /**
     * @author Yanbei.HUANG
     * @description 2018/5/15

@@ -12,7 +12,7 @@
 /// <reference path="./MeshDepthMaterial.ts" />
 /// <reference path="./MeshDistanceMaterial.ts" />
 /// <reference path="./MeshBasicMaterial.ts" />
-module Threets {
+module THREE {
     export var Materials = {
         "ShadowMaterial": ShadowMaterial,
         "SpriteMaterial": SpriteMaterial,

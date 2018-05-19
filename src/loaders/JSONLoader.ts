@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class JSONLoader {
       crossOrigin(arg0: any, arg1: any, arg2: any): any {
          throw new Error("Method not implemented.");

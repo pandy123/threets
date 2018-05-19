@@ -1,5 +1,5 @@
 /// <reference path="../objects/Line.ts" />
-module Threets {
+module THREE {
     export class PlaneHelper extends Line {
         public plane;
         public size;

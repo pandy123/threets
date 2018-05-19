@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    function getBoneList(object) {
 
       var boneList = [];

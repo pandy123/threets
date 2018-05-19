@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
 
    export class CubeCamera extends Object3D {
       public static cameraPX;

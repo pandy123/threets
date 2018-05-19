@@ -1,6 +1,6 @@
 
 /// <reference path="./../core/Object3D" />
-module Threets {
+module THREE {
 
     export class Audio extends Object3D {
 

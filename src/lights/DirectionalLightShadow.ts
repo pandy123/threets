@@ -1,5 +1,5 @@
 /// <reference path="./LightShadow.ts" />
-module Threets {
+module THREE {
 
     export class DirectionalLightShadow extends LightShadow {
 

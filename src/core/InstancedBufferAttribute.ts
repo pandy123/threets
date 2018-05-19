@@ -1,5 +1,5 @@
 
-module Threets {
+module THREE {
    export class InstancedBufferAttribute extends BufferAttribute {
       public meshPerAttribute;
       public isInstancedBufferAttribute;

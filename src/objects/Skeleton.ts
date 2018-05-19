@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Skeleton {
       public boneTexture: any;
       public boneInverses: any;

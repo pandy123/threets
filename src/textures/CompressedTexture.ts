@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class CompressedTexture extends Texture {
       public isCompressedTexture: boolean = true;
       constructor(mipmaps?, width?, height?, format?, type?, mapping?, wrapS?, wrapT?, magFilter?, minFilter?, anisotropy?, encoding?) {

@@ -1,5 +1,5 @@
 
-module Threets {
+module THREE {
    export class Uniform {
       public value: any;
       constructor(value?: any) {

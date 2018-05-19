@@ -1,6 +1,6 @@
 
 /// <reference path="./Camera" />
-module Threets {
+module THREE {
 
       export class PerspectiveCamera extends Camera {
 

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    declare var window;
    export class WebVRManager {
 

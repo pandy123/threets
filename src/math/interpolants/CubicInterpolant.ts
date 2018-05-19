@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class CubicInterpolant extends Interpolant {
       public _weightPrev: number = -0;
       public _offsetPrev: number = -0;

@@ -1,5 +1,5 @@
 // Polyfills
-module Threets {
+module THREE {
 
 
    if (Number.EPSILON === undefined) {

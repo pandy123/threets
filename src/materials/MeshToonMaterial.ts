@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class MeshToonMaterial extends MeshPhongMaterial {
       public defines:any;// { 'TOON': string; };
       public gradientMap: any;

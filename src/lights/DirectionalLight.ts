@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
 
    export class DirectionalLight extends Light {
       public type;

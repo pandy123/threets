@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Interpolant {
       public parameterPositions: any;
       public _cachedIndex: number;

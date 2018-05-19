@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class SphereGeometry extends Geometry {
       constructor(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) {
          super();

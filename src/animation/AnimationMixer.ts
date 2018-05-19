@@ -1,5 +1,5 @@
 /// <reference path="../core/EventDispatcher.ts" />
-module Threets {
+module THREE {
       export class AnimationMixer extends EventDispatcher {
             public stats: any;//: { actions: { readonly total: number; readonly inUse: number; }; bindings: { readonly total: number; readonly inUse: number; }; controlInterpolants: { readonly total: number; readonly inUse: number; }; };
             public _nActiveControlInterpolants: number;

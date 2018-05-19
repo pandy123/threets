@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class LineDashedMaterial extends LineBasicMaterial {
       public scale: number;
       public dashSize: number;

@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class MeshDistanceMaterial extends Material {
       referencePosition: Vector3;
       nearDistance: number;

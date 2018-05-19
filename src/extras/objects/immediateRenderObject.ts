@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class ImmediateRenderObject extends Object3D {
       public material;
       public isImmediateRenderObject;

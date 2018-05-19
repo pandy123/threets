@@ -3,7 +3,7 @@
 /// <reference path="./QuadraticBezierCurve" />
 /// <reference path="./QuadraticBezierCurve3" />
 /// <reference path="./SplineCurve" />
-module Threets {
+module THREE {
     export var Curves = {
         "ArcCurve": ArcCurve,
         "CatmullRomCurve3": CatmullRomCurve3,

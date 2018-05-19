@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class CylinderGeometry extends Geometry {
       public type: string;
       public parameters: any;

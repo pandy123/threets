@@ -1,5 +1,5 @@
 /// <reference path="../objects/LineSegments.ts" />
-module Threets {
+module THREE {
     export class AxesHelper extends LineSegments {
 
         constructor(size) {

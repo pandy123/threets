@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class DiscreteInterpolant extends Interpolant {
       constructor(parameterPositions: any, sampleValues: any, sampleSize: any, resultBuffer?: any) {
          super(parameterPositions, sampleValues, sampleSize, resultBuffer);

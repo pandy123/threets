@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class RectAreaLightHelper extends Object3D {
       public light;
       public color;

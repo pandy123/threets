@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
 
    export class SpotLightHelper extends Object3D {
       public light;

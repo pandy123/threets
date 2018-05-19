@@ -1,5 +1,5 @@
 /// <reference path="./PolyhedronGeometry.ts" />
-module Threets {
+module THREE {
     export class DodecahedronGeometry extends Geometry {
         constructor(radius, detail) {
             super();

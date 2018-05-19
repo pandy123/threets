@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
 
    export class QuadraticBezierCurve3 extends Curve {
       public type;

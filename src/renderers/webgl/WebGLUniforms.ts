@@ -1,6 +1,6 @@
 ///<reference path="../../textures/Texture"/>
 ///<reference path="../../textures/CubeTexture"/>
-module Threets {
+module THREE {
     var emptyTexture = new Texture();
     var emptyCubeTexture = new CubeTexture();
     // --- Base for inner nodes (including the root) ---

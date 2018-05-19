@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
 
    export class HemisphereLight extends Light {
       public type;

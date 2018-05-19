@@ -15,7 +15,7 @@
  *  headWidth - Number
  */
 
-module Threets {
+module THREE {
    var lineGeometry, coneGeometry;
    export class ArrowHelper extends Object3D {
 

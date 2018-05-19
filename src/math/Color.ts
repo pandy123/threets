@@ -27,7 +27,7 @@ var ColorKeywords = {
 };
 var isColor: true;
 var r: 1, g: 1, b: 1;
-module Threets {
+module THREE {
 
    export class Color {
       /**取值范围0-1 */

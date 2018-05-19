@@ -1,5 +1,5 @@
 /// <reference path="./Sphere.ts" />
-module Threets {
+module THREE {
 
     export class Frustum {
         /***视椎体平面集 */

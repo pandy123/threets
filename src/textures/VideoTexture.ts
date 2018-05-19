@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class VideoTexture extends Texture {
       public isVideoTexture: boolean = true;
 

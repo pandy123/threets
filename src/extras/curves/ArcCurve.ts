@@ -1,5 +1,5 @@
 /// <reference path="./EllipseCurve" />
-module Threets {
+module THREE {
     export class ArcCurve extends EllipseCurve {
         public type;
         public isArcCurve: boolean;

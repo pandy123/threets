@@ -1,5 +1,5 @@
 /// <reference path="./Light.ts" />
-module Threets {
+module THREE {
 
     export class AmbientLight extends Light {
         public type;

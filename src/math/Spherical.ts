@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    declare var _Math: any;
    export class Spherical {
       public radius: number;

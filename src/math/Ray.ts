@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class Ray {
       public origin: Vector3;
       public direction: Vector3;

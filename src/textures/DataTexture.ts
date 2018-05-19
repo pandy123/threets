@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class DataTexture extends Texture {
       public isDataTexture: boolean = true;
       constructor(data?, width?, height?, format?, type?, mapping?, wrapS?, wrapT?, magFilter?, minFilter?, anisotropy?, encoding?) {

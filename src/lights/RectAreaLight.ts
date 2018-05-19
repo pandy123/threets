@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
 
    export class RectAreaLight extends Light {
       public width;

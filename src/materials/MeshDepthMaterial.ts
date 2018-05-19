@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class MeshDepthMaterial extends Material {
       depthPacking: number;
       skinning: boolean;

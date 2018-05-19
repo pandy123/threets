@@ -1,4 +1,4 @@
-module Threets {
+module THREE {
    export class WebGL2Renderer {
       private _context: any;
       private _alpha: any;

@@ -1,5 +1,5 @@
 /// <reference path="./MeshStandardMaterial.ts" />
-module Threets {
+module THREE {
     export class MeshPhysicalMaterial extends MeshStandardMaterial {
         public defines: any;// { 'PHYSICAL': string; };
         public type: string;

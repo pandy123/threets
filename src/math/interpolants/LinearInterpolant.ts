@@ -1,5 +1,5 @@
 
-module Threets {
+module THREE {
 
    export class LinearInterpolant extends Interpolant {
       constructor(parameterPositions: any, sampleValues: any, sampleSize: any, resultBuffer: any) {
