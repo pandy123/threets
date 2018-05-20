@@ -1,120 +1,94 @@
 module THREE {
 
 
-   export class WebGLCapabilities {
-      public gl;
-      public extensions;
-      public parameters;
-      public maxAnisotropy;
-      public logarithmicDepthBuffer;
-      public maxTextures;
-      public maxVertexTextures;
-      public maxTextureSize;
-      public maxCubemapSize;
-      public maxAttributes;
-      public maxVertexUniforms;
-      public maxVaryings;
-      public maxFragmentUniforms;
-      public vertexTextures;
-      public floatFragmentTextures;
-      public floatVertexTextures;
-      public precision;
+    export class WebGLCapabilities {
+        public gl;
+        public extensions;
+        public parameters;
+        public maxAnisotropy;
+        public logarithmicDepthBuffer;
+        public maxTextures;
+        public maxVertexTextures;
+        public maxTextureSize;
+        public maxCubemapSize;
+        public maxAttributes;
+        public maxVertexUniforms;
+        public maxVaryings;
+        public maxFragmentUniforms;
+        public vertexTextures;
+        public floatFragmentTextures;
+        public floatVertexTextures;
+        public precision;
 
-      constructor(gl, extensions, parameters) {
+        constructor(gl, extensions, parameters) {
 
-         this.maxAnisotropy = null;
+            this.maxAnisotropy = null;
 
-         this.logarithmicDepthBuffer = parameters.logarithmicDepthBuffer === true;
-         this.maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-         this.maxVertexTextures = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-         this.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-         this.maxCubemapSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
+            this.logarithmicDepthBuffer = parameters.logarithmicDepthBuffer === true;
+            this.maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+            this.maxVertexTextures = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+            this.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+            this.maxCubemapSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
 
-         this.maxAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-         this.maxVertexUniforms = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
-         this.maxVaryings = gl.getParameter(gl.MAX_VARYING_VECTORS);
-         this.maxFragmentUniforms = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
+            this.maxAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+            this.maxVertexUniforms = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+            this.maxVaryings = gl.getParameter(gl.MAX_VARYING_VECTORS);
+            this.maxFragmentUniforms = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
 
-         this.vertexTextures = this.maxVertexTextures > 0;
-         this.floatFragmentTextures = !!extensions.get('OES_texture_float');
-         this.floatVertexTextures = this.vertexTextures && this.floatFragmentTextures;
+            this.vertexTextures = this.maxVertexTextures > 0;
+            this.floatFragmentTextures = !!extensions.get('OES_texture_float');
+            this.floatVertexTextures = this.vertexTextures && this.floatFragmentTextures;
+            this.precision = 'highp';
 
-      }
+        }
 
-      public getinstance() {
+        public getMaxAnisotropy() {
 
-         return {
+            if (this.maxAnisotropy !== undefined) return this.maxAnisotropy;
 
-            getMaxAnisotropy: this.getMaxAnisotropy,
-            getMaxPrecision: this.getMaxPrecision,
+            var extension = this.extensions.get('EXT_texture_filter_anisotropic');
 
-            precision: this.precision,
-            logarithmicDepthBuffer: this.logarithmicDepthBuffer,
+            if (extension !== null) {
 
-            maxTextures: this.maxTextures,
-            maxVertexTextures: this.maxVertexTextures,
-            maxTextureSize: this.maxTextureSize,
-            maxCubemapSize: this.maxCubemapSize,
+                this.maxAnisotropy = this.gl.getParameter(extension.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
 
-            maxAttributes: this.maxAttributes,
-            maxVertexUniforms: this.maxVertexUniforms,
-            maxVaryings: this.maxVaryings,
-            maxFragmentUniforms: this.maxFragmentUniforms,
+            } else {
 
-            vertexTextures: this.vertexTextures,
-            floatFragmentTextures: this.floatFragmentTextures,
-            floatVertexTextures: this.floatVertexTextures
-
-         };
-      }
-
-      public getMaxAnisotropy() {
-
-         if (this.maxAnisotropy !== undefined) return this.maxAnisotropy;
-
-         var extension = this.extensions.get('EXT_texture_filter_anisotropic');
-
-         if (extension !== null) {
-
-            this.maxAnisotropy = this.gl.getParameter(extension.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-
-         } else {
-
-            this.maxAnisotropy = 0;
-
-         }
-
-         return this.maxAnisotropy;
-
-      }
-
-      public getMaxPrecision(precision) {
-         this.precision = precision;
-         if (precision === 'highp') {
-
-            if (this.gl.getShaderPrecisionFormat(this.gl.VERTEX_SHADER, this.gl.HIGH_FLOAT).precision > 0 &&
-               this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT).precision > 0) {
-
-               return 'highp';
+                this.maxAnisotropy = 0;
 
             }
 
-            precision = 'mediump';
-         }
+            return this.maxAnisotropy;
 
-         if (precision === 'mediump') {
+        }
 
-            if (this.gl.getShaderPrecisionFormat(this.gl.VERTEX_SHADER, this.gl.MEDIUM_FLOAT).precision > 0 &&
-               this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.MEDIUM_FLOAT).precision > 0) {
+        public getMaxPrecision(precision) {
+            this.precision = precision;
+            if (precision === 'highp') {
 
-               return 'mediump';
+                if (this.gl.getShaderPrecisionFormat(this.gl.VERTEX_SHADER, this.gl.HIGH_FLOAT).precision > 0 &&
+                    this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT).precision > 0) {
+
+                    return 'highp';
+
+                }
+
+                precision = 'mediump';
+            }
+
+            if (precision === 'mediump') {
+
+                if (this.gl.getShaderPrecisionFormat(this.gl.VERTEX_SHADER, this.gl.MEDIUM_FLOAT).precision > 0 &&
+                    this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.MEDIUM_FLOAT).precision > 0) {
+
+                    return 'mediump';
+
+                }
 
             }
 
-         }
+            return 'lowp';
 
-         return 'lowp';
-
-      }
-   }
+        }
+    }
 }

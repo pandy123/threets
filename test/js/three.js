@@ -22595,25 +22595,7 @@ var THREE;
             this.vertexTextures = this.maxVertexTextures > 0;
             this.floatFragmentTextures = !!extensions.get('OES_texture_float');
             this.floatVertexTextures = this.vertexTextures && this.floatFragmentTextures;
-        }
-        getinstance() {
-            return {
-                getMaxAnisotropy: this.getMaxAnisotropy,
-                getMaxPrecision: this.getMaxPrecision,
-                precision: this.precision,
-                logarithmicDepthBuffer: this.logarithmicDepthBuffer,
-                maxTextures: this.maxTextures,
-                maxVertexTextures: this.maxVertexTextures,
-                maxTextureSize: this.maxTextureSize,
-                maxCubemapSize: this.maxCubemapSize,
-                maxAttributes: this.maxAttributes,
-                maxVertexUniforms: this.maxVertexUniforms,
-                maxVaryings: this.maxVaryings,
-                maxFragmentUniforms: this.maxFragmentUniforms,
-                vertexTextures: this.vertexTextures,
-                floatFragmentTextures: this.floatFragmentTextures,
-                floatVertexTextures: this.floatVertexTextures
-            };
+            this.precision = 'highp';
         }
         getMaxAnisotropy() {
             if (this.maxAnisotropy !== undefined)

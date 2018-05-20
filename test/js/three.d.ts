@@ -4270,23 +4270,6 @@ declare module THREE {
         floatVertexTextures: any;
         precision: any;
         constructor(gl: any, extensions: any, parameters: any);
-        getinstance(): {
-            getMaxAnisotropy: () => any;
-            getMaxPrecision: (precision: any) => "highp" | "mediump" | "lowp";
-            precision: any;
-            logarithmicDepthBuffer: any;
-            maxTextures: any;
-            maxVertexTextures: any;
-            maxTextureSize: any;
-            maxCubemapSize: any;
-            maxAttributes: any;
-            maxVertexUniforms: any;
-            maxVaryings: any;
-            maxFragmentUniforms: any;
-            vertexTextures: any;
-            floatFragmentTextures: any;
-            floatVertexTextures: any;
-        };
         getMaxAnisotropy(): any;
         getMaxPrecision(precision: any): "highp" | "mediump" | "lowp";
     }
