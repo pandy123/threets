@@ -194,7 +194,7 @@ module THREE {
 
       }
 
-      export class WebGLProgram {
+      export class WebGLProgramNode {
 
             public name;
             public id;
@@ -537,8 +537,8 @@ module THREE {
                   // console.log( '*VERTEX*', vertexGlsl );
                   // console.log( '*FRAGMENT*', fragmentGlsl );
 
-                  var glVertexShader = WebGLShader(gl, gl.VERTEX_SHADER, vertexGlsl);
-                  var glFragmentShader = WebGLShader(gl, gl.FRAGMENT_SHADER, fragmentGlsl);
+                  var glVertexShader = webGLCreateShader(gl, gl.VERTEX_SHADER, vertexGlsl);
+                  var glFragmentShader = webGLCreateShader(gl, gl.FRAGMENT_SHADER, fragmentGlsl);
                   this.vertexShader = glVertexShader;
                   this.fragmentShader = glFragmentShader;
 
@@ -626,7 +626,7 @@ module THREE {
 
                   if (this.cachedUniforms === undefined) {
 
-                        this.cachedUniforms = new WebGLUniforms(this.gl, this.program, this.renderer);
+                        this.cachedUniforms = new WebGLUniformsNode(this.gl, this.program, this.renderer);
 
                   }
 

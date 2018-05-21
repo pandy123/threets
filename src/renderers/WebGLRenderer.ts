@@ -62,13 +62,13 @@ module THREE {
             // frustum
             private _frustum: Frustum;
             // clipping
-            private _clipping: WebGLClipping;
+            private _clipping: WebGLClippingNode;
             private _clippingEnabled: boolean;
             private _localClippingEnabled: boolean;
             // camera matrices cache
             private _projScreenMatrix: Matrix4;
             private _vector3: Vector3;
-            private _gl: any;
+            private _gl: WebGLContext;
 
             public contextAttributes: any;
             public extensions: any;
@@ -163,7 +163,7 @@ module THREE {
                   // frustum
                   this._frustum = new Frustum();
                   // clipping
-                  this._clipping = new WebGLClipping();
+                  this._clipping = new WebGLClippingNode();
                   this._clippingEnabled = false;
                   this._localClippingEnabled = false;
                   // camera matrices cache
@@ -183,7 +183,7 @@ module THREE {
                         // event listeners must be registered before WebGL context is created, see #12753
                         this._canvas.addEventListener('webglcontextlost', this.onContextLost, false);
                         this._canvas.addEventListener('webglcontextrestored', this.onContextRestore, false);
-                        this._gl = this._context || this._canvas.getContext('webgl', this.contextAttributes) || this._canvas.getContext('experimental-webgl', this.contextAttributes);
+                        this._gl = this._context || new WebGLContext(this._canvas, this.contextAttributes);
                         if (this._gl === null) {
                               if (this._canvas.getContext('webgl') !== null) {
                                     throw new Error('Error creating WebGL context with your selected attributes.');
@@ -205,7 +205,7 @@ module THREE {
                   // vr
                   this.vr = ('xr' in navigator) ? new WebXRManager(this._gl) : new WebVRManager(this);
                   // shadow map
-                  this.shadowMap = new WebGLShadowMap(this, this.objects, this.capabilities.maxTextureSize);
+                  this.shadowMap = new WebGLShadowMapNode(this, this.objects, this.capabilities.maxTextureSize);
                   // Animation Loop
                   this.isAnimating = false;
                   this.onAnimationFrame = null;
@@ -218,7 +218,7 @@ module THREE {
 
 
             public initGLContext() {
-                  this.extensions = new WebGLExtensions(this._gl);
+                  this.extensions = new WebGLExtensionsNode(this._gl);
                   this.extensions.get('WEBGL_depth_texture');
                   this.extensions.get('OES_texture_float');
                   this.extensions.get('OES_texture_float_linear');
@@ -228,24 +228,24 @@ module THREE {
                   this.extensions.get('OES_element_index_uint');
                   this.extensions.get('ANGLE_instanced_arrays');
                   this.utils = new WebGLUtils(this._gl, this.extensions);
-                  this.capabilities = new WebGLCapabilities(this._gl, this.extensions, this.parameters);
-                  this.state = new WebGLState(this._gl, this.extensions, this.utils);
+                  this.capabilities = new WebGLCapabilitiesNode(this._gl, this.extensions, this.parameters);
+                  this.state = new WebGLStateNode(this._gl, this.extensions, this.utils);
                   this.state.scissor(this._currentScissor.copy(this._scissor).multiplyScalar(this._pixelRatio));
                   this.state.viewport(this._currentViewport.copy(this._viewport).multiplyScalar(this._pixelRatio));
-                  this.info = new WebGLInfo(this._gl);
-                  this.properties = new WebGLProperties();
-                  this.textures = new WebGLTextures(this._gl, this.extensions, this.state, this.properties, this.capabilities, this.utils, this.info);
-                  this.attributes = new WebGLAttributes(this._gl);
-                  this.geometries = new WebGLGeometries(this._gl, this.attributes, this.info);
-                  this.objects = new WebGLObjects(this.geometries, this.info);
-                  this.morphtargets = new WebGLMorphtargets(this._gl);
-                  this.programCache = new WebGLPrograms(this, this.extensions, this.capabilities);
-                  this.renderLists = new WebGLRenderLists();
+                  this.info = new WebGLInfoNode(this._gl);
+                  this.properties = new WebGLPropertiesNode();
+                  this.textures = new WebGLTexturesNode(this._gl, this.extensions, this.state, this.properties, this.capabilities, this.utils, this.info);
+                  this.attributes = new WebGLAttributesNode(this._gl);
+                  this.geometries = new WebGLGeometriesNode(this._gl, this.attributes, this.info);
+                  this.objects = new WebGLObjectsNode(this.geometries, this.info);
+                  this.morphtargets = new WebGLMorphtargetsNode(this._gl);
+                  this.programCache = new WebGLProgramsNode(this, this.extensions, this.capabilities);
+                  this.renderLists = new WebGLRenderListsNode();
                   this.renderStates = new WebGLRenderStates();
-                  this.background = new WebGLBackground(this, this.state, this.objects, this._premultipliedAlpha);
-                  this.bufferRenderer = new WebGLBufferRenderer(this._gl, this.extensions, this.info);
-                  this.indexedBufferRenderer = new WebGLIndexedBufferRenderer(this._gl, this.extensions, this.info);
-                  this.spriteRenderer = new WebGLSpriteRenderer(this, this._gl, this.state, this.textures, this.capabilities);
+                  this.background = new WebGLBackgroundNode(this, this.state, this.objects, this._premultipliedAlpha);
+                  this.bufferRenderer = new WebGLBufferRendererNode(this._gl, this.extensions, this.info);
+                  this.indexedBufferRenderer = new WebGLIndexedBufferRendererNode(this._gl, this.extensions, this.info);
+                  this.spriteRenderer = new WebGLSpriteRendererNode(this, this._gl, this.state, this.textures, this.capabilities);
                   this.info.programs = this.programCache.programs;
                   this.context = this._gl;
                   // _this.capabilities = capabilities;
@@ -1002,7 +1002,7 @@ module THREE {
                   }
                   var progUniforms = materialProperties.program.getUniforms(),
                         uniformsList =
-                              WebGLUniforms.seqWithValue(progUniforms.seq, uniforms);
+                              WebGLUniformsNode.seqWithValue(progUniforms.seq, uniforms);
                   materialProperties.uniformsList = uniformsList;
             }
             private setProgram(camera, fog, material, object) {
@@ -1186,10 +1186,10 @@ module THREE {
                         // TODO (mrdoob): Find a nicer implementation
                         if (m_uniforms.ltc_1 !== undefined) m_uniforms.ltc_1.value = (UniformsLib as any).LTC_1;
                         if (m_uniforms.ltc_2 !== undefined) m_uniforms.ltc_2.value = (UniformsLib as any).LTC_2;
-                        WebGLUniforms.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
+                        WebGLUniformsNode.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
                   }
                   if (material.isShaderMaterial && material.uniformsNeedUpdate === true) {
-                        WebGLUniforms.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
+                        WebGLUniformsNode.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
                         material.uniformsNeedUpdate = false;
                   }
                   // common matrices

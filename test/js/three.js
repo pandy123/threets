@@ -3422,6 +3422,10 @@ var THREE;
             this.matrix.compose(this.position, this.quaternion, this.scale);
             this.matrixWorldNeedsUpdate = true;
         }
+        /**
+         * 更新matrixwrold参数，两种情况：force = true， matrixWorldNeedsUpdate = true
+         * @param force 是否强制更新
+         */
         updateMatrixWorld(force) {
             if (this.matrixAutoUpdate)
                 this.updateMatrix();
@@ -17754,6 +17758,12 @@ var THREE;
         premultiply(m) {
             return this.multiplyMatrices(m, this);
         }
+        /**
+         * 将矩阵a*b的结果赋值给this.elements
+         * @param a 矩阵a
+         * @param b 矩阵b
+         * @returns 返回实例本身
+         */
         multiplyMatrices(a, b) {
             var ae = a.elements;
             var be = b.elements;
@@ -20103,8 +20113,8 @@ var THREE;
             this._height = this._canvas.height;
             this._pixelRatio = 1;
             this._viewport = new THREE.Vector4(0, 0, this._width, this._height);
-            this.extensions = new THREE.WebGLExtensions(this.gl);
-            this.state = new THREE.WebGLState(this.gl, this.extensions, function () { });
+            this.extensions = new THREE.WebGLExtensionsNode(this.gl);
+            this.state = new THREE.WebGLStateNode(this.gl, this.extensions, function () { });
         }
         //
         clear(color, depth, stencil) {
@@ -20503,7 +20513,7 @@ var THREE;
             // frustum
             this._frustum = new THREE.Frustum();
             // clipping
-            this._clipping = new THREE.WebGLClipping();
+            this._clipping = new THREE.WebGLClippingNode();
             this._clippingEnabled = false;
             this._localClippingEnabled = false;
             // camera matrices cache
@@ -20522,7 +20532,7 @@ var THREE;
                 // event listeners must be registered before WebGL context is created, see #12753
                 this._canvas.addEventListener('webglcontextlost', this.onContextLost, false);
                 this._canvas.addEventListener('webglcontextrestored', this.onContextRestore, false);
-                this._gl = this._context || this._canvas.getContext('webgl', this.contextAttributes) || this._canvas.getContext('experimental-webgl', this.contextAttributes);
+                this._gl = this._context || new THREE.WebGLContext(this._canvas, this.contextAttributes);
                 if (this._gl === null) {
                     if (this._canvas.getContext('webgl') !== null) {
                         throw new Error('Error creating WebGL context with your selected attributes.');
@@ -20546,7 +20556,7 @@ var THREE;
             // vr
             this.vr = ('xr' in navigator) ? new THREE.WebXRManager(this._gl) : new THREE.WebVRManager(this);
             // shadow map
-            this.shadowMap = new THREE.WebGLShadowMap(this, this.objects, this.capabilities.maxTextureSize);
+            this.shadowMap = new THREE.WebGLShadowMapNode(this, this.objects, this.capabilities.maxTextureSize);
             // Animation Loop
             this.isAnimating = false;
             this.onAnimationFrame = null;
@@ -20555,7 +20565,7 @@ var THREE;
             return this._currentRenderTarget === null ? this._pixelRatio : 1;
         }
         initGLContext() {
-            this.extensions = new THREE.WebGLExtensions(this._gl);
+            this.extensions = new THREE.WebGLExtensionsNode(this._gl);
             this.extensions.get('WEBGL_depth_texture');
             this.extensions.get('OES_texture_float');
             this.extensions.get('OES_texture_float_linear');
@@ -20565,24 +20575,24 @@ var THREE;
             this.extensions.get('OES_element_index_uint');
             this.extensions.get('ANGLE_instanced_arrays');
             this.utils = new THREE.WebGLUtils(this._gl, this.extensions);
-            this.capabilities = new THREE.WebGLCapabilities(this._gl, this.extensions, this.parameters);
-            this.state = new THREE.WebGLState(this._gl, this.extensions, this.utils);
+            this.capabilities = new THREE.WebGLCapabilitiesNode(this._gl, this.extensions, this.parameters);
+            this.state = new THREE.WebGLStateNode(this._gl, this.extensions, this.utils);
             this.state.scissor(this._currentScissor.copy(this._scissor).multiplyScalar(this._pixelRatio));
             this.state.viewport(this._currentViewport.copy(this._viewport).multiplyScalar(this._pixelRatio));
-            this.info = new THREE.WebGLInfo(this._gl);
-            this.properties = new THREE.WebGLProperties();
-            this.textures = new THREE.WebGLTextures(this._gl, this.extensions, this.state, this.properties, this.capabilities, this.utils, this.info);
-            this.attributes = new THREE.WebGLAttributes(this._gl);
-            this.geometries = new THREE.WebGLGeometries(this._gl, this.attributes, this.info);
-            this.objects = new THREE.WebGLObjects(this.geometries, this.info);
-            this.morphtargets = new THREE.WebGLMorphtargets(this._gl);
-            this.programCache = new THREE.WebGLPrograms(this, this.extensions, this.capabilities);
-            this.renderLists = new THREE.WebGLRenderLists();
+            this.info = new THREE.WebGLInfoNode(this._gl);
+            this.properties = new THREE.WebGLPropertiesNode();
+            this.textures = new THREE.WebGLTexturesNode(this._gl, this.extensions, this.state, this.properties, this.capabilities, this.utils, this.info);
+            this.attributes = new THREE.WebGLAttributesNode(this._gl);
+            this.geometries = new THREE.WebGLGeometriesNode(this._gl, this.attributes, this.info);
+            this.objects = new THREE.WebGLObjectsNode(this.geometries, this.info);
+            this.morphtargets = new THREE.WebGLMorphtargetsNode(this._gl);
+            this.programCache = new THREE.WebGLProgramsNode(this, this.extensions, this.capabilities);
+            this.renderLists = new THREE.WebGLRenderListsNode();
             this.renderStates = new THREE.WebGLRenderStates();
-            this.background = new THREE.WebGLBackground(this, this.state, this.objects, this._premultipliedAlpha);
-            this.bufferRenderer = new THREE.WebGLBufferRenderer(this._gl, this.extensions, this.info);
-            this.indexedBufferRenderer = new THREE.WebGLIndexedBufferRenderer(this._gl, this.extensions, this.info);
-            this.spriteRenderer = new THREE.WebGLSpriteRenderer(this, this._gl, this.state, this.textures, this.capabilities);
+            this.background = new THREE.WebGLBackgroundNode(this, this.state, this.objects, this._premultipliedAlpha);
+            this.bufferRenderer = new THREE.WebGLBufferRendererNode(this._gl, this.extensions, this.info);
+            this.indexedBufferRenderer = new THREE.WebGLIndexedBufferRendererNode(this._gl, this.extensions, this.info);
+            this.spriteRenderer = new THREE.WebGLSpriteRendererNode(this, this._gl, this.state, this.textures, this.capabilities);
             this.info.programs = this.programCache.programs;
             this.context = this._gl;
             // _this.capabilities = capabilities;
@@ -21200,7 +21210,7 @@ var THREE;
                 uniforms.pointShadowMatrix.value = lights.state.pointShadowMatrix;
                 // TODO (abelnation): add area lights shadow info to uniforms
             }
-            var progUniforms = materialProperties.program.getUniforms(), uniformsList = THREE.WebGLUniforms.seqWithValue(progUniforms.seq, uniforms);
+            var progUniforms = materialProperties.program.getUniforms(), uniformsList = THREE.WebGLUniformsNode.seqWithValue(progUniforms.seq, uniforms);
             materialProperties.uniformsList = uniformsList;
         }
         setProgram(camera, fog, material, object) {
@@ -21393,10 +21403,10 @@ var THREE;
                     m_uniforms.ltc_1.value = THREE.UniformsLib.LTC_1;
                 if (m_uniforms.ltc_2 !== undefined)
                     m_uniforms.ltc_2.value = THREE.UniformsLib.LTC_2;
-                THREE.WebGLUniforms.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
+                THREE.WebGLUniformsNode.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
             }
             if (material.isShaderMaterial && material.uniformsNeedUpdate === true) {
-                THREE.WebGLUniforms.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
+                THREE.WebGLUniformsNode.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
                 material.uniformsNeedUpdate = false;
             }
             // common matrices
@@ -22370,7 +22380,7 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLAttributes {
+    class WebGLAttributesNode {
         constructor(gl) {
             var buffers = new WeakMap();
             this.gl = gl;
@@ -22469,11 +22479,11 @@ var THREE;
             }
         }
     }
-    THREE.WebGLAttributes = WebGLAttributes;
+    THREE.WebGLAttributesNode = WebGLAttributesNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLBackground {
+    class WebGLBackgroundNode {
         constructor(renderer, state, objects, premultipliedAlpha) {
             this.clearColor = new THREE.Color(0x000000);
             this.clearAlpha = 0;
@@ -22548,11 +22558,11 @@ var THREE;
             this.state.buffers.color.setClear(color.r, color.g, color.b, alpha, this.premultipliedAlpha);
         }
     }
-    THREE.WebGLBackground = WebGLBackground;
+    THREE.WebGLBackgroundNode = WebGLBackgroundNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLBufferRenderer {
+    class WebGLBufferRendererNode {
         constructor(gl, extensions, info) {
             this.gl = gl;
             this.extensions = extensions;
@@ -22576,11 +22586,11 @@ var THREE;
             this.info.update(count, this.mode, geometry.maxInstancedCount);
         }
     }
-    THREE.WebGLBufferRenderer = WebGLBufferRenderer;
+    THREE.WebGLBufferRendererNode = WebGLBufferRendererNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLCapabilities {
+    class WebGLCapabilitiesNode {
         constructor(gl, extensions, parameters) {
             this.maxAnisotropy = null;
             this.logarithmicDepthBuffer = parameters.logarithmicDepthBuffer === true;
@@ -22627,11 +22637,11 @@ var THREE;
             return 'lowp';
         }
     }
-    THREE.WebGLCapabilities = WebGLCapabilities;
+    THREE.WebGLCapabilitiesNode = WebGLCapabilitiesNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLClipping {
+    class WebGLClippingNode {
         constructor() {
             this.globalState = null,
                 this.numGlobalPlanes = 0,
@@ -22721,11 +22731,729 @@ var THREE;
             return dstArray;
         }
     }
-    THREE.WebGLClipping = WebGLClipping;
+    THREE.WebGLClippingNode = WebGLClippingNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLExtensions {
+    class WebGLContext {
+        constructor(canvas, contextAttributes) {
+            this.ACTIVE_ATTRIBUTES = 35721;
+            this.ACTIVE_TEXTURE = 34016;
+            this.ACTIVE_UNIFORMS = 35718;
+            this.ALIASED_LINE_WIDTH_RANGE = 33902;
+            this.ALIASED_POINT_SIZE_RANGE = 33901;
+            this.ALPHA = 6406;
+            this.ALPHA_BITS = 3413;
+            this.ALWAYS = 519;
+            this.ARRAY_BUFFER = 34962;
+            this.ARRAY_BUFFER_BINDING = 34964;
+            this.ATTACHED_SHADERS = 35717;
+            this.BACK = 1029;
+            this.BLEND = 3042;
+            this.BLEND_COLOR = 32773;
+            this.BLEND_DST_ALPHA = 32970;
+            this.BLEND_DST_RGB = 32968;
+            this.BLEND_EQUATION = 32777;
+            this.BLEND_EQUATION_ALPHA = 34877;
+            this.BLEND_EQUATION_RGB = 32777;
+            this.BLEND_SRC_ALPHA = 32971;
+            this.BLEND_SRC_RGB = 32969;
+            this.BLUE_BITS = 3412;
+            this.BOOL = 35670;
+            this.BOOL_VEC2 = 35671;
+            this.BOOL_VEC3 = 35672;
+            this.BOOL_VEC4 = 35673;
+            this.BROWSER_DEFAULT_WEBGL = 37444;
+            this.BUFFER_SIZE = 34660;
+            this.BUFFER_USAGE = 34661;
+            this.BYTE = 5120;
+            this.CCW = 2305;
+            this.CLAMP_TO_EDGE = 33071;
+            this.COLOR_ATTACHMENT0 = 36064;
+            this.COLOR_BUFFER_BIT = 16384;
+            this.COLOR_CLEAR_VALUE = 3106;
+            this.COLOR_WRITEMASK = 3107;
+            this.COMPILE_STATUS = 35713;
+            this.COMPRESSED_TEXTURE_FORMATS = 34467;
+            this.CONSTANT_ALPHA = 32771;
+            this.CONSTANT_COLOR = 32769;
+            this.CONTEXT_LOST_WEBGL = 37442;
+            this.CULL_FACE = 2884;
+            this.CULL_FACE_MODE = 2885;
+            this.CURRENT_PROGRAM = 35725;
+            this.CURRENT_VERTEX_ATTRIB = 34342;
+            this.CW = 2304;
+            this.DECR = 7683;
+            this.DECR_WRAP = 34056;
+            this.DELETE_STATUS = 35712;
+            this.DEPTH_ATTACHMENT = 36096;
+            this.DEPTH_BITS = 3414;
+            this.DEPTH_BUFFER_BIT = 256;
+            this.DEPTH_CLEAR_VALUE = 2931;
+            this.DEPTH_COMPONENT = 6402;
+            this.DEPTH_COMPONENT16 = 33189;
+            this.DEPTH_FUNC = 2932;
+            this.DEPTH_RANGE = 2928;
+            this.DEPTH_STENCIL = 34041;
+            this.DEPTH_STENCIL_ATTACHMENT = 33306;
+            this.DEPTH_TEST = 2929;
+            this.DEPTH_WRITEMASK = 2930;
+            this.DITHER = 3024;
+            this.DONT_CARE = 4352;
+            this.DST_ALPHA = 772;
+            this.DST_COLOR = 774;
+            this.DYNAMIC_DRAW = 35048;
+            this.ELEMENT_ARRAY_BUFFER = 34963;
+            this.ELEMENT_ARRAY_BUFFER_BINDING = 34965;
+            this.EQUAL = 514;
+            this.FASTEST = 4353;
+            this.FLOAT = 5126;
+            this.FLOAT_MAT2 = 35674;
+            this.FLOAT_MAT3 = 35675;
+            this.FLOAT_MAT4 = 35676;
+            this.FLOAT_VEC2 = 35664;
+            this.FLOAT_VEC3 = 35665;
+            this.FLOAT_VEC4 = 35666;
+            this.FRAGMENT_SHADER = 35632;
+            this.FRAMEBUFFER = 36160;
+            this.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME = 36049;
+            this.FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE = 36048;
+            this.FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE = 36051;
+            this.FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL = 36050;
+            this.FRAMEBUFFER_BINDING = 36006;
+            this.FRAMEBUFFER_COMPLETE = 36053;
+            this.FRAMEBUFFER_INCOMPLETE_ATTACHMENT = 36054;
+            this.FRAMEBUFFER_INCOMPLETE_DIMENSIONS = 36057;
+            this.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT = 36055;
+            this.FRAMEBUFFER_UNSUPPORTED = 36061;
+            this.FRONT = 1028;
+            this.FRONT_AND_BACK = 1032;
+            this.FRONT_FACE = 2886;
+            this.FUNC_ADD = 32774;
+            this.FUNC_REVERSE_SUBTRACT = 32779;
+            this.FUNC_SUBTRACT = 32778;
+            this.GENERATE_MIPMAP_HINT = 33170;
+            this.GEQUAL = 518;
+            this.GREATER = 516;
+            this.GREEN_BITS = 3411;
+            this.HIGH_FLOAT = 36338;
+            this.HIGH_INT = 36341;
+            this.IMPLEMENTATION_COLOR_READ_FORMAT = 35739;
+            this.IMPLEMENTATION_COLOR_READ_TYPE = 35738;
+            this.INCR = 7682;
+            this.INCR_WRAP = 34055;
+            this.INT = 5124;
+            this.INT_VEC2 = 35667;
+            this.INT_VEC3 = 35668;
+            this.INT_VEC4 = 35669;
+            this.INVALID_ENUM = 1280;
+            this.INVALID_FRAMEBUFFER_OPERATION = 1286;
+            this.INVALID_OPERATION = 1282;
+            this.INVALID_VALUE = 1281;
+            this.INVERT = 5386;
+            this.KEEP = 7680;
+            this.LEQUAL = 515;
+            this.LESS = 513;
+            this.LINEAR = 9729;
+            this.LINEAR_MIPMAP_LINEAR = 9987;
+            this.LINEAR_MIPMAP_NEAREST = 9985;
+            this.LINES = 1;
+            this.LINE_LOOP = 2;
+            this.LINE_STRIP = 3;
+            this.LINE_WIDTH = 2849;
+            this.LINK_STATUS = 35714;
+            this.LOW_FLOAT = 36336;
+            this.LOW_INT = 36339;
+            this.LUMINANCE = 6409;
+            this.LUMINANCE_ALPHA = 6410;
+            this.MAX_COMBINED_TEXTURE_IMAGE_UNITS = 35661;
+            this.MAX_CUBE_MAP_TEXTURE_SIZE = 34076;
+            this.MAX_FRAGMENT_UNIFORM_VECTORS = 36349;
+            this.MAX_RENDERBUFFER_SIZE = 34024;
+            this.MAX_TEXTURE_IMAGE_UNITS = 34930;
+            this.MAX_TEXTURE_SIZE = 3379;
+            this.MAX_VARYING_VECTORS = 36348;
+            this.MAX_VERTEX_ATTRIBS = 34921;
+            this.MAX_VERTEX_TEXTURE_IMAGE_UNITS = 35660;
+            this.MAX_VERTEX_UNIFORM_VECTORS = 36347;
+            this.MAX_VIEWPORT_DIMS = 3386;
+            this.MEDIUM_FLOAT = 36337;
+            this.MEDIUM_INT = 36340;
+            this.MIRRORED_REPEAT = 33648;
+            this.NEAREST = 9728;
+            this.NEAREST_MIPMAP_LINEAR = 9986;
+            this.NEAREST_MIPMAP_NEAREST = 9984;
+            this.NEVER = 512;
+            this.NICEST = 4354;
+            this.NONE = 0;
+            this.NOTEQUAL = 517;
+            this.NO_ERROR = 0;
+            this.ONE = 1;
+            this.ONE_MINUS_CONSTANT_ALPHA = 32772;
+            this.ONE_MINUS_CONSTANT_COLOR = 32770;
+            this.ONE_MINUS_DST_ALPHA = 773;
+            this.ONE_MINUS_DST_COLOR = 775;
+            this.ONE_MINUS_SRC_ALPHA = 771;
+            this.ONE_MINUS_SRC_COLOR = 769;
+            this.OUT_OF_MEMORY = 1285;
+            this.PACK_ALIGNMENT = 3333;
+            this.POINTS = 0;
+            this.POLYGON_OFFSET_FACTOR = 32824;
+            this.POLYGON_OFFSET_FILL = 32823;
+            this.POLYGON_OFFSET_UNITS = 10752;
+            this.RED_BITS = 3410;
+            this.RENDERBUFFER = 36161;
+            this.RENDERBUFFER_ALPHA_SIZE = 36179;
+            this.RENDERBUFFER_BINDING = 36007;
+            this.RENDERBUFFER_BLUE_SIZE = 36178;
+            this.RENDERBUFFER_DEPTH_SIZE = 36180;
+            this.RENDERBUFFER_GREEN_SIZE = 36177;
+            this.RENDERBUFFER_HEIGHT = 36163;
+            this.RENDERBUFFER_INTERNAL_FORMAT = 36164;
+            this.RENDERBUFFER_RED_SIZE = 36176;
+            this.RENDERBUFFER_STENCIL_SIZE = 36181;
+            this.RENDERBUFFER_WIDTH = 36162;
+            this.RENDERER = 7937;
+            this.REPEAT = 10497;
+            this.REPLACE = 7681;
+            this.RGB = 6407;
+            this.RGB5_A1 = 32855;
+            this.RGB565 = 36194;
+            this.RGBA = 6408;
+            this.RGBA4 = 32854;
+            this.SAMPLER_2D = 35678;
+            this.SAMPLER_CUBE = 35680;
+            this.SAMPLES = 32937;
+            this.SAMPLE_ALPHA_TO_COVERAGE = 32926;
+            this.SAMPLE_BUFFERS = 32936;
+            this.SAMPLE_COVERAGE = 32928;
+            this.SAMPLE_COVERAGE_INVERT = 32939;
+            this.SAMPLE_COVERAGE_VALUE = 32938;
+            this.SCISSOR_BOX = 3088;
+            this.SCISSOR_TEST = 3089;
+            this.SHADER_TYPE = 35663;
+            this.SHADING_LANGUAGE_VERSION = 35724;
+            this.SHORT = 5122;
+            this.SRC_ALPHA = 770;
+            this.SRC_ALPHA_SATURATE = 776;
+            this.SRC_COLOR = 768;
+            this.STATIC_DRAW = 35044;
+            this.STENCIL_ATTACHMENT = 36128;
+            this.STENCIL_BACK_FAIL = 34817;
+            this.STENCIL_BACK_FUNC = 34816;
+            this.STENCIL_BACK_PASS_DEPTH_FAIL = 34818;
+            this.STENCIL_BACK_PASS_DEPTH_PASS = 34819;
+            this.STENCIL_BACK_REF = 36003;
+            this.STENCIL_BACK_VALUE_MASK = 36004;
+            this.STENCIL_BACK_WRITEMASK = 36005;
+            this.STENCIL_BITS = 3415;
+            this.STENCIL_BUFFER_BIT = 1024;
+            this.STENCIL_CLEAR_VALUE = 2961;
+            this.STENCIL_FAIL = 2964;
+            this.STENCIL_FUNC = 2962;
+            this.STENCIL_INDEX8 = 36168;
+            this.STENCIL_PASS_DEPTH_FAIL = 2965;
+            this.STENCIL_PASS_DEPTH_PASS = 2966;
+            this.STENCIL_REF = 2967;
+            this.STENCIL_TEST = 2960;
+            this.STENCIL_VALUE_MASK = 2963;
+            this.STENCIL_WRITEMASK = 2968;
+            this.STREAM_DRAW = 35040;
+            this.SUBPIXEL_BITS = 3408;
+            this.TEXTURE = 5890;
+            this.TEXTURE0 = 33984;
+            this.TEXTURE1 = 33985;
+            this.TEXTURE2 = 33986;
+            this.TEXTURE3 = 33987;
+            this.TEXTURE4 = 33988;
+            this.TEXTURE5 = 33989;
+            this.TEXTURE6 = 33990;
+            this.TEXTURE7 = 33991;
+            this.TEXTURE8 = 33992;
+            this.TEXTURE9 = 33993;
+            this.TEXTURE10 = 33994;
+            this.TEXTURE11 = 33995;
+            this.TEXTURE12 = 33996;
+            this.TEXTURE13 = 33997;
+            this.TEXTURE14 = 33998;
+            this.TEXTURE15 = 33999;
+            this.TEXTURE16 = 34000;
+            this.TEXTURE17 = 34001;
+            this.TEXTURE18 = 34002;
+            this.TEXTURE19 = 34003;
+            this.TEXTURE20 = 34004;
+            this.TEXTURE21 = 34005;
+            this.TEXTURE22 = 34006;
+            this.TEXTURE23 = 34007;
+            this.TEXTURE24 = 34008;
+            this.TEXTURE25 = 34009;
+            this.TEXTURE26 = 34010;
+            this.TEXTURE27 = 34011;
+            this.TEXTURE28 = 34012;
+            this.TEXTURE29 = 34013;
+            this.TEXTURE30 = 34014;
+            this.TEXTURE31 = 34015;
+            this.TEXTURE_2D = 3553;
+            this.TEXTURE_BINDING_2D = 32873;
+            this.TEXTURE_BINDING_CUBE_MAP = 34068;
+            this.TEXTURE_CUBE_MAP = 34067;
+            this.TEXTURE_CUBE_MAP_NEGATIVE_X = 34070;
+            this.TEXTURE_CUBE_MAP_NEGATIVE_Y = 34072;
+            this.TEXTURE_CUBE_MAP_NEGATIVE_Z = 34074;
+            this.TEXTURE_CUBE_MAP_POSITIVE_X = 34069;
+            this.TEXTURE_CUBE_MAP_POSITIVE_Y = 34071;
+            this.TEXTURE_CUBE_MAP_POSITIVE_Z = 34073;
+            this.TEXTURE_MAG_FILTER = 10240;
+            this.TEXTURE_MIN_FILTER = 10241;
+            this.TEXTURE_WRAP_S = 10242;
+            this.TEXTURE_WRAP_T = 10243;
+            this.TRIANGLES = 4;
+            this.TRIANGLE_FAN = 6;
+            this.TRIANGLE_STRIP = 5;
+            this.UNPACK_ALIGNMENT = 3317;
+            this.UNPACK_COLORSPACE_CONVERSION_WEBGL = 37443;
+            this.UNPACK_FLIP_Y_WEBGL = 37440;
+            this.UNPACK_PREMULTIPLY_ALPHA_WEBGL = 37441;
+            this.UNSIGNED_BYTE = 5121;
+            this.UNSIGNED_INT = 5125;
+            this.UNSIGNED_SHORT = 5123;
+            this.UNSIGNED_SHORT_4_4_4_4 = 32819;
+            this.UNSIGNED_SHORT_5_5_5_1 = 32820;
+            this.UNSIGNED_SHORT_5_6_5 = 33635;
+            this.VALIDATE_STATUS = 35715;
+            this.VENDOR = 7936;
+            this.VERSION = 7938;
+            this.VERTEX_ATTRIB_ARRAY_BUFFER_BINDING = 34975;
+            this.VERTEX_ATTRIB_ARRAY_ENABLED = 34338;
+            this.VERTEX_ATTRIB_ARRAY_NORMALIZED = 34922;
+            this.VERTEX_ATTRIB_ARRAY_POINTER = 34373;
+            this.VERTEX_ATTRIB_ARRAY_SIZE = 34339;
+            this.VERTEX_ATTRIB_ARRAY_STRIDE = 34340;
+            this.VERTEX_ATTRIB_ARRAY_TYPE = 34341;
+            this.VERTEX_SHADER = 35633;
+            this.VIEWPORT = 2978;
+            this.ZERO = 0;
+            this.canvas = canvas;
+            this.gl = this.canvas.getContext('webgl', contextAttributes) || this.canvas.getContext('experimental-webgl', contextAttributes);
+        }
+        activeTexture(texture) {
+            this.gl.activeTexture(texture);
+        }
+        attachShader(program, shader) {
+            this.gl.attachShader(program, shader);
+        }
+        bindAttribLocation(program, index, name) {
+            this.gl.bindAttribLocation(program, index, name);
+        }
+        bindBuffer(target, buffer) {
+            this.gl.bindBuffer(target, buffer);
+        }
+        bindFramebuffer(target, framebuffer) {
+            this.gl.bindFramebuffer(target, framebuffer);
+        }
+        bindRenderbuffer(target, renderbuffer) {
+            this.gl.bindRenderbuffer(target, renderbuffer);
+        }
+        bindTexture(target, texture) {
+            this.gl.bindTexture(target, texture);
+        }
+        blendColor(red, green, blue, alpha) {
+            this.gl.blendColor(red, green, blue, alpha);
+        }
+        blendEquation(mode) {
+            this.gl.blendEquation(mode);
+        }
+        blendEquationSeparate(modeRGB, modeAlpha) {
+            this.gl.blendEquationSeparate(modeRGB, modeAlpha);
+        }
+        blendFunc(modeRGB, modeAlpha) {
+            this.gl.blendFunc(modeRGB, modeAlpha);
+        }
+        blendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha) {
+            this.gl.blendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+        }
+        bufferData(target, size, usage) {
+            this.gl.bufferData(target, size, usage);
+        }
+        bufferSubData(target, offset, data) {
+            this.gl.bufferSubData(target, offset, data);
+        }
+        checkFramebufferStatus(target) {
+            var result = this.gl.checkFramebufferStatus(target);
+            return result;
+        }
+        clear(mask) {
+            this.gl.clear(mask);
+        }
+        clearColor(red, green, blue, alpha) {
+            this.gl.clearColor(red, green, blue, alpha);
+        }
+        clearDepth(depth) {
+            this.gl.clearDepth(depth);
+        }
+        clearStencil(s) {
+            this.gl.clearStencil(s);
+        }
+        colorMask(red, green, blue, alpha) {
+            this.gl.colorMask(red, green, blue, alpha);
+        }
+        compileShader(shader) {
+            this.gl.compileShader(shader);
+        }
+        compressedTexImage2D(target, level, internalformat, width, height, border, data) {
+            this.gl.compressedTexImage2D(target, level, internalformat, width, height, border, data);
+        }
+        compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, data) {
+            this.gl.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, data);
+        }
+        copyTexImage2D(target, level, internalformat, x, y, width, height, border) {
+            this.gl.copyTexImage2D(target, level, internalformat, x, y, width, height, border);
+        }
+        copyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height) {
+            this.gl.copyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
+        }
+        createBuffer() {
+            return this.gl.createBuffer();
+        }
+        createFramebuffer() {
+            return this.gl.createFramebuffer();
+        }
+        createProgram() {
+            return this.gl.createProgram();
+        }
+        createRenderbuffer() {
+            return this.gl.createRenderbuffer();
+        }
+        createShader(type) {
+            return this.gl.createShader(type);
+        }
+        createTexture() {
+            return this.gl.createTexture();
+        }
+        cullFace(mode) {
+            this.gl.cullFace(mode);
+        }
+        deleteBuffer(buffer) {
+            this.gl.deleteBuffer(buffer);
+        }
+        deleteFramebuffer(framebuffer) {
+            this.gl.deleteFramebuffer(framebuffer);
+        }
+        deleteProgram(program) {
+            this.gl.deleteProgram(program);
+        }
+        deleteRenderbuffer(program) {
+            this.gl.deleteRenderbuffer(program);
+        }
+        deleteShader(shader) {
+            this.gl.deleteShader(shader);
+        }
+        deleteTexture(texture) {
+            this.gl.deleteTexture(texture);
+        }
+        depthFunc(func) {
+            this.gl.depthFunc(func);
+        }
+        depthMask(flag) {
+            this.gl.depthMask(flag);
+        }
+        depthRange(zNear, zFar) {
+            this.gl.depthRange(zNear, zFar);
+        }
+        detachShader(program, shader) {
+            this.gl.detachShader(program, shader);
+        }
+        disable(cap) {
+            this.gl.disable(cap);
+        }
+        disableVertexAttribArray(index) {
+            this.gl.disableVertexAttribArray(index);
+        }
+        drawArrays(mode, first, count) {
+            this.gl.drawArrays(mode, first, count);
+        }
+        drawElements(mode, count, type, offset) {
+            this.gl.drawElements(mode, count, type, offset);
+        }
+        enable(cap) {
+            this.gl.enable(cap);
+        }
+        enableVertexAttribArray(index) {
+            this.gl.enableVertexAttribArray(index);
+        }
+        finish() {
+            this.gl.finish();
+        }
+        flush() {
+            this.gl.flush();
+        }
+        framebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer) {
+            this.gl.framebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+        }
+        framebufferTexture2D(target, attachment, textarget, texture, level) {
+            this.gl.framebufferTexture2D(target, attachment, textarget, texture, level);
+        }
+        frontFace(mode) {
+            this.gl.frontFace(mode);
+        }
+        generateMipmap(mode) {
+            return this.gl.generateMipmap(mode);
+        }
+        getActiveAttrib(program, index) {
+            return this.gl.getActiveAttrib(program, index);
+        }
+        getActiveUniform(program, index) {
+            return this.gl.getActiveUniform(program, index);
+        }
+        getAttachedShaders(program) {
+            return this.gl.getAttachedShaders(program);
+        }
+        getAttribLocation(program, name) {
+            return this.gl.getAttribLocation(program, name);
+        }
+        getBufferParameter(target, pname) {
+            return this.gl.getBufferParameter(target, pname);
+        }
+        getContextAttributes() {
+            return this.gl.getContextAttributes();
+        }
+        getError() {
+            return this.gl.getError();
+        }
+        // todo
+        getExtension(extensionName) {
+            var result = this.gl.getExtension(extensionName);
+            return result;
+        }
+        getFramebufferAttachmentParameter(target, attachment, pname) {
+            return this.gl.getFramebufferAttachmentParameter(target, attachment, pname);
+        }
+        getParameter(pname) {
+            var result = this.gl.getParameter(pname);
+            return result;
+        }
+        getProgramInfoLog(program) {
+            return this.gl.getProgramInfoLog(program);
+        }
+        getProgramParameter(program, pname) {
+            return this.gl.getProgramParameter(program, pname);
+        }
+        getRenderbufferParameter(target, pname) {
+            return this.gl.getRenderbufferParameter(target, pname);
+        }
+        getShaderInfoLog(shader) {
+            return this.gl.getShaderInfoLog(shader);
+        }
+        getShaderParameter(shader, pname) {
+            return this.gl.getShaderParameter(shader, pname);
+        }
+        getShaderPrecisionFormat(shadertype, precisiontype) {
+            this.gl.getShaderPrecisionFormat(shadertype, precisiontype);
+        }
+        getShaderSource(shader) {
+            return this.gl.getShaderSource(shader);
+        }
+        getSupportedExtensions() {
+            return this.gl.getSupportedExtensions();
+        }
+        getTexParameter(target, pname) {
+            return this.gl.getTexParameter(target, pname);
+        }
+        getUniform(program, location) {
+            return this.gl.getUniform(program, location);
+        }
+        getUniformLocation(program, name) {
+            return this.gl.getUniformLocation(program, name);
+        }
+        getVertexAttrib(index, pname) {
+            return this.gl.getVertexAttrib(index, pname);
+        }
+        getVertexAttribOffset(index, pname) {
+            return this.gl.getVertexAttribOffset(index, pname);
+        }
+        hint(target, mode) {
+            this.gl.hint(target, mode);
+        }
+        isBuffer(buffer) {
+            this.gl.isBuffer(buffer);
+        }
+        isContextLost() {
+            this.gl.isContextLost();
+        }
+        isEnabled(cap) {
+            this.gl.isEnabled(cap);
+        }
+        isFramebuffer(framebuffer) {
+            this.gl.isFramebuffer(framebuffer);
+        }
+        isProgram(program) {
+            this.gl.isProgram(program);
+        }
+        isRenderbuffer(renderbuffer) {
+            this.gl.isRenderbuffer(renderbuffer);
+        }
+        isShader(shader) {
+            this.gl.isShader(shader);
+        }
+        isTexture(shader) {
+            this.gl.isTexture(shader);
+        }
+        lineWidth(width) {
+            this.gl.lineWidth(width);
+        }
+        linkProgram(program) {
+            this.gl.linkProgram(program);
+        }
+        pixelStorei(pname, param) {
+            this.gl.pixelStorei(pname, param);
+        }
+        polygonOffset(factor, units) {
+            this.gl.polygonOffset(factor, units);
+        }
+        readPixels(x, y, width, height, format, type, pixels) {
+            this.gl.readPixels(x, y, width, height, format, type, pixels);
+        }
+        renderbufferStorage(target, internalformat, width, height) {
+            this.gl.renderbufferStorage(target, internalformat, width, height);
+        }
+        sampleCoverage(value, invert) {
+            this.gl.sampleCoverage(value, invert);
+        }
+        scissor(x, y, width, height) {
+            this.gl.scissor(x, y, width, height);
+        }
+        shaderSource(shader, source) {
+            this.gl.shaderSource(shader, source);
+        }
+        stencilFunc(func, ref, mask) {
+            this.gl.stencilFunc(func, ref, mask);
+        }
+        stencilFuncSeparate(face, func, ref, mask) {
+            this.gl.stencilFuncSeparate(face, func, ref, mask);
+        }
+        stencilMask(mask) {
+            this.gl.stencilMask(mask);
+        }
+        stencilMaskSeparate(face, mask) {
+            this.gl.stencilMaskSeparate(face, mask);
+        }
+        stencilOp(fail, zfail, zpass) {
+            this.gl.stencilOp(fail, zfail, zpass);
+        }
+        stencilOpSeparate(face, fail, zfail, zpass) {
+            this.gl.stencilOpSeparate(face, fail, zfail, zpass);
+        }
+        texImage2D(target, level, internalformat, width, height, border, format, type, pixels) {
+            this.gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+        }
+        texParameterf(target, pname, param) {
+            this.gl.texParameterf(target, pname, param);
+        }
+        texParameteri(target, pname, param) {
+            this.gl.texParameteri(target, pname, param);
+        }
+        texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels) {
+            this.gl.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+        }
+        uniform1f(location, x) {
+            this.gl.uniform1f(location, x);
+        }
+        uniform1fv(location, v) {
+            this.gl.uniform1fv(location, v);
+        }
+        uniform1i(location, x) {
+            this.gl.uniform1i(location, x);
+        }
+        uniform1iv(location, v) {
+            this.gl.uniform1iv(location, v);
+        }
+        uniform2f(location, x, y) {
+            this.gl.uniform2f(location, x, y);
+        }
+        uniform2fv(location, v) {
+            this.gl.uniform2fv(location, v);
+        }
+        uniform2i(location, x, y) {
+            this.gl.uniform2i(location, x, y);
+        }
+        uniform2iv(location, v) {
+            this.gl.uniform2iv(location, v);
+        }
+        uniform3f(location, x, y, z) {
+            this.gl.uniform3f(location, x, y, z);
+        }
+        uniform3fv(location, v) {
+            this.gl.uniform3fv(location, v);
+        }
+        uniform3i(location, x, y, z) {
+            this.gl.uniform3i(location, x, y, z);
+        }
+        uniform3iv(location, v) {
+            this.gl.uniform3iv(location, v);
+        }
+        uniform4f(location, x, y, z, w) {
+            this.gl.uniform4f(location, x, y, z, w);
+        }
+        uniform4fv(location, v) {
+            this.gl.uniform4fv(location, v);
+        }
+        uniform4i(location, x, y, z, w) {
+            this.gl.uniform4i(location, x, y, z, w);
+        }
+        uniform4iv(location, v) {
+            this.gl.uniform4iv(location, v);
+        }
+        uniformMatrix2fv(location, transpose, value) {
+            this.gl.uniformMatrix2fv(location, transpose, value);
+        }
+        uniformMatrix3fv(location, transpose, value) {
+            this.gl.uniformMatrix3fv(location, transpose, value);
+        }
+        uniformMatrix4fv(location, transpose, value) {
+            this.gl.uniformMatrix4fv(location, transpose, value);
+        }
+        useProgram(program) {
+            this.gl.useProgram(program);
+        }
+        validateProgram(program) {
+            this.gl.validateProgram(program);
+        }
+        vertexAttrib1f(indx, x) {
+            this.gl.vertexAttrib1f(indx, x);
+        }
+        vertexAttrib1fv(indx, values) {
+            this.gl.vertexAttrib1fv(indx, values);
+        }
+        vertexAttrib2f(indx, x, y) {
+            this.gl.vertexAttrib2f(indx, x, y);
+        }
+        vertexAttrib2fv(indx, values) {
+            this.gl.vertexAttrib2fv(indx, values);
+        }
+        vertexAttrib3f(indx, x, y, z) {
+            this.gl.vertexAttrib3f(indx, x, y, z);
+        }
+        vertexAttrib3fv(indx, values) {
+            this.gl.vertexAttrib3fv(indx, values);
+        }
+        vertexAttrib4f(indx, x, y, z, w) {
+            this.gl.vertexAttrib4f(indx, x, y, z, w);
+        }
+        vertexAttrib4fv(indx, values) {
+            this.gl.vertexAttrib4fv(indx, values);
+        }
+        vertexAttribPointer(indx, size, type, normalized, stride, offset) {
+            this.gl.vertexAttribPointer(indx, size, type, normalized, stride, offset);
+        }
+        viewport(x, y, width, height) {
+            this.gl.viewport(x, y, width, height);
+        }
+    }
+    THREE.WebGLContext = WebGLContext;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
+    class WebGLExtensionsNode {
         constructor(gl) {
             this.extensions = {};
             this.gl = gl;
@@ -22760,11 +23488,11 @@ var THREE;
             return extension;
         }
     }
-    THREE.WebGLExtensions = WebGLExtensions;
+    THREE.WebGLExtensionsNode = WebGLExtensionsNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLGeometries {
+    class WebGLGeometriesNode {
         constructor(gl, attributes, info) {
             this.geometries = {};
             this.wireframeAttributes = {};
@@ -22867,11 +23595,11 @@ var THREE;
             return attribute;
         }
     }
-    THREE.WebGLGeometries = WebGLGeometries;
+    THREE.WebGLGeometriesNode = WebGLGeometriesNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLIndexedBufferRenderer {
+    class WebGLIndexedBufferRendererNode {
         constructor(gl, extensions, info) {
             this.gl = gl;
             this.extensions = extensions;
@@ -22898,11 +23626,11 @@ var THREE;
             this.info.update(count, this.mode, geometry.maxInstancedCount);
         }
     }
-    THREE.WebGLIndexedBufferRenderer = WebGLIndexedBufferRenderer;
+    THREE.WebGLIndexedBufferRendererNode = WebGLIndexedBufferRendererNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLInfo {
+    class WebGLInfoNode {
         constructor(gl) {
             this.gl = gl;
             this.memory = {
@@ -22963,7 +23691,7 @@ var THREE;
             };
         }
     }
-    THREE.WebGLInfo = WebGLInfo;
+    THREE.WebGLInfoNode = WebGLInfoNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -23038,11 +23766,11 @@ var THREE;
         }
     }
     THREE.UniformsCache = UniformsCache;
-    class WebGLLights {
+    class WebGLLightsNode {
         constructor() {
             this.cache = new UniformsCache();
             this.state = {
-                id: WebGLLights.count++,
+                id: WebGLLightsNode.count++,
                 hash: '',
                 ambient: [0, 0, 0],
                 directional: [],
@@ -23189,8 +23917,8 @@ var THREE;
             this.state.hash = this.state.id + ',' + directionalLength + ',' + pointLength + ',' + spotLength + ',' + rectAreaLength + ',' + hemiLength + ',' + shadows.length;
         }
     }
-    WebGLLights.count = 0;
-    THREE.WebGLLights = WebGLLights;
+    WebGLLightsNode.count = 0;
+    THREE.WebGLLightsNode = WebGLLightsNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -23198,7 +23926,7 @@ var THREE;
         return Math.abs(b[1]) - Math.abs(a[1]);
     }
     THREE.absNumericalSort = absNumericalSort;
-    class WebGLMorphtargets {
+    class WebGLMorphtargetsNode {
         constructor(gl) {
             this.influencesList = {};
             this.morphInfluences = new Float32Array(8);
@@ -23254,11 +23982,11 @@ var THREE;
             program.getUniforms().setValue(this.gl, 'morphTargetInfluences', this.morphInfluences);
         }
     }
-    THREE.WebGLMorphtargets = WebGLMorphtargets;
+    THREE.WebGLMorphtargetsNode = WebGLMorphtargetsNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLObjects {
+    class WebGLObjectsNode {
         constructor(geometries, info) {
             this.geometries = geometries;
             this.info = info;
@@ -23282,7 +24010,7 @@ var THREE;
             this.updateList = {};
         }
     }
-    THREE.WebGLObjects = WebGLObjects;
+    THREE.WebGLObjectsNode = WebGLObjectsNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -23404,7 +24132,7 @@ var THREE;
         }
         return string.replace(pattern, replace);
     }
-    class WebGLProgram {
+    class WebGLProgramNode {
         constructor(renderer, extensions, code, material, shader, parameters) {
             this.name = shader.name;
             this.id = programIdCount++;
@@ -23623,8 +24351,8 @@ var THREE;
             var fragmentGlsl = prefixFragment + fragmentShader;
             // console.log( '*VERTEX*', vertexGlsl );
             // console.log( '*FRAGMENT*', fragmentGlsl );
-            var glVertexShader = THREE.WebGLShader(gl, gl.VERTEX_SHADER, vertexGlsl);
-            var glFragmentShader = THREE.WebGLShader(gl, gl.FRAGMENT_SHADER, fragmentGlsl);
+            var glVertexShader = THREE.webGLCreateShader(gl, gl.VERTEX_SHADER, vertexGlsl);
+            var glFragmentShader = THREE.webGLCreateShader(gl, gl.FRAGMENT_SHADER, fragmentGlsl);
             this.vertexShader = glVertexShader;
             this.fragmentShader = glFragmentShader;
             gl.attachShader(program, glVertexShader);
@@ -23677,7 +24405,7 @@ var THREE;
         }
         getUniforms() {
             if (this.cachedUniforms === undefined) {
-                this.cachedUniforms = new THREE.WebGLUniforms(this.gl, this.program, this.renderer);
+                this.cachedUniforms = new THREE.WebGLUniformsNode(this.gl, this.program, this.renderer);
             }
             return this.cachedUniforms;
         }
@@ -23705,11 +24433,11 @@ var THREE;
             return this.getAttributes();
         }
     }
-    THREE.WebGLProgram = WebGLProgram;
+    THREE.WebGLProgramNode = WebGLProgramNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLPrograms {
+    class WebGLProgramsNode {
         constructor(renderer, extensions, capabilities) {
             this.programs = [];
             this.renderer = renderer;
@@ -23885,7 +24613,7 @@ var THREE;
                 }
             }
             if (program === undefined) {
-                program = new THREE.WebGLProgram(this.renderer, this.extensions, code, material, shader, parameters);
+                program = new THREE.WebGLProgramNode(this.renderer, this.extensions, code, material, shader, parameters);
                 this.programs.push(program);
             }
             return program;
@@ -23903,11 +24631,11 @@ var THREE;
         }
         ;
     }
-    THREE.WebGLPrograms = WebGLPrograms;
+    THREE.WebGLProgramsNode = WebGLProgramsNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLProperties {
+    class WebGLPropertiesNode {
         constructor() {
             this.properties = new WeakMap();
         }
@@ -23929,7 +24657,7 @@ var THREE;
             this.properties = new WeakMap();
         }
     }
-    THREE.WebGLProperties = WebGLProperties;
+    THREE.WebGLPropertiesNode = WebGLPropertiesNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -23961,7 +24689,7 @@ var THREE;
             return a.id - b.id;
         }
     }
-    class WebGLRenderList {
+    class WebGLRenderListNode {
         constructor() {
             this.renderItems = [];
             this.renderItemsIndex = 0;
@@ -24008,8 +24736,8 @@ var THREE;
                 this.transparent.sort(reversePainterSortStable);
         }
     }
-    THREE.WebGLRenderList = WebGLRenderList;
-    class WebGLRenderLists {
+    THREE.WebGLRenderListNode = WebGLRenderListNode;
+    class WebGLRenderListsNode {
         constructor() {
             this.lists = {};
         }
@@ -24018,7 +24746,7 @@ var THREE;
             var list = this.lists[hash];
             if (list === undefined) {
                 // console.log( 'THREE.WebGLRenderLists:', hash );
-                list = new WebGLRenderList();
+                list = new WebGLRenderListNode();
                 this.lists[hash] = list;
             }
             return list;
@@ -24027,13 +24755,13 @@ var THREE;
             this.lists = {};
         }
     }
-    THREE.WebGLRenderLists = WebGLRenderLists;
+    THREE.WebGLRenderListsNode = WebGLRenderListsNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLRenderState {
+    class WebGLRenderStateNode {
         constructor() {
-            this.lights = new THREE.WebGLLights();
+            this.lights = new THREE.WebGLLightsNode();
             this.lightsArray = [];
             this.shadowsArray = [];
             this.spritesArray = [];
@@ -24062,7 +24790,7 @@ var THREE;
             this.lights.setup(this.lightsArray, this.shadowsArray, camera);
         }
     }
-    THREE.WebGLRenderState = WebGLRenderState;
+    THREE.WebGLRenderStateNode = WebGLRenderStateNode;
     class WebGLRenderStates {
         constructor() {
             this.renderStates = {};
@@ -24071,7 +24799,7 @@ var THREE;
             var hash = scene.id + ',' + camera.id;
             var renderState = this.renderStates[hash];
             if (renderState === undefined) {
-                renderState = new WebGLRenderState();
+                renderState = new WebGLRenderStateNode();
                 this.renderStates[hash] = renderState;
             }
             return renderState;
@@ -24084,32 +24812,7 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    function addLineNumbers(string) {
-        var lines = string.split('\n');
-        for (var i = 0; i < lines.length; i++) {
-            lines[i] = (i + 1) + ': ' + lines[i];
-        }
-        return lines.join('\n');
-    }
-    function WebGLShader(gl, type, string) {
-        var shader = gl.createShader(type);
-        gl.shaderSource(shader, string);
-        gl.compileShader(shader);
-        if (gl.getShaderParameter(shader, gl.COMPILE_STATUS) === false) {
-            console.error('THREE.WebGLShader: Shader couldn\'t compile.');
-        }
-        if (gl.getShaderInfoLog(shader) !== '') {
-            console.warn('THREE.WebGLShader: gl.getShaderInfoLog()', type === gl.VERTEX_SHADER ? 'vertex' : 'fragment', gl.getShaderInfoLog(shader), addLineNumbers(string));
-        }
-        // --enable-privileged-webgl-extension
-        // console.log( type, gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( shader ) );
-        return shader;
-    }
-    THREE.WebGLShader = WebGLShader;
-})(THREE || (THREE = {}));
-var THREE;
-(function (THREE) {
-    class WebGLShadowMap {
+    class WebGLShadowMapNode {
         constructor(_renderer, _objects, maxTextureSize) {
             this.enabled = false;
             this.autoUpdate = true;
@@ -24374,11 +25077,11 @@ var THREE;
             }
         }
     }
-    THREE.WebGLShadowMap = WebGLShadowMap;
+    THREE.WebGLShadowMapNode = WebGLShadowMapNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLSpriteRenderer {
+    class WebGLSpriteRendererNode {
         constructor(renderer, gl, state, textures, capabilities) {
             this.renderer = renderer;
             this.gl = gl;
@@ -24629,7 +25332,7 @@ var THREE;
             }
         }
     }
-    THREE.WebGLSpriteRenderer = WebGLSpriteRenderer;
+    THREE.WebGLSpriteRendererNode = WebGLSpriteRendererNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -24819,7 +25522,7 @@ var THREE;
         }
     }
     THREE.StencilBuffer = StencilBuffer;
-    class WebGLState {
+    class WebGLStateNode {
         constructor(gl, extensions, utils) {
             this.version = 0;
             this.gl = gl;
@@ -25191,11 +25894,11 @@ var THREE;
             this.stencilBuffer.reset();
         }
     }
-    THREE.WebGLState = WebGLState;
+    THREE.WebGLStateNode = WebGLStateNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebGLTextures {
+    class WebGLTexturesNode {
         constructor(_gl, extensions, state, properties, capabilities, utils, info) {
             this._isWebGL2 = (typeof WebGL2RenderingContext !== 'undefined' && _gl instanceof WebGL2RenderingContext); /* global WebGL2RenderingContext */
             this._videoTextures = {};
@@ -25715,7 +26418,7 @@ var THREE;
             }
         }
     }
-    THREE.WebGLTextures = WebGLTextures;
+    THREE.WebGLTexturesNode = WebGLTexturesNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -26349,7 +27052,7 @@ var THREE;
     }
     THREE.parseUniform = parseUniform;
     // Root Container
-    class WebGLUniforms extends UniformContainer {
+    class WebGLUniformsNode extends UniformContainer {
         constructor(gl, program, renderer) {
             super();
             this.setValue = function (gl, name, value) {
@@ -26372,7 +27075,7 @@ var THREE;
         }
     }
     // Static interface
-    WebGLUniforms.upload = function (gl, seq, values, renderer) {
+    WebGLUniformsNode.upload = function (gl, seq, values, renderer) {
         for (var i = 0, n = seq.length; i !== n; ++i) {
             var u = seq[i], v = values[u.id];
             if (v.needsUpdate !== false) {
@@ -26381,7 +27084,7 @@ var THREE;
             }
         }
     };
-    WebGLUniforms.seqWithValue = function (seq, values) {
+    WebGLUniformsNode.seqWithValue = function (seq, values) {
         var r = [];
         for (var i = 0, n = seq.length; i !== n; ++i) {
             var u = seq[i];
@@ -26390,7 +27093,7 @@ var THREE;
         }
         return r;
     };
-    THREE.WebGLUniforms = WebGLUniforms;
+    THREE.WebGLUniformsNode = WebGLUniformsNode;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -26546,6 +27249,39 @@ var THREE;
         }
     }
     THREE.WebGLUtils = WebGLUtils;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
+    class WebglContextAttibutes {
+        constructor() {
+        }
+    }
+    THREE.WebglContextAttibutes = WebglContextAttibutes;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
+    function addLineNumbers(string) {
+        var lines = string.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+            lines[i] = (i + 1) + ': ' + lines[i];
+        }
+        return lines.join('\n');
+    }
+    function webGLCreateShader(gl, type, string) {
+        var shader = gl.createShader(type);
+        gl.shaderSource(shader, string);
+        gl.compileShader(shader);
+        if (gl.getShaderParameter(shader, gl.COMPILE_STATUS) === false) {
+            console.error('THREE.WebGLShader: Shader couldn\'t compile.');
+        }
+        if (gl.getShaderInfoLog(shader) !== '') {
+            console.warn('THREE.WebGLShader: gl.getShaderInfoLog()', type === gl.VERTEX_SHADER ? 'vertex' : 'fragment', gl.getShaderInfoLog(shader), addLineNumbers(string));
+        }
+        // --enable-privileged-webgl-extension
+        // console.log( type, gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( shader ) );
+        return shader;
+    }
+    THREE.webGLCreateShader = webGLCreateShader;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {

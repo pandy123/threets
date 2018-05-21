@@ -365,7 +365,7 @@ module THREE {
         }
     }
     // Root Container
-    export class WebGLUniforms extends UniformContainer {
+    export class WebGLUniformsNode extends UniformContainer {
         public renderer: any;
         constructor(gl, program, renderer) {
             super();

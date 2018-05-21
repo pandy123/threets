@@ -1,7 +1,7 @@
 module THREE {
 
 
-    export class WebGLGeometries {
+    export class WebGLGeometriesNode {
 
         public geometries;
         public gl;

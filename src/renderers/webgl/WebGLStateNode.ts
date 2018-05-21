@@ -314,7 +314,7 @@ module THREE {
             }
       }
 
-      export class WebGLState {
+      export class WebGLStateNode {
             public gl;
             public extensions;
             public utils;

@@ -1,7 +1,7 @@
 module THREE {
 
 
-    export class WebGLCapabilities {
+    export class WebGLCapabilitiesNode {
         public gl;
         public extensions;
         public parameters;

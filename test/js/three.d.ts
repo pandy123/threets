@@ -651,7 +651,11 @@ declare module THREE {
         traverseVisible(callback: any): void;
         traverseAncestors(callback: any): void;
         updateMatrix(): void;
-        updateMatrixWorld(force: any): void;
+        /**
+         * 更新matrixwrold参数，两种情况：force = true， matrixWorldNeedsUpdate = true
+         * @param force 是否强制更新
+         */
+        updateMatrixWorld(force: boolean): void;
         toJSON(meta: any): any;
         clone(recursive?: any): any;
         copy(source: any, recursive?: any): any;
@@ -3136,6 +3140,7 @@ declare module THREE {
 }
 declare module THREE {
     class Matrix4 {
+        /**矩阵数据 */
         elements: Array<number>;
         isMatrix4: boolean;
         constructor();
@@ -3152,6 +3157,12 @@ declare module THREE {
         lookAt(eye: Vector3, target: Vector3, up: Vector3): Matrix4;
         multiply(m: Matrix4, n?: Matrix4): Matrix4;
         premultiply(m: Matrix4): Matrix4;
+        /**
+         * 将矩阵a*b的结果赋值给this.elements
+         * @param a 矩阵a
+         * @param b 矩阵b
+         * @returns 返回实例本身
+         */
         multiplyMatrices(a: Matrix4, b: Matrix4): Matrix4;
         multiplyScalar(s: number): Matrix4;
         applyToBufferAttribute(attribute: any): any;
@@ -3699,8 +3710,8 @@ declare module THREE {
         constructor(parameters?: any);
         private getTargetPixelRatio();
         initGLContext(): void;
-        getContext(): any;
-        getContextAttributes(): any;
+        getContext(): WebGLContext;
+        getContextAttributes(): WebGLContextAttributes;
         forceContextLoss(): void;
         forceContextRestore(): void;
         getPixelRatio(): number;
@@ -4202,7 +4213,7 @@ declare module THREE {
     };
 }
 declare module THREE {
-    class WebGLAttributes {
+    class WebGLAttributesNode {
         gl: any;
         buffers: any;
         constructor(gl: any);
@@ -4219,7 +4230,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLBackground {
+    class WebGLBackgroundNode {
         renderer: any;
         clearColor: any;
         clearAlpha: any;
@@ -4239,7 +4250,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLBufferRenderer {
+    class WebGLBufferRendererNode {
         mode: any;
         gl: any;
         extensions: any;
@@ -4251,7 +4262,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLCapabilities {
+    class WebGLCapabilitiesNode {
         gl: any;
         extensions: any;
         parameters: any;
@@ -4275,7 +4286,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLClipping {
+    class WebGLClippingNode {
         globalState: any;
         numGlobalPlanes: any;
         localClippingEnabled: any;
@@ -4295,7 +4306,448 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLExtensions {
+    class WebGLContext {
+        gl: WebGLRenderingContext;
+        canvas: any;
+        drawingBufferHeight: any;
+        drawingBufferWidth: any;
+        constructor(canvas: any, contextAttributes: WebGLContextAttributes);
+        activeTexture(texture: number): void;
+        attachShader(program: WebGLProgram, shader: WebGLShader): void;
+        bindAttribLocation(program: WebGLProgram, index: number, name: string): void;
+        bindBuffer(target: number, buffer: WebGLBuffer): void;
+        bindFramebuffer(target: number, framebuffer: WebGLFramebuffer): void;
+        bindRenderbuffer(target: number, renderbuffer: WebGLRenderbuffer): void;
+        bindTexture(target: number, texture: WebGLTexture): void;
+        blendColor(red: number, green: number, blue: number, alpha: number): void;
+        blendEquation(mode: number): void;
+        blendEquationSeparate(modeRGB: number, modeAlpha: number): void;
+        blendFunc(modeRGB: number, modeAlpha: number): void;
+        blendFuncSeparate(srcRGB: number, dstRGB: number, srcAlpha: number, dstAlpha: number): void;
+        bufferData(target: number, size: number | Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer, usage: number): void;
+        bufferSubData(target: number, offset: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer): void;
+        checkFramebufferStatus(target: any): number;
+        clear(mask: number): void;
+        clearColor(red: number, green: number, blue: number, alpha: number): void;
+        clearDepth(depth: number): void;
+        clearStencil(s: number): void;
+        colorMask(red: boolean, green: boolean, blue: boolean, alpha: boolean): void;
+        compileShader(shader: WebGLShader): void;
+        compressedTexImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView): void;
+        compressedTexSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView): void;
+        copyTexImage2D(target: number, level: number, internalformat: number, x: number, y: number, width: number, height: number, border: number): void;
+        copyTexSubImage2D(target: number, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
+        createBuffer(): WebGLBuffer;
+        createFramebuffer(): WebGLFramebuffer;
+        createProgram(): WebGLProgram;
+        createRenderbuffer(): WebGLRenderbuffer;
+        createShader(type: number): WebGLShader;
+        createTexture(): WebGLTexture;
+        cullFace(mode: number): void;
+        deleteBuffer(buffer: WebGLBuffer): void;
+        deleteFramebuffer(framebuffer: WebGLFramebuffer): void;
+        deleteProgram(program: WebGLProgram): void;
+        deleteRenderbuffer(program: WebGLProgram): void;
+        deleteShader(shader: WebGLShader): void;
+        deleteTexture(texture: WebGLTexture): void;
+        depthFunc(func: number): void;
+        depthMask(flag: boolean): void;
+        depthRange(zNear: number, zFar: number): void;
+        detachShader(program: WebGLProgram, shader: WebGLShader): void;
+        disable(cap: number): void;
+        disableVertexAttribArray(index: number): void;
+        drawArrays(mode: number, first: number, count: number): void;
+        drawElements(mode: number, count: number, type: number, offset: number): void;
+        enable(cap: number): void;
+        enableVertexAttribArray(index: number): void;
+        finish(): void;
+        flush(): void;
+        framebufferRenderbuffer(target: number, attachment: number, renderbuffertarget: number, renderbuffer: WebGLRenderbuffer): void;
+        framebufferTexture2D(target: number, attachment: number, textarget: number, texture: WebGLTexture, level: number): void;
+        frontFace(mode: number): void;
+        generateMipmap(mode: number): void;
+        getActiveAttrib(program: WebGLProgram, index: number): WebGLActiveInfo;
+        getActiveUniform(program: WebGLProgram, index: number): WebGLActiveInfo;
+        getAttachedShaders(program: WebGLProgram): WebGLShader[];
+        getAttribLocation(program: WebGLProgram, name: string): number;
+        getBufferParameter(target: number, pname: number): any;
+        getContextAttributes(): WebGLContextAttributes;
+        getError(): number;
+        getExtension(extensionName: string): any;
+        getFramebufferAttachmentParameter(target: number, attachment: number, pname: number): any;
+        getParameter(pname: number): any;
+        getProgramInfoLog(program: WebGLProgram): string;
+        getProgramParameter(program: WebGLProgram, pname: number): any;
+        getRenderbufferParameter(target: number, pname: number): any;
+        getShaderInfoLog(shader: WebGLShader): string;
+        getShaderParameter(shader: WebGLShader, pname: number): any;
+        getShaderPrecisionFormat(shadertype: number, precisiontype: number): void;
+        getShaderSource(shader: WebGLShader): string;
+        getSupportedExtensions(): string[];
+        getTexParameter(target: number, pname: number): any;
+        getUniform(program: WebGLProgram, location: WebGLUniformLocation): any;
+        getUniformLocation(program: WebGLProgram, name: string): WebGLUniformLocation;
+        getVertexAttrib(index: number, pname: number): any;
+        getVertexAttribOffset(index: number, pname: number): number;
+        hint(target: number, mode: number): void;
+        isBuffer(buffer: WebGLBuffer): void;
+        isContextLost(): void;
+        isEnabled(cap: number): void;
+        isFramebuffer(framebuffer: WebGLFramebuffer): void;
+        isProgram(program: WebGLProgram): void;
+        isRenderbuffer(renderbuffer: WebGLRenderbuffer): void;
+        isShader(shader: WebGLShader): void;
+        isTexture(shader: WebGLShader): void;
+        lineWidth(width: number): void;
+        linkProgram(program: WebGLProgram): void;
+        pixelStorei(pname: number, param: number | boolean): void;
+        polygonOffset(factor: number, units: number): void;
+        readPixels(x: number, y: number, width: number, height: number, format: number, type: number, pixels: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView): void;
+        renderbufferStorage(target: number, internalformat: number, width: number, height: number): void;
+        sampleCoverage(value: number, invert: boolean): void;
+        scissor(x: number, y: number, width: number, height: number): void;
+        shaderSource(shader: WebGLShader, source: string): void;
+        stencilFunc(func: number, ref: number, mask: number): void;
+        stencilFuncSeparate(face: number, func: number, ref: number, mask: number): void;
+        stencilMask(mask: number): void;
+        stencilMaskSeparate(face: number, mask: number): void;
+        stencilOp(fail: number, zfail: number, zpass: number): void;
+        stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number): void;
+        texImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, format: number, type: number, pixels: ArrayBufferView): void;
+        texParameterf(target: number, pname: number, param: number): void;
+        texParameteri(target: number, pname: number, param: number): void;
+        texSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, type: number, pixels: ArrayBufferView): void;
+        uniform1f(location: WebGLUniformLocation, x: number): void;
+        uniform1fv(location: WebGLUniformLocation, v: Float32Array | ArrayLike<number>): void;
+        uniform1i(location: WebGLUniformLocation, x: number): void;
+        uniform1iv(location: WebGLUniformLocation, v: Int32Array | ArrayLike<number>): void;
+        uniform2f(location: WebGLUniformLocation, x: number, y: number): void;
+        uniform2fv(location: WebGLUniformLocation, v: Float32Array | ArrayLike<number>): void;
+        uniform2i(location: WebGLUniformLocation, x: number, y: number): void;
+        uniform2iv(location: WebGLUniformLocation, v: Int32Array | ArrayLike<number>): void;
+        uniform3f(location: WebGLUniformLocation, x: number, y: number, z: number): void;
+        uniform3fv(location: WebGLUniformLocation, v: Float32Array | ArrayLike<number>): void;
+        uniform3i(location: WebGLUniformLocation, x: number, y: number, z: number): void;
+        uniform3iv(location: WebGLUniformLocation, v: Int32Array | ArrayLike<number>): void;
+        uniform4f(location: WebGLUniformLocation, x: number, y: number, z: number, w: number): void;
+        uniform4fv(location: WebGLUniformLocation, v: Float32Array | ArrayLike<number>): void;
+        uniform4i(location: WebGLUniformLocation, x: number, y: number, z: number, w: number): void;
+        uniform4iv(location: WebGLUniformLocation, v: Int32Array | ArrayLike<number>): void;
+        uniformMatrix2fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
+        uniformMatrix3fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
+        uniformMatrix4fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
+        useProgram(program: WebGLProgram): void;
+        validateProgram(program: WebGLProgram): void;
+        vertexAttrib1f(indx: number, x: number): void;
+        vertexAttrib1fv(indx: number, values: Float32Array | number[]): void;
+        vertexAttrib2f(indx: number, x: number, y: number): void;
+        vertexAttrib2fv(indx: number, values: Float32Array | number[]): void;
+        vertexAttrib3f(indx: number, x: number, y: number, z: number): void;
+        vertexAttrib3fv(indx: number, values: Float32Array | number[]): void;
+        vertexAttrib4f(indx: any, x: any, y: any, z: any, w: any): void;
+        vertexAttrib4fv(indx: number, values: Float32Array | number[]): void;
+        vertexAttribPointer(indx: number, size: number, type: number, normalized: boolean, stride: number, offset: number): void;
+        viewport(x: number, y: number, width: number, height: number): void;
+        ACTIVE_ATTRIBUTES: number;
+        ACTIVE_TEXTURE: number;
+        ACTIVE_UNIFORMS: number;
+        ALIASED_LINE_WIDTH_RANGE: number;
+        ALIASED_POINT_SIZE_RANGE: number;
+        ALPHA: number;
+        ALPHA_BITS: number;
+        ALWAYS: number;
+        ARRAY_BUFFER: number;
+        ARRAY_BUFFER_BINDING: number;
+        ATTACHED_SHADERS: number;
+        BACK: number;
+        BLEND: number;
+        BLEND_COLOR: number;
+        BLEND_DST_ALPHA: number;
+        BLEND_DST_RGB: number;
+        BLEND_EQUATION: number;
+        BLEND_EQUATION_ALPHA: number;
+        BLEND_EQUATION_RGB: number;
+        BLEND_SRC_ALPHA: number;
+        BLEND_SRC_RGB: number;
+        BLUE_BITS: number;
+        BOOL: number;
+        BOOL_VEC2: number;
+        BOOL_VEC3: number;
+        BOOL_VEC4: number;
+        BROWSER_DEFAULT_WEBGL: number;
+        BUFFER_SIZE: number;
+        BUFFER_USAGE: number;
+        BYTE: number;
+        CCW: number;
+        CLAMP_TO_EDGE: number;
+        COLOR_ATTACHMENT0: number;
+        COLOR_BUFFER_BIT: number;
+        COLOR_CLEAR_VALUE: number;
+        COLOR_WRITEMASK: number;
+        COMPILE_STATUS: number;
+        COMPRESSED_TEXTURE_FORMATS: number;
+        CONSTANT_ALPHA: number;
+        CONSTANT_COLOR: number;
+        CONTEXT_LOST_WEBGL: number;
+        CULL_FACE: number;
+        CULL_FACE_MODE: number;
+        CURRENT_PROGRAM: number;
+        CURRENT_VERTEX_ATTRIB: number;
+        CW: number;
+        DECR: number;
+        DECR_WRAP: number;
+        DELETE_STATUS: number;
+        DEPTH_ATTACHMENT: number;
+        DEPTH_BITS: number;
+        DEPTH_BUFFER_BIT: number;
+        DEPTH_CLEAR_VALUE: number;
+        DEPTH_COMPONENT: number;
+        DEPTH_COMPONENT16: number;
+        DEPTH_FUNC: number;
+        DEPTH_RANGE: number;
+        DEPTH_STENCIL: number;
+        DEPTH_STENCIL_ATTACHMENT: number;
+        DEPTH_TEST: number;
+        DEPTH_WRITEMASK: number;
+        DITHER: number;
+        DONT_CARE: number;
+        DST_ALPHA: number;
+        DST_COLOR: number;
+        DYNAMIC_DRAW: number;
+        ELEMENT_ARRAY_BUFFER: number;
+        ELEMENT_ARRAY_BUFFER_BINDING: number;
+        EQUAL: number;
+        FASTEST: number;
+        FLOAT: number;
+        FLOAT_MAT2: number;
+        FLOAT_MAT3: number;
+        FLOAT_MAT4: number;
+        FLOAT_VEC2: number;
+        FLOAT_VEC3: number;
+        FLOAT_VEC4: number;
+        FRAGMENT_SHADER: number;
+        FRAMEBUFFER: number;
+        FRAMEBUFFER_ATTACHMENT_OBJECT_NAME: number;
+        FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE: number;
+        FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE: number;
+        FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL: number;
+        FRAMEBUFFER_BINDING: number;
+        FRAMEBUFFER_COMPLETE: number;
+        FRAMEBUFFER_INCOMPLETE_ATTACHMENT: number;
+        FRAMEBUFFER_INCOMPLETE_DIMENSIONS: number;
+        FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: number;
+        FRAMEBUFFER_UNSUPPORTED: number;
+        FRONT: number;
+        FRONT_AND_BACK: number;
+        FRONT_FACE: number;
+        FUNC_ADD: number;
+        FUNC_REVERSE_SUBTRACT: number;
+        FUNC_SUBTRACT: number;
+        GENERATE_MIPMAP_HINT: number;
+        GEQUAL: number;
+        GREATER: number;
+        GREEN_BITS: number;
+        HIGH_FLOAT: number;
+        HIGH_INT: number;
+        IMPLEMENTATION_COLOR_READ_FORMAT: number;
+        IMPLEMENTATION_COLOR_READ_TYPE: number;
+        INCR: number;
+        INCR_WRAP: number;
+        INT: number;
+        INT_VEC2: number;
+        INT_VEC3: number;
+        INT_VEC4: number;
+        INVALID_ENUM: number;
+        INVALID_FRAMEBUFFER_OPERATION: number;
+        INVALID_OPERATION: number;
+        INVALID_VALUE: number;
+        INVERT: number;
+        KEEP: number;
+        LEQUAL: number;
+        LESS: number;
+        LINEAR: number;
+        LINEAR_MIPMAP_LINEAR: number;
+        LINEAR_MIPMAP_NEAREST: number;
+        LINES: number;
+        LINE_LOOP: number;
+        LINE_STRIP: number;
+        LINE_WIDTH: number;
+        LINK_STATUS: number;
+        LOW_FLOAT: number;
+        LOW_INT: number;
+        LUMINANCE: number;
+        LUMINANCE_ALPHA: number;
+        MAX_COMBINED_TEXTURE_IMAGE_UNITS: number;
+        MAX_CUBE_MAP_TEXTURE_SIZE: number;
+        MAX_FRAGMENT_UNIFORM_VECTORS: number;
+        MAX_RENDERBUFFER_SIZE: number;
+        MAX_TEXTURE_IMAGE_UNITS: number;
+        MAX_TEXTURE_SIZE: number;
+        MAX_VARYING_VECTORS: number;
+        MAX_VERTEX_ATTRIBS: number;
+        MAX_VERTEX_TEXTURE_IMAGE_UNITS: number;
+        MAX_VERTEX_UNIFORM_VECTORS: number;
+        MAX_VIEWPORT_DIMS: number;
+        MEDIUM_FLOAT: number;
+        MEDIUM_INT: number;
+        MIRRORED_REPEAT: number;
+        NEAREST: number;
+        NEAREST_MIPMAP_LINEAR: number;
+        NEAREST_MIPMAP_NEAREST: number;
+        NEVER: number;
+        NICEST: number;
+        NONE: number;
+        NOTEQUAL: number;
+        NO_ERROR: number;
+        ONE: number;
+        ONE_MINUS_CONSTANT_ALPHA: number;
+        ONE_MINUS_CONSTANT_COLOR: number;
+        ONE_MINUS_DST_ALPHA: number;
+        ONE_MINUS_DST_COLOR: number;
+        ONE_MINUS_SRC_ALPHA: number;
+        ONE_MINUS_SRC_COLOR: number;
+        OUT_OF_MEMORY: number;
+        PACK_ALIGNMENT: number;
+        POINTS: number;
+        POLYGON_OFFSET_FACTOR: number;
+        POLYGON_OFFSET_FILL: number;
+        POLYGON_OFFSET_UNITS: number;
+        RED_BITS: number;
+        RENDERBUFFER: number;
+        RENDERBUFFER_ALPHA_SIZE: number;
+        RENDERBUFFER_BINDING: number;
+        RENDERBUFFER_BLUE_SIZE: number;
+        RENDERBUFFER_DEPTH_SIZE: number;
+        RENDERBUFFER_GREEN_SIZE: number;
+        RENDERBUFFER_HEIGHT: number;
+        RENDERBUFFER_INTERNAL_FORMAT: number;
+        RENDERBUFFER_RED_SIZE: number;
+        RENDERBUFFER_STENCIL_SIZE: number;
+        RENDERBUFFER_WIDTH: number;
+        RENDERER: number;
+        REPEAT: number;
+        REPLACE: number;
+        RGB: number;
+        RGB5_A1: number;
+        RGB565: number;
+        RGBA: number;
+        RGBA4: number;
+        SAMPLER_2D: number;
+        SAMPLER_CUBE: number;
+        SAMPLES: number;
+        SAMPLE_ALPHA_TO_COVERAGE: number;
+        SAMPLE_BUFFERS: number;
+        SAMPLE_COVERAGE: number;
+        SAMPLE_COVERAGE_INVERT: number;
+        SAMPLE_COVERAGE_VALUE: number;
+        SCISSOR_BOX: number;
+        SCISSOR_TEST: number;
+        SHADER_TYPE: number;
+        SHADING_LANGUAGE_VERSION: number;
+        SHORT: number;
+        SRC_ALPHA: number;
+        SRC_ALPHA_SATURATE: number;
+        SRC_COLOR: number;
+        STATIC_DRAW: number;
+        STENCIL_ATTACHMENT: number;
+        STENCIL_BACK_FAIL: number;
+        STENCIL_BACK_FUNC: number;
+        STENCIL_BACK_PASS_DEPTH_FAIL: number;
+        STENCIL_BACK_PASS_DEPTH_PASS: number;
+        STENCIL_BACK_REF: number;
+        STENCIL_BACK_VALUE_MASK: number;
+        STENCIL_BACK_WRITEMASK: number;
+        STENCIL_BITS: number;
+        STENCIL_BUFFER_BIT: number;
+        STENCIL_CLEAR_VALUE: number;
+        STENCIL_FAIL: number;
+        STENCIL_FUNC: number;
+        STENCIL_INDEX8: number;
+        STENCIL_PASS_DEPTH_FAIL: number;
+        STENCIL_PASS_DEPTH_PASS: number;
+        STENCIL_REF: number;
+        STENCIL_TEST: number;
+        STENCIL_VALUE_MASK: number;
+        STENCIL_WRITEMASK: number;
+        STREAM_DRAW: number;
+        SUBPIXEL_BITS: number;
+        TEXTURE: number;
+        TEXTURE0: number;
+        TEXTURE1: number;
+        TEXTURE2: number;
+        TEXTURE3: number;
+        TEXTURE4: number;
+        TEXTURE5: number;
+        TEXTURE6: number;
+        TEXTURE7: number;
+        TEXTURE8: number;
+        TEXTURE9: number;
+        TEXTURE10: number;
+        TEXTURE11: number;
+        TEXTURE12: number;
+        TEXTURE13: number;
+        TEXTURE14: number;
+        TEXTURE15: number;
+        TEXTURE16: number;
+        TEXTURE17: number;
+        TEXTURE18: number;
+        TEXTURE19: number;
+        TEXTURE20: number;
+        TEXTURE21: number;
+        TEXTURE22: number;
+        TEXTURE23: number;
+        TEXTURE24: number;
+        TEXTURE25: number;
+        TEXTURE26: number;
+        TEXTURE27: number;
+        TEXTURE28: number;
+        TEXTURE29: number;
+        TEXTURE30: number;
+        TEXTURE31: number;
+        TEXTURE_2D: number;
+        TEXTURE_BINDING_2D: number;
+        TEXTURE_BINDING_CUBE_MAP: number;
+        TEXTURE_CUBE_MAP: number;
+        TEXTURE_CUBE_MAP_NEGATIVE_X: number;
+        TEXTURE_CUBE_MAP_NEGATIVE_Y: number;
+        TEXTURE_CUBE_MAP_NEGATIVE_Z: number;
+        TEXTURE_CUBE_MAP_POSITIVE_X: number;
+        TEXTURE_CUBE_MAP_POSITIVE_Y: number;
+        TEXTURE_CUBE_MAP_POSITIVE_Z: number;
+        TEXTURE_MAG_FILTER: number;
+        TEXTURE_MIN_FILTER: number;
+        TEXTURE_WRAP_S: number;
+        TEXTURE_WRAP_T: number;
+        TRIANGLES: number;
+        TRIANGLE_FAN: number;
+        TRIANGLE_STRIP: number;
+        UNPACK_ALIGNMENT: number;
+        UNPACK_COLORSPACE_CONVERSION_WEBGL: number;
+        UNPACK_FLIP_Y_WEBGL: number;
+        UNPACK_PREMULTIPLY_ALPHA_WEBGL: number;
+        UNSIGNED_BYTE: number;
+        UNSIGNED_INT: number;
+        UNSIGNED_SHORT: number;
+        UNSIGNED_SHORT_4_4_4_4: number;
+        UNSIGNED_SHORT_5_5_5_1: number;
+        UNSIGNED_SHORT_5_6_5: number;
+        VALIDATE_STATUS: number;
+        VENDOR: number;
+        VERSION: number;
+        VERTEX_ATTRIB_ARRAY_BUFFER_BINDING: number;
+        VERTEX_ATTRIB_ARRAY_ENABLED: number;
+        VERTEX_ATTRIB_ARRAY_NORMALIZED: number;
+        VERTEX_ATTRIB_ARRAY_POINTER: number;
+        VERTEX_ATTRIB_ARRAY_SIZE: number;
+        VERTEX_ATTRIB_ARRAY_STRIDE: number;
+        VERTEX_ATTRIB_ARRAY_TYPE: number;
+        VERTEX_SHADER: number;
+        VIEWPORT: number;
+        ZERO: number;
+    }
+}
+declare module THREE {
+    class WebGLExtensionsNode {
         gl: any;
         extensions: any;
         constructor(gl: any);
@@ -4303,7 +4755,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLGeometries {
+    class WebGLGeometriesNode {
         geometries: any;
         gl: any;
         attributes: any;
@@ -4317,7 +4769,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLIndexedBufferRenderer {
+    class WebGLIndexedBufferRendererNode {
         mode: any;
         type: any;
         bytesPerElement: any;
@@ -4332,7 +4784,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLInfo {
+    class WebGLInfoNode {
         memory: any;
         gl: any;
         render: any;
@@ -4355,7 +4807,7 @@ declare module THREE {
         constructor();
         get(light: any): any;
     }
-    class WebGLLights {
+    class WebGLLightsNode {
         static count: number;
         vector3: Vector3;
         matrix4: Matrix4;
@@ -4368,7 +4820,7 @@ declare module THREE {
 }
 declare module THREE {
     function absNumericalSort(a: any, b: any): number;
-    class WebGLMorphtargets {
+    class WebGLMorphtargetsNode {
         gl: any;
         influencesList: any;
         morphInfluences: any;
@@ -4377,7 +4829,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLObjects {
+    class WebGLObjectsNode {
         geometries: any;
         info: any;
         updateList: any;
@@ -4387,7 +4839,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLProgram {
+    class WebGLProgramNode {
         name: any;
         id: any;
         code: any;
@@ -4414,7 +4866,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLPrograms {
+    class WebGLProgramsNode {
         renderer: any;
         extensions: any;
         capabilities: any;
@@ -4486,7 +4938,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLProperties {
+    class WebGLPropertiesNode {
         properties: any;
         constructor();
         get(object: any): any;
@@ -4496,7 +4948,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLRenderList {
+    class WebGLRenderListNode {
         renderItems: any;
         renderItemsIndex: any;
         opaque: any;
@@ -4506,7 +4958,7 @@ declare module THREE {
         push(object: any, geometry: any, material: any, z: any, group: any): void;
         sort(): void;
     }
-    class WebGLRenderLists {
+    class WebGLRenderListsNode {
         lists: any;
         constructor();
         get(scene: any, camera: any): any;
@@ -4514,7 +4966,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLRenderState {
+    class WebGLRenderStateNode {
         lights: any;
         lightsArray: any;
         shadowsArray: any;
@@ -4535,10 +4987,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    function WebGLShader(gl: any, type: any, string: any): any;
-}
-declare module THREE {
-    class WebGLShadowMap {
+    class WebGLShadowMapNode {
         _renderer: any;
         _objects: any;
         maxTextureSize: any;
@@ -4569,7 +5018,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLSpriteRenderer {
+    class WebGLSpriteRendererNode {
         renderer: any;
         gl: any;
         state: any;
@@ -4638,7 +5087,7 @@ declare module THREE {
         setClear(stencil: any): void;
         reset(): void;
     }
-    class WebGLState {
+    class WebGLStateNode {
         gl: any;
         extensions: any;
         utils: any;
@@ -4706,7 +5155,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLTextures {
+    class WebGLTexturesNode {
         private _isWebGL2;
         private _videoTextures;
         private _canvas;
@@ -4834,7 +5283,7 @@ declare module THREE {
     }
     function addUniform(container: any, uniformObject: any): void;
     function parseUniform(activeInfo: any, addr: any, container: any): void;
-    class WebGLUniforms extends UniformContainer {
+    class WebGLUniformsNode extends UniformContainer {
         renderer: any;
         constructor(gl: any, program: any, renderer: any);
         setValue: (gl: any, name: any, value: any) => void;
@@ -4847,6 +5296,21 @@ declare module THREE {
     class WebGLUtils {
         constructor(gl: any, extensions: any);
     }
+}
+declare module THREE {
+    class WebglContextAttibutes {
+        alpha: any;
+        depth: any;
+        stencil: any;
+        antialias: any;
+        premultipliedAlpha: any;
+        preserveDrawingBuffer: any;
+        powerPreference: any;
+        constructor();
+    }
+}
+declare module THREE {
+    function webGLCreateShader(gl: any, type: any, string: any): any;
 }
 declare module THREE {
     class WebVRManager {

@@ -357,7 +357,11 @@ module THREE {
             this.matrixWorldNeedsUpdate = true;
         }
 
-        public updateMatrixWorld(force) {
+        /**
+         * 更新matrixwrold参数，两种情况：force = true， matrixWorldNeedsUpdate = true
+         * @param force 是否强制更新
+         */
+        public updateMatrixWorld(force: boolean) {
             if (this.matrixAutoUpdate) this.updateMatrix();
             if (this.matrixWorldNeedsUpdate || force) {
                 if (this.parent === null) {

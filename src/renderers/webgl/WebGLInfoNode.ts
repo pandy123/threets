@@ -1,7 +1,7 @@
 module THREE {
 
 
-      export class WebGLInfo {
+      export class WebGLInfoNode {
             public memory;
             public gl;
             public render;
