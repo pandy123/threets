@@ -3701,11 +3701,6 @@ declare module THREE {
         state: any;
         info: any;
         textures: any;
-        attributes: any;
-        geometries: any;
-        objects: any;
-        renderLists: any;
-        renderStates: any;
         background: any;
         morphtargets: any;
         bufferRenderer: any;
@@ -3721,6 +3716,11 @@ declare module THREE {
         shadowMap: WebGLShadowMapNode;
         programCache: WebGLProgramsNode;
         properties: WebGLPropertiesNode;
+        attributes: WebGLAttributesNode;
+        geometries: WebGLGeometriesNode;
+        objects: WebGLObjectsNode;
+        renderLists: WebGLRenderListsNode;
+        renderStates: WebGLRenderStates;
         constructor(parameters?: any);
         private getTargetPixelRatio();
         initGLContext(): void;
@@ -5061,9 +5061,9 @@ declare module THREE {
         usedTimes: any;
         /**webgl program */
         program: WebGLProgram;
-        /**顶点shader */
+        /**顶点gl 的shader */
         vertexShader: any;
-        /**片元shader */
+        /**片元gl 的shader */
         fragmentShader: any;
         renderer: any;
         extensions: any;
@@ -5078,10 +5078,70 @@ declare module THREE {
         /**存储attribute地址 */
         cachedAttributes: any | Object;
         constructor(renderer: any, extensions: any, code: any, material: any, shader: any, parameters: any);
+        /**
+         * 设置一些初始参数
+         * @param parameters
+         * @param material
+         * @param envMapTypeDefine
+         * @param envMapModeDefine
+         * @param envMapBlendingDefine
+         */
+        setMapParameter(parameters: any, material: any, envMapTypeDefine: any, envMapModeDefine: any, envMapBlendingDefine: any): void;
+        /**
+         * 原始材料的shader头处理
+         * @param customDefines
+         */
+        rawMaterialPrefixVertex(customDefines: any): string;
+        /**
+   * 原始材料的shader头处理
+   * @param customDefines
+   */
+        rawMaterialPrefixFragment(customExtensions: any, customDefines: any): string;
+        /**
+         * 顶点shader头的处理
+         * @param parameters
+         * @param shader
+         * @param customDefines
+         * @param gammaFactorDefine
+         * @param envMapModeDefine
+         * @param shadowMapTypeDefine
+         * @param extensions
+         */
+        prefixVertex(parameters: any, shader: any, customDefines: any, gammaFactorDefine: any, envMapModeDefine: any, shadowMapTypeDefine: any, extensions: any): string;
+        /**
+         * 片元shader头的处理
+         * @param customExtensions
+         * @param material
+         * @param parameters
+         * @param shader
+         * @param customDefines
+         * @param gammaFactorDefine
+         * @param extensions
+         * @param envMapTypeDefine
+         * @param envMapModeDefine
+         * @param envMapBlendingDefine
+         * @param shadowMapTypeDefine
+         */
+        prefixFragment(customExtensions: any, material: any, parameters: any, shader: any, customDefines: any, gammaFactorDefine: any, extensions: any, envMapTypeDefine: any, envMapModeDefine: any, envMapBlendingDefine: any, shadowMapTypeDefine: any): string;
+        /**
+         * 获取当前shader的uniforms参数列表，带addr信息
+         */
         getUniforms(): WebGLUniformsNode;
+        /**
+         * 获取当前shader的attribute信息列表，带addr信息
+         */
         getAttributes(): any;
+        /**
+         * 删除当前program
+         */
         destroy(): void;
+        /**
+         * 缓存uniform
+         */
         readonly uniforms: WebGLUniformsNode;
+        /**
+         * 缓存attribute
+        */
         readonly attributes: any;
     }
     /**

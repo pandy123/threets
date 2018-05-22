@@ -11,7 +11,6 @@ module THREE {
       private _premultipliedAlpha
       private _preserveDrawingBuffer
       private _powerPreference
-
       public domElement: any;
       public context: any;
       // clearing
@@ -75,14 +74,7 @@ module THREE {
       public capabilities: any;
       public state: any;
       public info: any;
-
       public textures: any;
-      public attributes: any;
-      public geometries: any;
-      public objects: any;
-
-      public renderLists: any;
-      public renderStates: any;
       public background: any;
       public morphtargets: any;
       public bufferRenderer: any;
@@ -93,15 +85,18 @@ module THREE {
       public isAnimating = false;
       public onAnimationFrame = null;
 
-
       // Animation Loop
-
       private currentRenderList: WebGLRenderListNode;
       private currentRenderState: WebGLRenderStateNode;
       private _clipping: WebGLClippingNode;
       public shadowMap: WebGLShadowMapNode;
       public programCache: WebGLProgramsNode;
       public properties: WebGLPropertiesNode;
+      public attributes: WebGLAttributesNode;
+      public geometries: WebGLGeometriesNode;
+      public objects: WebGLObjectsNode;
+      public renderLists: WebGLRenderListsNode;
+      public renderStates: WebGLRenderStates;
 
       constructor(parameters?) {
          console.log('THREE.WebGLRenderer', REVISION);
@@ -293,6 +288,7 @@ module THREE {
             height: this._height
          }
       }
+
       public setSize(width, height, updateStyle) {
          if (this.vr.isPresenting()) {
             console.warn('THREE.WebGLRenderer: Can\'t change size while VR device is presenting.');
@@ -308,12 +304,14 @@ module THREE {
          }
          this.setViewport(0, 0, width, height);
       }
+
       public getDrawingBufferSize() {
          return {
             width: this._width * this._pixelRatio,
             height: this._height * this._pixelRatio
          }
       }
+
       public setDrawingBufferSize(width, height, pixelRatio) {
          this._width = width;
          this._height = height;
@@ -322,34 +320,43 @@ module THREE {
          this._canvas.height = height * pixelRatio;
          this.setViewport(0, 0, width, height);
       }
+
       public getCurrentViewport() {
          return this._currentViewport;
       }
+
       public setViewport(x, y, width, height) {
          this._viewport.set(x, this._height - y - height, width, height);
          this.state.viewport(this._currentViewport.copy(this._viewport).multiplyScalar(this._pixelRatio));
       }
+
       public setScissor(x, y, width, height) {
          this._scissor.set(x, this._height - y - height, width, height);
          this.state.scissor(this._currentScissor.copy(this._scissor).multiplyScalar(this._pixelRatio));
       }
+
       public setScissorTest(boolean) {
          this.state.setScissorTest(this._scissorTest = boolean);
       }
+
       // Clearing
       public getClearColor() {
          return this.background.getClearColor();
       }
+
       public setClearColor(...arg) {
          // this.background.setClearColor.apply(this.background, arguments);
          this.background.setClearColor(arguments);
       }
+
       public getClearAlpha() {
          return this.background.getClearAlpha();
       }
+
       public setClearAlpha() {
          this.background.setClearAlpha(arguments);
       }
+
       public clear(color?, depth?, stencil?) {
          var bits = 0;
          if (color === undefined || color) bits |= this._gl.COLOR_BUFFER_BIT;
@@ -357,19 +364,24 @@ module THREE {
          if (stencil === undefined || stencil) bits |= this._gl.STENCIL_BUFFER_BIT;
          this._gl.clear(bits);
       }
+
       public clearColor() {
          this.clear(true, false, false);
       }
+
       public clearDepth() {
          this.clear(false, true, false);
       }
+
       public clearStencil() {
          this.clear(false, false, true);
       }
+
       public clearTarget(renderTarget, color, depth, stencil) {
          this.setRenderTarget(renderTarget);
          this.clear(color, depth, stencil);
       }
+
       //
       public dispose() {
          this._canvas.removeEventListener('webglcontextlost', this.onContextLost, false);
@@ -381,22 +393,26 @@ module THREE {
          this.vr.dispose();
          this.stopAnimation();
       };
+
       // Events
       private onContextLost(event) {
          event.preventDefault();
          console.log('THREE.WebGLRenderer: Context Lost.');
          this._isContextLost = true;
       }
+
       private onContextRestore( /* event */) {
          console.log('THREE.WebGLRenderer: Context Restored.');
          this._isContextLost = false;
          this.initGLContext();
       }
+
       private onMaterialDispose(event) {
          var material = event.target;
          material.removeEventListener('dispose', this.onMaterialDispose);
          this.deallocateMaterial(material);
       }
+
       // Buffer deallocation
       private deallocateMaterial(material) {
          this.releaseMaterialProgramReference(material);
@@ -478,7 +494,6 @@ module THREE {
          this._gl.drawArrays(this._gl.TRIANGLES, 0, object.count);
          object.count = 0;
       }
-
 
       /**
        * 直接渲染buffer
@@ -593,13 +608,19 @@ module THREE {
          var programAttributes = program.getAttributes();
          var materialDefaultAttributeValues = material.defaultAttributeValues;
          for (var name in programAttributes) {
+            // program 根据名字得到 attribute 的地址
             var programAttribute = programAttributes[name];
             if (programAttribute >= 0) {
+               // buffergeometry的attributes 根据名字得到 geometryAttributes，几何数据信息
                var geometryAttribute = geometryAttributes[name];
+
                if (geometryAttribute !== undefined) {
                   var normalized = geometryAttribute.normalized;
                   var size = geometryAttribute.itemSize;
+
+                  //attribute 存放geometryattribute的 gl buffer信息
                   var attribute = this.attributes.get(geometryAttribute);
+
                   // TODO Attribute may not be available on context restore
                   if (attribute === undefined) continue;
                   var buffer = attribute.buffer;
@@ -653,7 +674,6 @@ module THREE {
          }
          this.state.disableUnusedAttributes();
       }
-
 
       // Compile
       /**
@@ -1040,6 +1060,7 @@ module THREE {
                materialProperties.shader = shaderItem;
             }
             material.onBeforeCompile(materialProperties.shader, this);
+            /////////////////////////创建program-shader编译通过/////////////////////////////////////////////////////////////////
             program = this.programCache.acquireProgram(material, materialProperties.shader, parameters, code);
             materialProperties.program = program;
             material.program = program;

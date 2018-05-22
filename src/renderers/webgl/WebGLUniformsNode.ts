@@ -303,6 +303,7 @@ module THREE {
          // this.path = activeInfo.name; // DEBUG
       }
    }
+
    export class PureArrayUniform {
       public id;
       public addr;
@@ -333,6 +334,7 @@ module THREE {
          }
       }
    }
+
    // --- Top-level ---
    // Parser - builds up the property tree from the path strings
    var RePathPart = /([\w\d_]+)(\])?(\[|\.)?/g;
