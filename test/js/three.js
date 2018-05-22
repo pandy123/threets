@@ -4564,49 +4564,49 @@ var THREE;
     THREE.Int8BufferAttribute = Int8BufferAttribute;
     class Uint8BufferAttribute extends BufferAttribute {
         constructor(array, itemSize, normalized) {
-            super(new Int8Array(array), itemSize, normalized);
+            super(new Uint8Array(array), itemSize, normalized);
         }
     }
     THREE.Uint8BufferAttribute = Uint8BufferAttribute;
     class Uint8ClampedBufferAttribute extends BufferAttribute {
         constructor(array, itemSize, normalized) {
-            super(new Int8Array(array), itemSize, normalized);
+            super(new Uint8Array(array), itemSize, normalized);
         }
     }
     THREE.Uint8ClampedBufferAttribute = Uint8ClampedBufferAttribute;
     class Int16BufferAttribute extends BufferAttribute {
         constructor(array, itemSize, normalized) {
-            super(new Int8Array(array), itemSize, normalized);
+            super(new Int16Array(array), itemSize, normalized);
         }
     }
     THREE.Int16BufferAttribute = Int16BufferAttribute;
     class Uint16BufferAttribute extends BufferAttribute {
         constructor(array, itemSize, normalized) {
-            super(new Int8Array(array), itemSize, normalized);
+            super(new Uint16Array(array), itemSize, normalized);
         }
     }
     THREE.Uint16BufferAttribute = Uint16BufferAttribute;
     class Int32BufferAttribute extends BufferAttribute {
         constructor(array, itemSize, normalized) {
-            super(new Int8Array(array), itemSize, normalized);
+            super(new Int32Array(array), itemSize, normalized);
         }
     }
     THREE.Int32BufferAttribute = Int32BufferAttribute;
     class Uint32BufferAttribute extends BufferAttribute {
         constructor(array, itemSize, normalized) {
-            super(new Int8Array(array), itemSize, normalized);
+            super(new Uint32Array(array), itemSize, normalized);
         }
     }
     THREE.Uint32BufferAttribute = Uint32BufferAttribute;
     class Float32BufferAttribute extends BufferAttribute {
         constructor(array, itemSize, normalized) {
-            super(new Int8Array(array), itemSize, normalized);
+            super(new Float32Array(array), itemSize, normalized);
         }
     }
     THREE.Float32BufferAttribute = Float32BufferAttribute;
     class Float64BufferAttribute extends BufferAttribute {
         constructor(array, itemSize, normalized) {
-            super(new Int8Array(array), itemSize, normalized);
+            super(new Float64Array(array), itemSize, normalized);
         }
     }
     THREE.Float64BufferAttribute = Float64BufferAttribute;

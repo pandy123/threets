@@ -332,7 +332,7 @@ module THREE {
    export class Uint8BufferAttribute extends BufferAttribute {
 
       constructor(array: any, itemSize: number, normalized: any) {
-         super(new Int8Array(array), itemSize, normalized);
+         super(new Uint8Array(array), itemSize, normalized);
       }
 
    }
@@ -340,7 +340,7 @@ module THREE {
    export class Uint8ClampedBufferAttribute extends BufferAttribute {
 
       constructor(array: any, itemSize: number, normalized: any) {
-         super(new Int8Array(array), itemSize, normalized);
+         super(new Uint8Array(array), itemSize, normalized);
       }
 
    }
@@ -349,7 +349,7 @@ module THREE {
    export class Int16BufferAttribute extends BufferAttribute {
 
       constructor(array: any, itemSize: number, normalized: any) {
-         super(new Int8Array(array), itemSize, normalized);
+         super(new Int16Array(array), itemSize, normalized);
       }
 
    }
@@ -358,7 +358,7 @@ module THREE {
    export class Uint16BufferAttribute extends BufferAttribute {
 
       constructor(array: any, itemSize: number, normalized: any) {
-         super(new Int8Array(array), itemSize, normalized);
+         super(new Uint16Array(array), itemSize, normalized);
       }
 
    }
@@ -366,7 +366,7 @@ module THREE {
    export class Int32BufferAttribute extends BufferAttribute {
 
       constructor(array: any, itemSize: number, normalized: any) {
-         super(new Int8Array(array), itemSize, normalized);
+         super(new Int32Array(array), itemSize, normalized);
       }
 
    }
@@ -374,7 +374,7 @@ module THREE {
    export class Uint32BufferAttribute extends BufferAttribute {
 
       constructor(array: any, itemSize: number, normalized: any) {
-         super(new Int8Array(array), itemSize, normalized);
+         super(new Uint32Array(array), itemSize, normalized);
       }
 
    }
@@ -382,7 +382,7 @@ module THREE {
    export class Float32BufferAttribute extends BufferAttribute {
 
       constructor(array: any, itemSize: number, normalized?: any) {
-         super(new Int8Array(array), itemSize, normalized);
+         super(new Float32Array(array), itemSize, normalized);
       }
 
    }
@@ -390,7 +390,7 @@ module THREE {
    export class Float64BufferAttribute extends BufferAttribute {
 
       constructor(array: any, itemSize: number, normalized: any) {
-         super(new Int8Array(array), itemSize, normalized);
+         super(new Float64Array(array), itemSize, normalized);
       }
 
    }
