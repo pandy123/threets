@@ -1,20 +1,23 @@
 
 module THREE {
    var bufferGeometryId = 1; // BufferGeometry uses odd numbers as Id
+   export type BufferGeometryMap = {
+      [key: number]: BufferGeometry;
+   }
    export class BufferGeometry extends EventDispatcher {
       public id: number;
       public name: string;
       public type: string;
       public index: any;
-      public attributes: any;
+      public attributes: BufferAttributeMap;
       public morphAttributes: any;
       public groups: Array<any>;
-      public boundingBox: any;
-      public boundingSphere: any;
+      public boundingBox: Box3;
+      public boundingSphere: Sphere;
       public drawRange: any;
-      public uuid: any;
-      public isBufferGeometry;
-      public parameters: any;
+      public uuid: string;
+      public isBufferGeometry: boolean;
+      public parameters: any | Object;
 
       constructor() {
          super();
@@ -23,7 +26,7 @@ module THREE {
          this.name = '';
          this.type = 'BufferGeometry';
          this.index = null;
-         this.attributes = {};
+         this.attributes = {} as any;
          this.morphAttributes = {};
          this.groups = [];
          this.boundingBox = null;
@@ -241,7 +244,11 @@ module THREE {
       };
 
 
-      public setFromObject(object: any) {
+      /**
+       * 从mesh 、line point 等物品类型中设置buffergeometry
+       * @param object 
+       */
+      public setFromObject(object: any | Object3D) {
 
          // console.log( 'THREE.BufferGeometry.setFromObject(). Converting', object, this );
 
@@ -289,6 +296,10 @@ module THREE {
 
       }
 
+      /**
+       * 从点集设置buffergeometry 的值
+       * @param points 
+       */
       public setFromPoints(points: any) {
 
          var position = [];
@@ -306,7 +317,11 @@ module THREE {
 
       }
 
-      public updateFromObject(object: any) {
+      /**
+       * 从其他物体更新当前buffergeometry的属性值
+       * @param object 
+       */
+      public updateFromObject(object: any | Object3D) {
 
          var geometry = object.geometry;
 
@@ -433,7 +448,11 @@ module THREE {
 
       }
 
-      public fromGeometry(geometry: any) {
+      /**
+       * 从几何中设置buffergeometry
+       * @param geometry 
+       */
+      public fromGeometry(geometry: Geometry) {
 
          geometry.__directGeometry = new DirectGeometry().fromGeometry(geometry);
 
@@ -441,11 +460,16 @@ module THREE {
 
       }
 
-      public fromDirectGeometry(geometry: any) {
-
+      /**
+       * 从direct geometry 向buffer geometry 提供内存空间大小，和赋值
+       * @param geometry  dire
+       */
+      public fromDirectGeometry(geometry: DirectGeometry) {
+         // 顶点坐标
          var positions = new Float32Array(geometry.vertices.length * 3);
          this.addAttribute('position', new BufferAttribute(positions, 3, null).copyVector3sArray(geometry.vertices));
 
+         // 顶点法向
          if (geometry.normals.length > 0) {
 
             var normals = new Float32Array(geometry.normals.length * 3);
@@ -453,6 +477,7 @@ module THREE {
 
          }
 
+         // 顶点颜色
          if (geometry.colors.length > 0) {
 
             var colors = new Float32Array(geometry.colors.length * 3);
@@ -460,6 +485,7 @@ module THREE {
 
          }
 
+         // 顶点uv
          if (geometry.uvs.length > 0) {
 
             var uvs = new Float32Array(geometry.uvs.length * 2);
@@ -467,8 +493,8 @@ module THREE {
 
          }
 
+         // 顶点uv2
          if (geometry.uvs2.length > 0) {
-
             var uvs2 = new Float32Array(geometry.uvs2.length * 2);
             this.addAttribute('uv2', new BufferAttribute(uvs2, 2, null).copyVector2sArray(geometry.uvs2));
 
@@ -533,6 +559,9 @@ module THREE {
 
       }
 
+      /**
+       * 计算包围框
+       */
       public computeBoundingBox() {
 
          if (this.boundingBox === null) {
@@ -561,6 +590,9 @@ module THREE {
 
       }
 
+      /**
+       * 计算包围球体
+      */
       public computeBoundingSphere() {
          var box = new Box3();
          var vector = new Vector3();
@@ -612,6 +644,9 @@ module THREE {
 
       }
 
+      /**
+       * 计算顶点法向
+       */
       public computeVertexNormals() {
 
          var index = this.index;
@@ -733,6 +768,7 @@ module THREE {
 
       }
 
+      // 合并
       public merge(geometry: BufferGeometry, offset: number) {
 
          if (!(geometry && geometry.isBufferGeometry)) {
@@ -779,6 +815,9 @@ module THREE {
 
       }
 
+      /**
+       * 法向归一化
+       */
       public normalizeNormals() {
          var vector = new Vector3();
 
@@ -798,7 +837,9 @@ module THREE {
       }
 
 
-
+      /**
+       * 无索引
+       */
       public toNonIndexed() {
 
          if (this.index === null) {
@@ -928,7 +969,7 @@ module THREE {
          if (boundingSphere !== null) {
 
             data.data.boundingSphere = {
-               center: boundingSphere.center.toArray(),
+               center: boundingSphere.center.toArray(null, null),
                radius: boundingSphere.radius
             };
 

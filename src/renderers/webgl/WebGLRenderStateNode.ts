@@ -1,89 +1,87 @@
 module THREE {
 
+   export class WebGLRenderStateNode {
+      public lights;
+      public lightsArray;
+      public shadowsArray;
+      public spritesArray;
+      public state;
+      constructor() {
+         this.lights = new WebGLLightsNode();
+         this.lightsArray = [];
+         this.shadowsArray = [];
+         this.spritesArray = [];
+         this.state = {
+            lightsArray: this.lightsArray,
+            shadowsArray: this.shadowsArray,
+            spritesArray: this.spritesArray,
 
+            lights: this.lights
+         };
+      }
 
-    export class WebGLRenderStateNode {
-        public lights;
-        public lightsArray;
-        public shadowsArray;
-        public spritesArray;
-        public state;
-        constructor() {
-            this.lights = new WebGLLightsNode();
-            this.lightsArray = [];
-            this.shadowsArray = [];
-            this.spritesArray = [];
-            this.state = {
-                lightsArray: this.lightsArray,
-                shadowsArray: this.shadowsArray,
-                spritesArray: this.spritesArray,
+      public init() {
 
-                lights: this.lights
-            };
-        }
+         this.lightsArray.length = 0;
+         this.shadowsArray.length = 0;
+         this.spritesArray.length = 0;
 
-        public init() {
+      }
 
-            this.lightsArray.length = 0;
-            this.shadowsArray.length = 0;
-            this.spritesArray.length = 0;
+      public pushLight(light) {
 
-        }
+         this.lightsArray.push(light);
 
-        public pushLight(light) {
+      }
 
-            this.lightsArray.push(light);
+      public pushShadow(shadowLight) {
 
-        }
+         this.shadowsArray.push(shadowLight);
 
-        public pushShadow(shadowLight) {
+      }
 
-            this.shadowsArray.push(shadowLight);
+      public pushSprite(shadowLight) {
 
-        }
+         this.spritesArray.push(shadowLight);
 
-        public pushSprite(shadowLight) {
+      }
 
-            this.spritesArray.push(shadowLight);
+      public setupLights(camera) {
 
-        }
+         this.lights.setup(this.lightsArray, this.shadowsArray, camera);
 
-        public setupLights(camera) {
+      }
+   }
 
-            this.lights.setup(this.lightsArray, this.shadowsArray, camera);
+   export class WebGLRenderStates {
+      public renderStates;
+      constructor() {
+         this.renderStates = {};
+      }
 
-        }
-    }
+      public get(scene, camera) {
 
-    export class WebGLRenderStates {
-        public renderStates;
-        constructor() {
-            this.renderStates = {};
-        }
+         var hash = scene.id + ',' + camera.id;
 
-        public get(scene, camera) {
+         var renderState = this.renderStates[hash];
 
-            var hash = scene.id + ',' + camera.id;
+         if (renderState === undefined) {
 
-            var renderState = this.renderStates[hash];
+            renderState = new WebGLRenderStateNode();
+            this.renderStates[hash] = renderState;
 
-            if (renderState === undefined) {
+         }
 
-                renderState = new WebGLRenderStateNode();
-                this.renderStates[hash] = renderState;
+         return renderState;
 
-            }
+      }
 
-            return renderState;
+      public dispose() {
 
-        }
+         this.renderStates = {};
 
-        public dispose() {
-
-            this.renderStates = {};
-
-        }
-    }
+      }
+   }
 }
 
 

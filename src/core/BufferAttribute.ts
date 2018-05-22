@@ -1,5 +1,9 @@
 module THREE {
 
+   export type BufferAttributeMap = {
+      [key: string]: BufferAttribute;
+   }
+
    export class BufferAttribute {
 
       public name: string;
@@ -28,13 +32,8 @@ module THREE {
          this.isBufferAttribute = true;
       }
 
-      public needsUpdate() {
-         var self = this;
-         return {
-            set: function (value) {
-               if (value === true) self.version++;
-            }
-         }
+      public set needsUpdate(value) {
+         if (value === true) this.version++;
       }
 
 

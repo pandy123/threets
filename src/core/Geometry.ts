@@ -24,6 +24,9 @@ module THREE {
       public lineDistancesNeedUpdate: boolean = false;
       public groupsNeedUpdate: boolean = false;
       public parameters;
+
+      public __directGeometry: DirectGeometry;
+      public _bufferGeometry: BufferGeometry;  // 渲染使用
       constructor() {
          //Object.defineProperty(this, 'id', { value: geometryId += 2 });
          super();
@@ -173,7 +176,7 @@ module THREE {
                var group = groups[i];
                var start = group.start;
                var count = group.count;
-               for (var j:number = start, jl = start + count; j < jl; j += 3) {
+               for (var j: number = start, jl = start + count; j < jl; j += 3) {
                   if (indices !== undefined) {
                      addFace(indices[j], indices[j + 1], indices[j + 2], group.materialIndex);
                   } else {

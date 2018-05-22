@@ -3185,8 +3185,10 @@ var THREE;
             };
         }
         // Object3D.prototype = Object.assign(Object.create(EventDispatcher.prototype), {
-        onBeforeRender() { }
-        onAfterRender() { }
+        onBeforeRender(render, scene, camera, geometry, material, group) {
+        }
+        onAfterRender(render, scene, camera, geometry, material, group) {
+        }
         applyMatrix(matrix) {
             this.matrix.multiplyMatrices(matrix, this.matrix);
             this.matrix.decompose(this.position, this.quaternion, this.scale);
@@ -4390,14 +4392,9 @@ var THREE;
             this.version = 0;
             this.isBufferAttribute = true;
         }
-        needsUpdate() {
-            var self = this;
-            return {
-                set: function (value) {
-                    if (value === true)
-                        self.version++;
-                }
-            };
+        set needsUpdate(value) {
+            if (value === true)
+                this.version++;
         }
         onUploadCallback() {
         }
@@ -4747,6 +4744,10 @@ var THREE;
             return this;
         }
         ;
+        /**
+         * 从mesh 、line point 等物品类型中设置buffergeometry
+         * @param object
+         */
         setFromObject(object) {
             // console.log( 'THREE.BufferGeometry.setFromObject(). Converting', object, this );
             var geometry = object.geometry;
@@ -4773,6 +4774,10 @@ var THREE;
             }
             return this;
         }
+        /**
+         * 从点集设置buffergeometry 的值
+         * @param points
+         */
         setFromPoints(points) {
             var position = [];
             for (var i = 0, l = points.length; i < l; i++) {
@@ -4782,6 +4787,10 @@ var THREE;
             this.addAttribute('position', new THREE.Float32BufferAttribute(position, 3, null));
             return this;
         }
+        /**
+         * 从其他物体更新当前buffergeometry的属性值
+         * @param object
+         */
         updateFromObject(object) {
             var geometry = object.geometry;
             if (object.isMesh) {
@@ -4853,25 +4862,38 @@ var THREE;
             }
             return this;
         }
+        /**
+         * 从几何中设置buffergeometry
+         * @param geometry
+         */
         fromGeometry(geometry) {
             geometry.__directGeometry = new THREE.DirectGeometry().fromGeometry(geometry);
             return this.fromDirectGeometry(geometry.__directGeometry);
         }
+        /**
+         * 从direct geometry 向buffer geometry 提供内存空间大小，和赋值
+         * @param geometry  dire
+         */
         fromDirectGeometry(geometry) {
+            // 顶点坐标
             var positions = new Float32Array(geometry.vertices.length * 3);
             this.addAttribute('position', new THREE.BufferAttribute(positions, 3, null).copyVector3sArray(geometry.vertices));
+            // 顶点法向
             if (geometry.normals.length > 0) {
                 var normals = new Float32Array(geometry.normals.length * 3);
                 this.addAttribute('normal', new THREE.BufferAttribute(normals, 3, null).copyVector3sArray(geometry.normals));
             }
+            // 顶点颜色
             if (geometry.colors.length > 0) {
                 var colors = new Float32Array(geometry.colors.length * 3);
                 this.addAttribute('color', new THREE.BufferAttribute(colors, 3, null).copyColorsArray(geometry.colors));
             }
+            // 顶点uv
             if (geometry.uvs.length > 0) {
                 var uvs = new Float32Array(geometry.uvs.length * 2);
                 this.addAttribute('uv', new THREE.BufferAttribute(uvs, 2, null).copyVector2sArray(geometry.uvs));
             }
+            // 顶点uv2
             if (geometry.uvs2.length > 0) {
                 var uvs2 = new Float32Array(geometry.uvs2.length * 2);
                 this.addAttribute('uv2', new THREE.BufferAttribute(uvs2, 2, null).copyVector2sArray(geometry.uvs2));
@@ -4907,6 +4929,9 @@ var THREE;
             }
             return this;
         }
+        /**
+         * 计算包围框
+         */
         computeBoundingBox() {
             if (this.boundingBox === null) {
                 this.boundingBox = new THREE.Box3();
@@ -4922,6 +4947,9 @@ var THREE;
                 console.error('THREE.BufferGeometry.computeBoundingBox: Computed min/max have NaN values. The "position" attribute is likely to have NaN values.', this);
             }
         }
+        /**
+         * 计算包围球体
+        */
         computeBoundingSphere() {
             var box = new THREE.Box3();
             var vector = new THREE.Vector3();
@@ -4952,6 +4980,9 @@ var THREE;
         computeFaceNormals() {
             // backwards compatibility
         }
+        /**
+         * 计算顶点法向
+         */
         computeVertexNormals() {
             var index = this.index;
             var attributes = this.attributes;
@@ -5028,6 +5059,7 @@ var THREE;
                 attributes.normal.needsUpdate = true;
             }
         }
+        // 合并
         merge(geometry, offset) {
             if (!(geometry && geometry.isBufferGeometry)) {
                 console.error('THREE.BufferGeometry.merge(): geometry not an instance of THREE.BufferGeometry.', geometry);
@@ -5053,6 +5085,9 @@ var THREE;
             }
             return this;
         }
+        /**
+         * 法向归一化
+         */
         normalizeNormals() {
             var vector = new THREE.Vector3();
             var normals = this.attributes.normal;
@@ -5064,6 +5099,9 @@ var THREE;
                 normals.setXYZ(i, vector.x, vector.y, vector.z);
             }
         }
+        /**
+         * 无索引
+         */
         toNonIndexed() {
             if (this.index === null) {
                 console.warn('THREE.BufferGeometry.toNonIndexed(): Geometry is already non-indexed.');
@@ -5141,7 +5179,7 @@ var THREE;
             var boundingSphere = this.boundingSphere;
             if (boundingSphere !== null) {
                 data.data.boundingSphere = {
-                    center: boundingSphere.center.toArray(),
+                    center: boundingSphere.center.toArray(null, null),
                     radius: boundingSphere.radius
                 };
             }
@@ -20180,9 +20218,11 @@ var THREE;
         constructor(parameters) {
             // tone mapping
             this.toneMapping = THREE.LinearToneMapping;
-            // Animation Loop
             this.isAnimating = false;
             this.onAnimationFrame = null;
+            /**
+             * 立即渲染buffer
+             */
             this.renderBufferImmediate = function (object, program, material) {
                 this.state.initAttributes();
                 var buffers = this.properties.get(object);
@@ -20243,6 +20283,9 @@ var THREE;
                 this._gl.drawArrays(this._gl.TRIANGLES, 0, object.count);
                 object.count = 0;
             };
+            /**
+             * 直接渲染buffer
+            */
             this.renderBufferDirect = function (camera, fog, geometry, material, object, group) {
                 var frontFaceCW = (object.isMesh && object.matrixWorld.determinant() < 0);
                 this.state.setMaterial(material, frontFaceCW);
@@ -20343,6 +20386,9 @@ var THREE;
                 }
             };
             // Compile
+            /**
+             * 编译
+             */
             this.compile = function (scene, camera) {
                 this.currentRenderState = this.renderStates.get(scene, camera);
                 this.currentRenderState.init();
@@ -20698,6 +20744,12 @@ var THREE;
                 this.renderBufferImmediate(object, program, material);
             });
         }
+        /**
+         * 设置顶点属性值
+         * @param material
+         * @param program
+         * @param geometry
+         */
         setupVertexAttributes(material, program, geometry) {
             if (geometry && geometry.isInstancedBufferGeometry) {
                 if (this.extensions.get('ANGLE_instanced_arrays') === null) {
@@ -20775,15 +20827,24 @@ var THREE;
             }
             this.state.disableUnusedAttributes();
         }
+        /**
+         * 开始动画
+         */
         startAnimation() {
             if (this.isAnimating)
                 return;
             this.requestAnimationLoopFrame();
             this.isAnimating = true;
         }
+        /**
+         * 结束动画
+         */
         stopAnimation() {
             this.isAnimating = false;
         }
+        /**
+         * 针渲染
+         */
         requestAnimationLoopFrame() {
             if (this.vr.isPresenting()) {
                 this.vr.requestAnimationFrame(this.animationLoop);
@@ -20792,12 +20853,20 @@ var THREE;
                 window.requestAnimationFrame(this.animationLoop);
             }
         }
+        /**
+         * 动画循环
+         * @param time
+         */
         animationLoop(time) {
             if (this.isAnimating === false)
                 return;
             this.onAnimationFrame(time);
             this.requestAnimationLoopFrame();
         }
+        /**
+         * 动画
+         * @param callback
+         */
         animate(callback) {
             this.onAnimationFrame = callback;
             this.onAnimationFrame !== null ? this.startAnimation() : this.stopAnimation();
@@ -20946,6 +21015,12 @@ var THREE;
       
         }
         */
+        /**
+         * 向renderlist中存入设置好的program和buffergeometry信息。
+         * @param object
+         * @param camera
+         * @param sortObjects
+         */
         projectObject(object, camera, sortObjects) {
             if (object.visible === false)
                 return;
@@ -21001,6 +21076,13 @@ var THREE;
                 this.projectObject(children[i], camera, sortObjects);
             }
         }
+        /**
+         * 渲染objects
+         * @param renderList
+         * @param scene
+         * @param camera
+         * @param overrideMaterial
+         */
         renderObjects(renderList, scene, camera, overrideMaterial) {
             for (var i = 0, l = renderList.length; i < l; i++) {
                 var renderItem = renderList[i];
@@ -21035,6 +21117,15 @@ var THREE;
                 }
             }
         }
+        /**
+         * 渲染单个物品
+         * @param object
+         * @param scene
+         * @param camera
+         * @param geometry
+         * @param material
+         * @param group
+         */
         renderObject(object, scene, camera, geometry, material, group) {
             object.onBeforeRender(this, scene, camera, geometry, material, group);
             this.currentRenderState = this.renderStates.get(scene, this._currentArrayCamera || camera);
@@ -21053,6 +21144,12 @@ var THREE;
             object.onAfterRender(this, scene, camera, geometry, material, group);
             this.currentRenderState = this.renderStates.get(scene, this._currentArrayCamera || camera);
         }
+        /**
+         * 初始化材料
+         * @param material
+         * @param fog
+         * @param object
+         */
         initMaterial(material, fog, object) {
             var materialProperties = this.properties.get(material);
             var lights = this.currentRenderState.state.lights;
@@ -21082,22 +21179,21 @@ var THREE;
                 programChange = false;
             }
             if (programChange) {
+                var shaderItem = new THREE.WebGLShaderItem();
                 if (parameters.shaderID) {
                     var shader = THREE.ShaderLib[parameters.shaderID];
-                    materialProperties.shader = {
-                        name: material.type,
-                        uniforms: THREE.UniformsUtils.clone(shader.uniforms),
-                        vertexShader: shader.vertexShader,
-                        fragmentShader: shader.fragmentShader
-                    };
+                    shaderItem.name = material.type;
+                    shaderItem.uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+                    shaderItem.vertexShader = shader.vertexShader;
+                    shaderItem.fragmentShader = shader.fragmentShader;
+                    materialProperties.shader = shaderItem;
                 }
                 else {
-                    materialProperties.shader = {
-                        name: material.type,
-                        uniforms: material.uniforms,
-                        vertexShader: material.vertexShader,
-                        fragmentShader: material.fragmentShader
-                    };
+                    shaderItem.name = material.type;
+                    shaderItem.uniforms = material.uniforms;
+                    shaderItem.vertexShader = material.vertexShader;
+                    shaderItem.fragmentShader = material.fragmentShader;
+                    materialProperties.shader = shaderItem;
                 }
                 material.onBeforeCompile(materialProperties.shader, this);
                 program = this.programCache.acquireProgram(material, materialProperties.shader, parameters, code);
@@ -21151,6 +21247,13 @@ var THREE;
             var progUniforms = materialProperties.program.getUniforms(), uniformsList = THREE.WebGLUniformsNode.seqWithValue(progUniforms.seq, uniforms);
             materialProperties.uniformsList = uniformsList;
         }
+        /**
+         * 设置program
+         * @param camera
+         * @param fog
+         * @param material
+         * @param object
+         */
         setProgram(camera, fog, material, object) {
             this._usedTextureUnits = 0;
             var materialProperties = this.properties.get(material);
@@ -21354,6 +21457,11 @@ var THREE;
             return program;
         }
         // Uniforms (refresh uniforms objects)
+        /**
+         * 更新uniforms参数
+         * @param uniforms
+         * @param material
+         */
         refreshUniformsCommon(uniforms, material) {
             uniforms.opacity.value = material.opacity;
             if (material.color) {
@@ -21436,15 +21544,30 @@ var THREE;
                 uniforms.uvTransform.value.copy(uvScaleMap.matrix);
             }
         }
+        /**
+         * 更新线的uniform参数
+         * @param uniforms
+         * @param material
+         */
         refreshUniformsLine(uniforms, material) {
             uniforms.diffuse.value = material.color;
             uniforms.opacity.value = material.opacity;
         }
+        /**
+         * 更新虚线的uniform参数
+         * @param uniforms
+         * @param material
+         */
         refreshUniformsDash(uniforms, material) {
             uniforms.dashSize.value = material.dashSize;
             uniforms.totalSize.value = material.dashSize + material.gapSize;
             uniforms.scale.value = material.scale;
         }
+        /**
+         * 更新虚线的点云uniform参数
+        * @param uniforms
+        * @param material
+        */
         refreshUniformsPoints(uniforms, material) {
             uniforms.diffuse.value = material.color;
             uniforms.opacity.value = material.opacity;
@@ -21458,6 +21581,11 @@ var THREE;
                 uniforms.uvTransform.value.copy(material.map.matrix);
             }
         }
+        /**
+         * 更新雾uniform参数
+        * @param uniforms
+        * @param material
+        */
         refreshUniformsFog(uniforms, fog) {
             uniforms.fogColor.value = fog.color;
             if (fog.isFog) {
@@ -21468,11 +21596,21 @@ var THREE;
                 uniforms.fogDensity.value = fog.density;
             }
         }
+        /**
+         * 更新Lambert材料uniform参数
+        * @param uniforms
+        * @param material
+        */
         refreshUniformsLambert(uniforms, material) {
             if (material.emissiveMap) {
                 uniforms.emissiveMap.value = material.emissiveMap;
             }
         }
+        /**
+         * 更新Phong材料uniform参数
+           * @param uniforms
+           * @param material
+           */
         refreshUniformsPhong(uniforms, material) {
             uniforms.specular.value = material.specular;
             uniforms.shininess.value = Math.max(material.shininess, 1e-4); // to prevent pow( 0.0, 0.0 )
@@ -21497,12 +21635,22 @@ var THREE;
                 uniforms.displacementBias.value = material.displacementBias;
             }
         }
+        /**
+         * 更新Toon材料uniform参数
+         * @param uniforms
+         * @param material
+         */
         refreshUniformsToon(uniforms, material) {
             this.refreshUniformsPhong(uniforms, material);
             if (material.gradientMap) {
                 uniforms.gradientMap.value = material.gradientMap;
             }
         }
+        /**
+         * 更新Standard材料uniform参数
+        * @param uniforms
+        * @param material
+        */
         refreshUniformsStandard(uniforms, material) {
             uniforms.roughness.value = material.roughness;
             uniforms.metalness.value = material.metalness;
@@ -21537,11 +21685,21 @@ var THREE;
                 uniforms.envMapIntensity.value = material.envMapIntensity;
             }
         }
+        /**
+         * 更新Physical材料uniform参数
+        * @param uniforms
+        * @param material
+        */
         refreshUniformsPhysical(uniforms, material) {
             uniforms.clearCoat.value = material.clearCoat;
             uniforms.clearCoatRoughness.value = material.clearCoatRoughness;
             this.refreshUniformsStandard(uniforms, material);
         }
+        /**
+         * 更新Depth材料uniform参数
+        * @param uniforms
+        * @param material
+        */
         refreshUniformsDepth(uniforms, material) {
             if (material.displacementMap) {
                 uniforms.displacementMap.value = material.displacementMap;
@@ -21549,6 +21707,11 @@ var THREE;
                 uniforms.displacementBias.value = material.displacementBias;
             }
         }
+        /**
+         * 更新Distance材料uniform参数
+           * @param uniforms
+           * @param material
+           */
         refreshUniformsDistance(uniforms, material) {
             if (material.displacementMap) {
                 uniforms.displacementMap.value = material.displacementMap;
@@ -21559,6 +21722,11 @@ var THREE;
             uniforms.nearDistance.value = material.nearDistance;
             uniforms.farDistance.value = material.farDistance;
         }
+        /**
+         * 更新Normal材料uniform参数
+        * @param uniforms
+        * @param material
+        */
         refreshUniformsNormal(uniforms, material) {
             if (material.bumpMap) {
                 uniforms.bumpMap.value = material.bumpMap;
@@ -21579,6 +21747,11 @@ var THREE;
             }
         }
         // If uniforms are marked as clean, they don't need to be loaded to the GPU.
+        /**
+         * 灯光更新
+         * @param uniforms
+         * @param value
+         */
         markUniformsLightsNeedsUpdate(uniforms, value) {
             uniforms.ambientLightColor.needsUpdate = value;
             uniforms.directionalLights.needsUpdate = value;
@@ -21588,6 +21761,9 @@ var THREE;
             uniforms.hemisphereLights.needsUpdate = value;
         }
         // Textures
+        /**
+         * 分配材质单元
+         */
         allocTextureUnit() {
             var textureUnit = this._usedTextureUnits;
             if (textureUnit >= this.capabilities.maxTextures) {
@@ -21597,6 +21773,11 @@ var THREE;
             return textureUnit;
         }
         // backwards compatibility: peel texture.texture
+        /**
+         * 设置材质
+         * @param texture
+         * @param slot
+         */
         setTexture2D(texture, slot) {
             if (texture && texture.isWebGLRenderTarget) {
                 if (!this.warned_setTexture2D) {
@@ -21607,6 +21788,11 @@ var THREE;
             }
             this.textures.setTexture2D(texture, slot);
         }
+        /**
+      * 设置材质
+      * @param texture
+      * @param slot
+      */
         setTexture(texture, slot) {
             if (!this.warned_setTexture) {
                 console.warn("THREE.WebGLRenderer: .setTexture is deprecated, use setTexture2D instead.");
@@ -21614,6 +21800,11 @@ var THREE;
             }
             this.textures.setTexture2D(texture, slot);
         }
+        /**
+         * 设置cube材质
+        * @param texture
+        * @param slot
+        */
         setTextureCube(texture, slot) {
             // backwards compatibility: peel texture.texture
             if (texture && texture.isWebGLRenderTargetCube) {
@@ -22606,6 +22797,7 @@ var THREE;
             this.floatFragmentTextures = !!extensions.get('OES_texture_float');
             this.floatVertexTextures = this.vertexTextures && this.floatFragmentTextures;
             this.precision = 'highp';
+            this.gl = gl;
         }
         getMaxAnisotropy() {
             if (this.maxAnisotropy !== undefined)
@@ -23248,7 +23440,7 @@ var THREE;
             return this.gl.getShaderParameter(shader, pname);
         }
         getShaderPrecisionFormat(shadertype, precisiontype) {
-            this.gl.getShaderPrecisionFormat(shadertype, precisiontype);
+            return this.gl.getShaderPrecisionFormat(shadertype, precisiontype);
         }
         getShaderSource(shader) {
             return this.gl.getShaderSource(shader);
@@ -23728,7 +23920,7 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class UniformsCache {
+    class LightUniformsCache {
         constructor() {
             this.lights = {};
         }
@@ -23798,10 +23990,10 @@ var THREE;
             return uniforms;
         }
     }
-    THREE.UniformsCache = UniformsCache;
+    THREE.LightUniformsCache = LightUniformsCache;
     class WebGLLightsNode {
         constructor() {
-            this.cache = new UniformsCache();
+            this.cache = new LightUniformsCache();
             this.state = {
                 id: WebGLLightsNode.count++,
                 hash: '',
@@ -24165,6 +24357,9 @@ var THREE;
         }
         return string.replace(pattern, replace);
     }
+    /**
+     * webGLprogram
+     */
     class WebGLProgramNode {
         constructor(renderer, extensions, code, material, shader, parameters) {
             this.name = shader.name;
@@ -24467,30 +24662,55 @@ var THREE;
         }
     }
     THREE.WebGLProgramNode = WebGLProgramNode;
+    /**
+     * 一个shader的存储内容
+     */
+    class WebGLShaderItem {
+        constructor() {
+        }
+    }
+    THREE.WebGLShaderItem = WebGLShaderItem;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
+    class MaterialShaderEnum {
+    }
+    MaterialShaderEnum.MeshDepthMaterial = 'depth';
+    MaterialShaderEnum.MeshDistanceMaterial = 'distanceRGBA';
+    MaterialShaderEnum.MeshNormalMaterial = 'normal';
+    MaterialShaderEnum.MeshBasicMaterial = 'basic';
+    MaterialShaderEnum.MeshLambertMaterial = 'lambert';
+    MaterialShaderEnum.MeshPhongMaterial = 'phong';
+    MaterialShaderEnum.MeshToonMaterial = 'phong';
+    MaterialShaderEnum.MeshStandardMaterial = 'physical';
+    MaterialShaderEnum.MeshPhysicalMaterial = 'physical';
+    MaterialShaderEnum.LineBasicMaterial = 'basic';
+    MaterialShaderEnum.LineDashedMaterial = 'dashed';
+    MaterialShaderEnum.PointsMaterial = 'points';
+    MaterialShaderEnum.ShadowMaterial = 'shadow';
+    THREE.MaterialShaderEnum = MaterialShaderEnum;
     class WebGLProgramsNode {
         constructor(renderer, extensions, capabilities) {
-            this.programs = [];
+            this.programs = new Array();
             this.renderer = renderer;
             this.extensions = extensions;
             this.capabilities = capabilities;
-            this.shaderIDs = {
-                MeshDepthMaterial: 'depth',
-                MeshDistanceMaterial: 'distanceRGBA',
-                MeshNormalMaterial: 'normal',
-                MeshBasicMaterial: 'basic',
-                MeshLambertMaterial: 'lambert',
-                MeshPhongMaterial: 'phong',
-                MeshToonMaterial: 'phong',
-                MeshStandardMaterial: 'physical',
-                MeshPhysicalMaterial: 'physical',
-                LineBasicMaterial: 'basic',
-                LineDashedMaterial: 'dashed',
-                PointsMaterial: 'points',
-                ShadowMaterial: 'shadow'
-            };
+            this.shaderIDs = MaterialShaderEnum;
+            // this.shaderIDs = {
+            //    MeshDepthMaterial: 'depth',
+            //    MeshDistanceMaterial: 'distanceRGBA',
+            //    MeshNormalMaterial: 'normal',
+            //    MeshBasicMaterial: 'basic',
+            //    MeshLambertMaterial: 'lambert',
+            //    MeshPhongMaterial: 'phong',
+            //    MeshToonMaterial: 'phong',
+            //    MeshStandardMaterial: 'physical',
+            //    MeshPhysicalMaterial: 'physical',
+            //    LineBasicMaterial: 'basic',
+            //    LineDashedMaterial: 'dashed',
+            //    PointsMaterial: 'points',
+            //    ShadowMaterial: 'shadow'
+            // };
             this.parameterNames = [
                 "precision", "supportsVertexTextures", "map", "mapEncoding", "envMap", "envMapMode", "envMapEncoding",
                 "lightMap", "aoMap", "emissiveMap", "emissiveMapEncoding", "bumpMap", "normalMap", "displacementMap", "specularMap",
@@ -24504,6 +24724,7 @@ var THREE;
                 "alphaTest", "doubleSided", "flipSided", "numClippingPlanes", "numClipIntersection", "depthPacking", "dithering"
             ];
         }
+        ;
         allocateBones(object) {
             var skeleton = object.skeleton;
             var bones = skeleton.bones;
@@ -24539,6 +24760,16 @@ var THREE;
             }
             return encoding;
         }
+        /**
+         * // material 的配置参数，用来配置program的vertex 和fragment 元的shander内容
+         * @param material
+         * @param lights
+         * @param shadows
+         * @param fog
+         * @param nClipPlanes
+         * @param nClipIntersection
+         * @param object
+         */
         getParameters(material, lights, shadows, fog, nClipPlanes, nClipIntersection, object) {
             var shaderID = this.shaderIDs[material.type];
             // heuristics to create shader parameters according to lights in the scene
@@ -24552,6 +24783,7 @@ var THREE;
                 }
             }
             var currentRenderTarget = this.renderer.getRenderTarget();
+            // material 的配置参数，用来配置program的vertex 和fragment 元的shander内容
             var parameters = {
                 shaderID: shaderID,
                 precision: precision,
@@ -24611,6 +24843,11 @@ var THREE;
             return parameters;
         }
         ;
+        /**
+         * 根据配置参数 顺序连接形成program的标识字符串
+         * @param material
+         * @param parameters
+         */
         getProgramCode(material, parameters) {
             var array = [];
             if (parameters.shaderID) {
@@ -24634,6 +24871,13 @@ var THREE;
             return array.join();
         }
         ;
+        /**
+         * 根据唯一标识符code 得到program
+         * @param material
+         * @param shader
+         * @param parameters
+         * @param code program 唯一标识符
+         */
         acquireProgram(material, shader, parameters, code) {
             var program;
             // Check if code has been already compiled
@@ -24722,6 +24966,17 @@ var THREE;
             return a.id - b.id;
         }
     }
+    /**
+     * 渲染数据单元
+     */
+    class RenderItem {
+        constructor() {
+        }
+    }
+    THREE.RenderItem = RenderItem;
+    /**
+     * 渲染对象列表
+     */
     class WebGLRenderListNode {
         constructor() {
             this.renderItems = [];
@@ -24734,9 +24989,18 @@ var THREE;
             this.opaque.length = 0;
             this.transparent.length = 0;
         }
+        /**
+         * 存入值
+         * @param object
+         * @param geometry
+         * @param material
+         * @param z
+         * @param group
+         */
         push(object, geometry, material, z, group) {
             var renderItem = this.renderItems[this.renderItemsIndex];
             if (renderItem === undefined) {
+                renderItem = new RenderItem();
                 renderItem = {
                     id: object.id,
                     object: object,
@@ -24762,6 +25026,9 @@ var THREE;
             (material.transparent === true ? this.transparent : this.opaque).push(renderItem);
             this.renderItemsIndex++;
         }
+        /**
+         * 排序
+         */
         sort() {
             if (this.opaque.length > 1)
                 this.opaque.sort(painterSortStable);
@@ -24770,6 +25037,9 @@ var THREE;
         }
     }
     THREE.WebGLRenderListNode = WebGLRenderListNode;
+    /**
+     * renderlist 的列表
+     */
     class WebGLRenderListsNode {
         constructor() {
             this.lists = {};
@@ -27009,20 +27279,24 @@ var THREE;
     }
     THREE.getPureArraySetter = getPureArraySetter;
     // --- Uniform Classes ---
-    function SingleUniform(id, activeInfo, addr) {
-        this.id = id;
-        this.addr = addr;
-        this.cache = [];
-        this.setValue = getSingularSetter(activeInfo.type);
-        // this.path = activeInfo.name; // DEBUG
+    class SingleUniform {
+        constructor(id, activeInfo, addr) {
+            this.id = id;
+            this.addr = addr;
+            this.cache = [];
+            this.setValue = getSingularSetter(activeInfo.type);
+            // this.path = activeInfo.name; // DEBUG
+        }
     }
     THREE.SingleUniform = SingleUniform;
-    function PureArrayUniform(id, activeInfo, addr) {
-        this.id = id;
-        this.addr = addr;
-        this.size = activeInfo.size;
-        this.setValue = getPureArraySetter(activeInfo.type);
-        // this.path = activeInfo.name; // DEBUG
+    class PureArrayUniform {
+        constructor(id, activeInfo, addr) {
+            this.id = id;
+            this.addr = addr;
+            this.size = activeInfo.size;
+            this.setValue = getPureArraySetter(activeInfo.type);
+            // this.path = activeInfo.name; // DEBUG
+        }
     }
     THREE.PureArrayUniform = PureArrayUniform;
     class StructuredUniform extends UniformContainer {
@@ -27590,8 +27864,13 @@ var THREE;
             this.overrideMaterial = null;
             this.autoUpdate = true; // checked by the renderer
         }
+        /**
+         * 复制
+         * @param source
+         * @param recursive
+         */
         copy(source, recursive) {
-            THREE.Object3D.prototype.copy.call(this, source, recursive);
+            super.copy(source, recursive);
             if (source.background !== null)
                 this.background = source.background.clone();
             if (source.fog !== null)
@@ -27602,8 +27881,12 @@ var THREE;
             this.matrixAutoUpdate = source.matrixAutoUpdate;
             return this;
         }
+        /**
+         * 生成json文件
+         * @param meta
+         */
         toJSON(meta) {
-            var data = THREE.Object3D.prototype.toJSON.call(this, meta);
+            var data = super.toJSON(meta);
             if (this.background !== null)
                 data.object.background = this.background.toJSON(meta);
             if (this.fog !== null)

@@ -617,8 +617,8 @@ declare module THREE {
         constructor();
         onRotationChange(): () => void;
         onQuaternionChange(): () => void;
-        onBeforeRender(): void;
-        onAfterRender(): void;
+        onBeforeRender(render: any, scene: any, camera: any, geometry: any, material: any, group: any): void;
+        onAfterRender(render: any, scene: any, camera: any, geometry: any, material: any, group: any): void;
         applyMatrix(matrix: any): void;
         applyQuaternion(q: Quaternion): this;
         setRotationFromAxisAngle(axis: any, angle: any): void;
@@ -885,6 +885,9 @@ declare module THREE {
     }
 }
 declare module THREE {
+    type BufferAttributeMap = {
+        [key: string]: BufferAttribute;
+    };
     class BufferAttribute {
         name: string;
         array: any;
@@ -896,9 +899,7 @@ declare module THREE {
         updateRange: any;
         isBufferAttribute: boolean;
         constructor(array: any, itemSize: any, normalized?: any);
-        needsUpdate(): {
-            set: (value: any) => void;
-        };
+        needsUpdate: any;
         onUploadCallback(): void;
         setArray(array: any): this;
         setDynamic(value: any): this;
@@ -953,25 +954,28 @@ declare module THREE {
     }
 }
 declare module THREE {
+    type BufferGeometryMap = {
+        [key: number]: BufferGeometry;
+    };
     class BufferGeometry extends EventDispatcher {
         id: number;
         name: string;
         type: string;
         index: any;
-        attributes: any;
+        attributes: BufferAttributeMap;
         morphAttributes: any;
         groups: Array<any>;
-        boundingBox: any;
-        boundingSphere: any;
+        boundingBox: Box3;
+        boundingSphere: Sphere;
         drawRange: any;
-        uuid: any;
-        isBufferGeometry: any;
-        parameters: any;
+        uuid: string;
+        isBufferGeometry: boolean;
+        parameters: any | Object;
         constructor();
         getIndex(): any;
         setIndex(index: any): void;
         addAttribute(name: string, attribute: any): this;
-        getAttribute(name: string): any;
+        getAttribute(name: string): BufferAttribute;
         removeAttribute(name: string): this;
         addGroup(start: number, count: number, materialIndex: number): void;
         clearGroups(): void;
@@ -984,17 +988,52 @@ declare module THREE {
         scale(x: any, y: any, z: any): this;
         lookAt(vector: any): void;
         center(): this;
-        setFromObject(object: any): this;
+        /**
+         * 从mesh 、line point 等物品类型中设置buffergeometry
+         * @param object
+         */
+        setFromObject(object: any | Object3D): this;
+        /**
+         * 从点集设置buffergeometry 的值
+         * @param points
+         */
         setFromPoints(points: any): this;
-        updateFromObject(object: any): this;
-        fromGeometry(geometry: any): this;
-        fromDirectGeometry(geometry: any): this;
+        /**
+         * 从其他物体更新当前buffergeometry的属性值
+         * @param object
+         */
+        updateFromObject(object: any | Object3D): this;
+        /**
+         * 从几何中设置buffergeometry
+         * @param geometry
+         */
+        fromGeometry(geometry: Geometry): this;
+        /**
+         * 从direct geometry 向buffer geometry 提供内存空间大小，和赋值
+         * @param geometry  dire
+         */
+        fromDirectGeometry(geometry: DirectGeometry): this;
+        /**
+         * 计算包围框
+         */
         computeBoundingBox(): void;
+        /**
+         * 计算包围球体
+        */
         computeBoundingSphere(): void;
         computeFaceNormals(): void;
+        /**
+         * 计算顶点法向
+         */
         computeVertexNormals(): void;
         merge(geometry: BufferGeometry, offset: number): this;
+        /**
+         * 法向归一化
+         */
         normalizeNormals(): void;
+        /**
+         * 无索引
+         */
         toNonIndexed(): BufferGeometry;
         toJSON(): any;
         clone(): BufferGeometry;
@@ -1080,6 +1119,8 @@ declare module THREE {
         lineDistancesNeedUpdate: boolean;
         groupsNeedUpdate: boolean;
         parameters: any;
+        __directGeometry: DirectGeometry;
+        _bufferGeometry: BufferGeometry;
         constructor();
         isGeometry: boolean;
         applyMatrix(matrix: any): this;
@@ -3611,8 +3652,6 @@ declare module THREE {
         private _premultipliedAlpha;
         private _preserveDrawingBuffer;
         private _powerPreference;
-        private currentRenderList;
-        private currentRenderState;
         domElement: any;
         context: any;
         autoClear: boolean;
@@ -3651,7 +3690,6 @@ declare module THREE {
         private _scissor;
         private _scissorTest;
         private _frustum;
-        private _clipping;
         private _clippingEnabled;
         private _localClippingEnabled;
         private _projScreenMatrix;
@@ -3662,12 +3700,10 @@ declare module THREE {
         capabilities: any;
         state: any;
         info: any;
-        properties: any;
         textures: any;
         attributes: any;
         geometries: any;
         objects: any;
-        programCache: any;
         renderLists: any;
         renderStates: any;
         background: any;
@@ -3677,9 +3713,14 @@ declare module THREE {
         spriteRenderer: any;
         utils: any;
         vr: any;
-        shadowMap: any;
         isAnimating: boolean;
         onAnimationFrame: any;
+        private currentRenderList;
+        private currentRenderState;
+        private _clipping;
+        shadowMap: WebGLShadowMapNode;
+        programCache: WebGLProgramsNode;
+        properties: WebGLPropertiesNode;
         constructor(parameters?: any);
         private getTargetPixelRatio();
         initGLContext(): void;
@@ -3719,41 +3760,196 @@ declare module THREE {
         private deallocateMaterial(material);
         private releaseMaterialProgramReference(material);
         private renderObjectImmediate(object, program, material);
+        /**
+         * 立即渲染buffer
+         */
         renderBufferImmediate: (object: any, program: any, material: any) => void;
+        /**
+         * 直接渲染buffer
+        */
         renderBufferDirect: (camera: any, fog: any, geometry: any, material: any, object: any, group: any) => void;
+        /**
+         * 设置顶点属性值
+         * @param material
+         * @param program
+         * @param geometry
+         */
         setupVertexAttributes(material: any, program: any, geometry: any): void;
+        /**
+         * 编译
+         */
         compile: (scene: any, camera: any) => void;
+        /**
+         * 开始动画
+         */
         private startAnimation();
+        /**
+         * 结束动画
+         */
         private stopAnimation();
+        /**
+         * 针渲染
+         */
         private requestAnimationLoopFrame();
+        /**
+         * 动画循环
+         * @param time
+         */
         private animationLoop(time);
+        /**
+         * 动画
+         * @param callback
+         */
         animate(callback: any): void;
         render(scene: any, camera: any, renderTarget: any, forceClear: any): void;
+        /**
+         * 向renderlist中存入设置好的program和buffergeometry信息。
+         * @param object
+         * @param camera
+         * @param sortObjects
+         */
         private projectObject(object, camera, sortObjects);
+        /**
+         * 渲染objects
+         * @param renderList
+         * @param scene
+         * @param camera
+         * @param overrideMaterial
+         */
         private renderObjects(renderList, scene, camera, overrideMaterial?);
+        /**
+         * 渲染单个物品
+         * @param object
+         * @param scene
+         * @param camera
+         * @param geometry
+         * @param material
+         * @param group
+         */
         private renderObject(object, scene, camera, geometry, material, group);
+        /**
+         * 初始化材料
+         * @param material
+         * @param fog
+         * @param object
+         */
         private initMaterial(material, fog, object);
+        /**
+         * 设置program
+         * @param camera
+         * @param fog
+         * @param material
+         * @param object
+         */
         private setProgram(camera, fog, material, object);
+        /**
+         * 更新uniforms参数
+         * @param uniforms
+         * @param material
+         */
         private refreshUniformsCommon(uniforms, material);
+        /**
+         * 更新线的uniform参数
+         * @param uniforms
+         * @param material
+         */
         private refreshUniformsLine(uniforms, material);
+        /**
+         * 更新虚线的uniform参数
+         * @param uniforms
+         * @param material
+         */
         private refreshUniformsDash(uniforms, material);
+        /**
+         * 更新虚线的点云uniform参数
+        * @param uniforms
+        * @param material
+        */
         private refreshUniformsPoints(uniforms, material);
+        /**
+         * 更新雾uniform参数
+        * @param uniforms
+        * @param material
+        */
         private refreshUniformsFog(uniforms, fog);
+        /**
+         * 更新Lambert材料uniform参数
+        * @param uniforms
+        * @param material
+        */
         private refreshUniformsLambert(uniforms, material);
+        /**
+         * 更新Phong材料uniform参数
+           * @param uniforms
+           * @param material
+           */
         private refreshUniformsPhong(uniforms, material);
+        /**
+         * 更新Toon材料uniform参数
+         * @param uniforms
+         * @param material
+         */
         private refreshUniformsToon(uniforms, material);
+        /**
+         * 更新Standard材料uniform参数
+        * @param uniforms
+        * @param material
+        */
         private refreshUniformsStandard(uniforms, material);
+        /**
+         * 更新Physical材料uniform参数
+        * @param uniforms
+        * @param material
+        */
         private refreshUniformsPhysical(uniforms, material);
+        /**
+         * 更新Depth材料uniform参数
+        * @param uniforms
+        * @param material
+        */
         private refreshUniformsDepth(uniforms, material);
+        /**
+         * 更新Distance材料uniform参数
+           * @param uniforms
+           * @param material
+           */
         private refreshUniformsDistance(uniforms, material);
+        /**
+         * 更新Normal材料uniform参数
+        * @param uniforms
+        * @param material
+        */
         private refreshUniformsNormal(uniforms, material);
+        /**
+         * 灯光更新
+         * @param uniforms
+         * @param value
+         */
         private markUniformsLightsNeedsUpdate(uniforms, value);
+        /**
+         * 分配材质单元
+         */
         allocTextureUnit(): number;
         private warned_setTexture2D;
+        /**
+         * 设置材质
+         * @param texture
+         * @param slot
+         */
         setTexture2D(texture: any, slot: any): void;
         private warned_setTexture;
+        /**
+      * 设置材质
+      * @param texture
+      * @param slot
+      */
         setTexture(texture: any, slot: any): void;
         private warned_setTextureCube;
+        /**
+         * 设置cube材质
+        * @param texture
+        * @param slot
+        */
         setTextureCube(texture: any, slot: any): void;
         getRenderTarget(): any;
         setRenderTarget(renderTarget: any): void;
@@ -4263,24 +4459,24 @@ declare module THREE {
 }
 declare module THREE {
     class WebGLCapabilitiesNode {
-        gl: any;
+        gl: WebGLContext;
         extensions: any;
         parameters: any;
         maxAnisotropy: any;
         logarithmicDepthBuffer: any;
-        maxTextures: any;
-        maxVertexTextures: any;
-        maxTextureSize: any;
-        maxCubemapSize: any;
-        maxAttributes: any;
+        maxTextures: number;
+        maxVertexTextures: number;
+        maxTextureSize: number;
+        maxCubemapSize: number;
+        maxAttributes: number;
         maxVertexUniforms: any;
-        maxVaryings: any;
-        maxFragmentUniforms: any;
-        vertexTextures: any;
-        floatFragmentTextures: any;
-        floatVertexTextures: any;
-        precision: any;
-        constructor(gl: any, extensions: any, parameters: any);
+        maxVaryings: number;
+        maxFragmentUniforms: number;
+        vertexTextures: boolean;
+        floatFragmentTextures: boolean;
+        floatVertexTextures: boolean;
+        precision: string;
+        constructor(gl: WebGLContext, extensions: any, parameters: any);
         getMaxAnisotropy(): any;
         getMaxPrecision(precision: any): "highp" | "mediump" | "lowp";
     }
@@ -4381,7 +4577,7 @@ declare module THREE {
         getRenderbufferParameter(target: number, pname: number): any;
         getShaderInfoLog(shader: WebGLShader): string;
         getShaderParameter(shader: WebGLShader, pname: number): any;
-        getShaderPrecisionFormat(shadertype: number, precisiontype: number): void;
+        getShaderPrecisionFormat(shadertype: number, precisiontype: number): WebGLShaderPrecisionFormat;
         getShaderSource(shader: WebGLShader): string;
         getSupportedExtensions(): string[];
         getTexParameter(target: number, pname: number): any;
@@ -4771,14 +4967,14 @@ declare module THREE {
 }
 declare module THREE {
     class WebGLGeometriesNode {
-        geometries: any;
+        geometries: BufferGeometryMap;
         gl: any;
         attributes: any;
         info: any;
         wireframeAttributes: any;
         constructor(gl: any, attributes: any, info: any);
         onGeometryDispose(event: any): void;
-        get(object: any, geometry: any): any;
+        get(object: any, geometry: any): BufferGeometry;
         update(geometry: any): void;
         getWireframeAttribute(geometry: any): any;
     }
@@ -4817,7 +5013,7 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class UniformsCache {
+    class LightUniformsCache {
         lights: {};
         constructor();
         get(light: any): any;
@@ -4828,7 +5024,7 @@ declare module THREE {
         matrix4: Matrix4;
         matrix42: Matrix4;
         state: any;
-        cache: UniformsCache;
+        cache: LightUniformsCache;
         constructor();
         setup(lights: any, shadows: any, camera: any): void;
     }
@@ -4854,43 +5050,87 @@ declare module THREE {
     }
 }
 declare module THREE {
+    /**
+     * webGLprogram
+     */
     class WebGLProgramNode {
-        name: any;
+        name: string;
         id: any;
-        code: any;
+        /**唯一标识 */
+        code: string;
         usedTimes: any;
-        program: any;
-        verexShader: any;
+        /**webgl program */
+        program: WebGLProgram;
+        /**顶点shader */
         vertexShader: any;
+        /**片元shader */
         fragmentShader: any;
         renderer: any;
         extensions: any;
-        material: any;
-        shader: any;
+        material: Material;
+        shader: WebGLShaderItem;
+        /**material 对应的参数 */
         parameters: any;
         gl: any;
         diagnostics: any;
-        cachedUniforms: any;
-        cachedAttributes: any;
+        /**存储uniform地址 */
+        cachedUniforms: WebGLUniformsNode;
+        /**存储attribute地址 */
+        cachedAttributes: any | Object;
         constructor(renderer: any, extensions: any, code: any, material: any, shader: any, parameters: any);
-        getUniforms(): any;
+        getUniforms(): WebGLUniformsNode;
         getAttributes(): any;
         destroy(): void;
-        readonly uniforms: any;
+        readonly uniforms: WebGLUniformsNode;
         readonly attributes: any;
+    }
+    /**
+     * 一个shader的存储内容
+     */
+    class WebGLShaderItem {
+        name: string;
+        uniforms: any;
+        vertexShader: string;
+        fragmentShader: string;
+        constructor();
     }
 }
 declare module THREE {
+    class MaterialShaderEnum {
+        static MeshDepthMaterial: string;
+        static MeshDistanceMaterial: string;
+        static MeshNormalMaterial: string;
+        static MeshBasicMaterial: string;
+        static MeshLambertMaterial: string;
+        static MeshPhongMaterial: string;
+        static MeshToonMaterial: string;
+        static MeshStandardMaterial: string;
+        static MeshPhysicalMaterial: string;
+        static LineBasicMaterial: string;
+        static LineDashedMaterial: string;
+        static PointsMaterial: string;
+        static ShadowMaterial: string;
+    }
     class WebGLProgramsNode {
         renderer: any;
         extensions: any;
         capabilities: any;
-        programs: any;
+        programs: Array<WebGLProgramNode>;
         shaderIDs: any;
         parameterNames: any;
         constructor(renderer: any, extensions: any, capabilities: any);
         allocateBones(object: any): number;
         getTextureEncodingFromMap(map: any, gammaOverrideLinear: any): any;
+        /**
+         * // material 的配置参数，用来配置program的vertex 和fragment 元的shander内容
+         * @param material
+         * @param lights
+         * @param shadows
+         * @param fog
+         * @param nClipPlanes
+         * @param nClipIntersection
+         * @param object
+         */
         getParameters(material: any, lights: any, shadows: any, fog: any, nClipPlanes: any, nClipIntersection: any, object: any): {
             shaderID: any;
             precision: any;
@@ -4947,8 +5187,20 @@ declare module THREE {
             flipSided: boolean;
             depthPacking: any;
         };
+        /**
+         * 根据配置参数 顺序连接形成program的标识字符串
+         * @param material
+         * @param parameters
+         */
         getProgramCode(material: any, parameters: any): string;
-        acquireProgram(material: any, shader: any, parameters: any, code: any): any;
+        /**
+         * 根据唯一标识符code 得到program
+         * @param material
+         * @param shader
+         * @param parameters
+         * @param code program 唯一标识符
+         */
+        acquireProgram(material: Material, shader: WebGLShaderItem, parameters: any, code: string): any;
         releaseProgram(program: any): void;
     }
 }
@@ -4963,20 +5215,57 @@ declare module THREE {
     }
 }
 declare module THREE {
+    /**
+     * 渲染数据单元
+     */
+    class RenderItem {
+        id: number;
+        object: any | Object3D;
+        geometry: BufferGeometry;
+        material: Material;
+        program: WebGLProgram;
+        renderOrder: number;
+        z: number;
+        group: any;
+        constructor();
+    }
+    /**
+     * 渲染对象列表
+     */
     class WebGLRenderListNode {
-        renderItems: any;
-        renderItemsIndex: any;
-        opaque: any;
-        transparent: any;
+        /**全部渲染单元列表 */
+        renderItems: Array<RenderItem>;
+        renderItemsIndex: number;
+        /**不透明渲染单元列表 */
+        opaque: Array<RenderItem>;
+        /**透明渲染单元列表 */
+        transparent: Array<RenderItem>;
         constructor();
         init(): void;
+        /**
+         * 存入值
+         * @param object
+         * @param geometry
+         * @param material
+         * @param z
+         * @param group
+         */
         push(object: any, geometry: any, material: any, z: any, group: any): void;
+        /**
+         * 排序
+         */
         sort(): void;
     }
+    type WebGLRenderListNodeMap = {
+        [key: string]: WebGLRenderListNode;
+    };
+    /**
+     * renderlist 的列表
+     */
     class WebGLRenderListsNode {
-        lists: any;
+        lists: WebGLRenderListNodeMap;
         constructor();
-        get(scene: any, camera: any): any;
+        get(scene: any, camera: any): WebGLRenderListNode;
         dispose(): void;
     }
 }
@@ -5289,8 +5578,20 @@ declare module THREE {
     function setValueT1a(gl: any, v: any, renderer: any): void;
     function setValueT6a(gl: any, v: any, renderer: any): void;
     function getPureArraySetter(type: any): typeof setValueT1a;
-    function SingleUniform(id: any, activeInfo: any, addr: any): void;
-    function PureArrayUniform(id: any, activeInfo: any, addr: any): void;
+    class SingleUniform {
+        id: any;
+        addr: any;
+        cache: any;
+        setValue: any;
+        constructor(id: any, activeInfo: any, addr: any);
+    }
+    class PureArrayUniform {
+        id: any;
+        addr: any;
+        size: any;
+        setValue: any;
+        constructor(id: any, activeInfo: any, addr: any);
+    }
     class StructuredUniform extends UniformContainer {
         id: any;
         constructor(id: any);
@@ -5403,11 +5704,21 @@ declare module THREE {
 declare module THREE {
     class Scene extends Object3D {
         autoUpdate: boolean;
-        overrideMaterial: any;
+        /**整个场景的全局材料 */
+        overrideMaterial: Material;
         fog: any;
         background: any;
         constructor();
+        /**
+         * 复制
+         * @param source
+         * @param recursive
+         */
         copy(source: any, recursive: any): this;
+        /**
+         * 生成json文件
+         * @param meta
+         */
         toJSON(meta: any): any;
     }
 }

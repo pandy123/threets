@@ -235,8 +235,8 @@ module THREE {
       public getShaderParameter(shader: WebGLShader, pname: number) {
          return this.gl.getShaderParameter(shader, pname);
       }
-      public getShaderPrecisionFormat(shadertype: number, precisiontype: number) {
-         this.gl.getShaderPrecisionFormat(shadertype, precisiontype);
+      public getShaderPrecisionFormat(shadertype: number, precisiontype: number): WebGLShaderPrecisionFormat {
+         return this.gl.getShaderPrecisionFormat(shadertype, precisiontype);
       }
       public getShaderSource(shader: WebGLShader) {
          return this.gl.getShaderSource(shader);
