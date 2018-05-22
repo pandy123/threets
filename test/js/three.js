@@ -508,7 +508,7 @@ var THREE;
                     });
                 }
             }
-            else { // repetitive Repeat or PingPong
+            else {
                 var pingPong = (loop === THREE.LoopPingPong);
                 if (loopCount === -1) {
                     // just started
@@ -2109,11 +2109,11 @@ var THREE;
             }
             // determine versioning scheme
             var versioning = this.Versioning.None;
-            if (targetObject.needsUpdate !== undefined) { // material
+            if (targetObject.needsUpdate !== undefined) {
                 versioning = this.Versioning.NeedsUpdate;
                 this.targetObject = targetObject;
             }
-            else if (targetObject.matrixWorldNeedsUpdate !== undefined) { // node transform
+            else if (targetObject.matrixWorldNeedsUpdate !== undefined) {
                 versioning = this.Versioning.MatrixWorldNeedsUpdate;
                 this.targetObject = targetObject;
             }
@@ -7527,24 +7527,24 @@ var THREE;
             for (var i = 0, l = outline.length; i < l;) {
                 var action = outline[i++];
                 switch (action) {
-                    case 'm': // moveTo
+                    case 'm':// moveTo
                         x = outline[i++] * scale + offsetX;
                         y = outline[i++] * scale + offsetY;
                         path.moveTo(x, y);
                         break;
-                    case 'l': // lineTo
+                    case 'l':// lineTo
                         x = outline[i++] * scale + offsetX;
                         y = outline[i++] * scale + offsetY;
                         path.lineTo(x, y);
                         break;
-                    case 'q': // quadraticCurveTo
+                    case 'q':// quadraticCurveTo
                         cpx = outline[i++] * scale + offsetX;
                         cpy = outline[i++] * scale + offsetY;
                         cpx1 = outline[i++] * scale + offsetX;
                         cpy1 = outline[i++] * scale + offsetY;
                         path.quadraticCurveTo(cpx1, cpy1, cpx, cpy);
                         break;
-                    case 'b': // bezierCurveTo
+                    case 'b':// bezierCurveTo
                         cpx = outline[i++] * scale + offsetX;
                         cpy = outline[i++] * scale + offsetY;
                         cpx1 = outline[i++] * scale + offsetX;
@@ -8267,7 +8267,7 @@ var THREE;
         getPointAt(u, optionalTarget) {
             return this.getPoint(u, optionalTarget);
         }
-        getTangent( /* t */) {
+        getTangent() {
             var tangent = this.v2.clone().sub(this.v1);
             return tangent.normalize();
         }
@@ -12972,7 +12972,7 @@ var THREE;
                         case 'json':
                             response = JSON.parse(data);
                             break;
-                        default: // 'text' or other
+                        default:// 'text' or other
                             response = data;
                             break;
                     }
@@ -13176,7 +13176,7 @@ var THREE;
                 scope.manager.itemError(url);
             });
         }
-        setCrossOrigin( /* value */) {
+        setCrossOrigin() {
             return this;
         }
         setPath(value) {
@@ -14153,7 +14153,7 @@ var THREE;
                             break;
                         case 'BoxGeometry':
                         case 'BoxBufferGeometry':
-                        case 'CubeGeometry': // backwards compatible
+                        case 'CubeGeometry':// backwards compatible
                             geometry = new THREE.Geometries[data.type](data.width, data.height, data.depth, data.widthSegments, data.heightSegments, data.depthSegments);
                             break;
                         case 'CircleGeometry':
@@ -19509,7 +19509,7 @@ var THREE;
                         iPrev = pp.length - 2;
                         tPrev = t0 + pp[iPrev] - pp[iPrev + 1];
                         break;
-                    default: // ZeroCurvatureEnding
+                    default:// ZeroCurvatureEnding
                         // f''(t0) = 0 a.k.a. Natural Spline
                         iPrev = i1;
                         tPrev = t1;
@@ -19527,7 +19527,7 @@ var THREE;
                         iNext = 1;
                         tNext = t1 + pp[1] - pp[0];
                         break;
-                    default: // ZeroCurvatureEnding
+                    default:// ZeroCurvatureEnding
                         // f''(tN) = 0, a.k.a. Natural Spline
                         iNext = i1 - 1;
                         tNext = t0;
@@ -19629,6 +19629,17 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
+    class LineLoop extends THREE.Line {
+        constructor(geometry, material) {
+            super(geometry, material);
+            this.isLineLoop = true;
+            this.type = 'LineLoop';
+        }
+    }
+    THREE.LineLoop = LineLoop;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
     class LOD extends THREE.Object3D {
         constructor() {
             super();
@@ -19711,17 +19722,6 @@ var THREE;
         }
     }
     THREE.LOD = LOD;
-})(THREE || (THREE = {}));
-var THREE;
-(function (THREE) {
-    class LineLoop extends THREE.Line {
-        constructor(geometry, material) {
-            super(geometry, material);
-            this.isLineLoop = true;
-            this.type = 'LineLoop';
-        }
-    }
-    THREE.LineLoop = LineLoop;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -20173,68 +20173,6 @@ var THREE;
         }
     }
     THREE.WebGL2Renderer = WebGL2Renderer;
-})(THREE || (THREE = {}));
-var THREE;
-(function (THREE) {
-    class WebGLRenderTarget extends THREE.EventDispatcher {
-        constructor(width, height, options) {
-            super();
-            this.width = width;
-            this.height = height;
-            this.scissor = new THREE.Vector4(0, 0, width, height);
-            this.scissorTest = false;
-            this.viewport = new THREE.Vector4(0, 0, width, height);
-            options = options || {};
-            if (options.minFilter === undefined)
-                options.minFilter = THREE.LinearFilter;
-            this.texture = new THREE.Texture(undefined, undefined, options.wrapS, options.wrapT, options.magFilter, options.minFilter, options.format, options.type, options.anisotropy, options.encoding);
-            this.texture.generateMipmaps = options.generateMipmaps !== undefined ? options.generateMipmaps : true;
-            this.depthBuffer = options.depthBuffer !== undefined ? options.depthBuffer : true;
-            this.stencilBuffer = options.stencilBuffer !== undefined ? options.stencilBuffer : true;
-            this.depthTexture = options.depthTexture !== undefined ? options.depthTexture : null;
-            this.isWebGLRenderTarget = true;
-        }
-        setSize(width, height) {
-            if (this.width !== width || this.height !== height) {
-                this.width = width;
-                this.height = height;
-                this.dispose();
-            }
-            this.viewport.set(0, 0, width, height);
-            this.scissor.set(0, 0, width, height);
-        }
-        clone() {
-            var target = new WebGLRenderTarget(null, null, null);
-            target.copy(this);
-            return target;
-        }
-        copy(source) {
-            this.width = source.width;
-            this.height = source.height;
-            this.viewport.copy(source.viewport);
-            this.texture = source.texture.clone();
-            this.depthBuffer = source.depthBuffer;
-            this.stencilBuffer = source.stencilBuffer;
-            this.depthTexture = source.depthTexture;
-            return this;
-        }
-        dispose() {
-            this.dispatchEvent({ type: 'dispose' });
-        }
-    }
-    THREE.WebGLRenderTarget = WebGLRenderTarget;
-})(THREE || (THREE = {}));
-var THREE;
-(function (THREE) {
-    class WebGLRenderTargetCube extends THREE.WebGLRenderTarget {
-        constructor(width, height, options) {
-            super(width, height, options);
-            this.activeCubeFace = 0; // PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5
-            this.activeMipMapLevel = 0;
-            this.isWebGLRenderTargetCube = true;
-        }
-    }
-    THREE.WebGLRenderTargetCube = WebGLRenderTargetCube;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -20732,7 +20670,7 @@ var THREE;
             console.log('THREE.WebGLRenderer: Context Lost.');
             this._isContextLost = true;
         }
-        onContextRestore( /* event */) {
+        onContextRestore() {
             console.log('THREE.WebGLRenderer: Context Restored.');
             this._isContextLost = false;
             this.initGLContext();
@@ -21076,7 +21014,7 @@ var THREE;
                     for (var j = 0, jl = cameras.length; j < jl; j++) {
                         var camera2 = cameras[j];
                         if (object.layers.test(camera2.layers)) {
-                            if ('viewport' in camera2) { // XR
+                            if ('viewport' in camera2) {
                                 this.state.viewport(this._currentViewport.copy(camera2.viewport));
                             }
                             else {
@@ -21792,6 +21730,68 @@ var THREE;
         ;
     }
     THREE.WebGLRenderer = WebGLRenderer;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
+    class WebGLRenderTarget extends THREE.EventDispatcher {
+        constructor(width, height, options) {
+            super();
+            this.width = width;
+            this.height = height;
+            this.scissor = new THREE.Vector4(0, 0, width, height);
+            this.scissorTest = false;
+            this.viewport = new THREE.Vector4(0, 0, width, height);
+            options = options || {};
+            if (options.minFilter === undefined)
+                options.minFilter = THREE.LinearFilter;
+            this.texture = new THREE.Texture(undefined, undefined, options.wrapS, options.wrapT, options.magFilter, options.minFilter, options.format, options.type, options.anisotropy, options.encoding);
+            this.texture.generateMipmaps = options.generateMipmaps !== undefined ? options.generateMipmaps : true;
+            this.depthBuffer = options.depthBuffer !== undefined ? options.depthBuffer : true;
+            this.stencilBuffer = options.stencilBuffer !== undefined ? options.stencilBuffer : true;
+            this.depthTexture = options.depthTexture !== undefined ? options.depthTexture : null;
+            this.isWebGLRenderTarget = true;
+        }
+        setSize(width, height) {
+            if (this.width !== width || this.height !== height) {
+                this.width = width;
+                this.height = height;
+                this.dispose();
+            }
+            this.viewport.set(0, 0, width, height);
+            this.scissor.set(0, 0, width, height);
+        }
+        clone() {
+            var target = new WebGLRenderTarget(null, null, null);
+            target.copy(this);
+            return target;
+        }
+        copy(source) {
+            this.width = source.width;
+            this.height = source.height;
+            this.viewport.copy(source.viewport);
+            this.texture = source.texture.clone();
+            this.depthBuffer = source.depthBuffer;
+            this.stencilBuffer = source.stencilBuffer;
+            this.depthTexture = source.depthTexture;
+            return this;
+        }
+        dispose() {
+            this.dispatchEvent({ type: 'dispose' });
+        }
+    }
+    THREE.WebGLRenderTarget = WebGLRenderTarget;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
+    class WebGLRenderTargetCube extends THREE.WebGLRenderTarget {
+        constructor(width, height, options) {
+            super(width, height, options);
+            this.activeCubeFace = 0; // PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5
+            this.activeMipMapLevel = 0;
+            this.isWebGLRenderTargetCube = true;
+        }
+    }
+    THREE.WebGLRenderTargetCube = WebGLRenderTargetCube;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -23450,6 +23450,39 @@ var THREE;
         }
     }
     THREE.WebGLContext = WebGLContext;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
+    class WebglContextAttibutes {
+        constructor() {
+        }
+    }
+    THREE.WebglContextAttibutes = WebglContextAttibutes;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
+    function addLineNumbers(string) {
+        var lines = string.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+            lines[i] = (i + 1) + ': ' + lines[i];
+        }
+        return lines.join('\n');
+    }
+    function webGLCreateShader(gl, type, string) {
+        var shader = gl.createShader(type);
+        gl.shaderSource(shader, string);
+        gl.compileShader(shader);
+        if (gl.getShaderParameter(shader, gl.COMPILE_STATUS) === false) {
+            console.error('THREE.WebGLShader: Shader couldn\'t compile.');
+        }
+        if (gl.getShaderInfoLog(shader) !== '') {
+            console.warn('THREE.WebGLShader: gl.getShaderInfoLog()', type === gl.VERTEX_SHADER ? 'vertex' : 'fragment', gl.getShaderInfoLog(shader), addLineNumbers(string));
+        }
+        // --enable-privileged-webgl-extension
+        // console.log( type, gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( shader ) );
+        return shader;
+    }
+    THREE.webGLCreateShader = webGLCreateShader;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -27252,39 +27285,6 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebglContextAttibutes {
-        constructor() {
-        }
-    }
-    THREE.WebglContextAttibutes = WebglContextAttibutes;
-})(THREE || (THREE = {}));
-var THREE;
-(function (THREE) {
-    function addLineNumbers(string) {
-        var lines = string.split('\n');
-        for (var i = 0; i < lines.length; i++) {
-            lines[i] = (i + 1) + ': ' + lines[i];
-        }
-        return lines.join('\n');
-    }
-    function webGLCreateShader(gl, type, string) {
-        var shader = gl.createShader(type);
-        gl.shaderSource(shader, string);
-        gl.compileShader(shader);
-        if (gl.getShaderParameter(shader, gl.COMPILE_STATUS) === false) {
-            console.error('THREE.WebGLShader: Shader couldn\'t compile.');
-        }
-        if (gl.getShaderInfoLog(shader) !== '') {
-            console.warn('THREE.WebGLShader: gl.getShaderInfoLog()', type === gl.VERTEX_SHADER ? 'vertex' : 'fragment', gl.getShaderInfoLog(shader), addLineNumbers(string));
-        }
-        // --enable-privileged-webgl-extension
-        // console.log( type, gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( shader ) );
-        return shader;
-    }
-    THREE.webGLCreateShader = webGLCreateShader;
-})(THREE || (THREE = {}));
-var THREE;
-(function (THREE) {
     class WebVRManager {
         constructor(renderer) {
             this.renderer = renderer;
@@ -27546,7 +27546,7 @@ var THREE;
         clone() {
             return new Fog(this.color, this.near, this.far);
         }
-        toJSON( /* meta */) {
+        toJSON() {
             return {
                 type: 'Fog',
                 color: this.color.getHex(),
@@ -27569,7 +27569,7 @@ var THREE;
         clone() {
             return new FogExp2(this.color, this.density);
         }
-        toJSON( /* meta */) {
+        toJSON() {
             return {
                 type: 'FogExp2',
                 color: this.color.getHex(),

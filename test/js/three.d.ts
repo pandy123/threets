@@ -3496,6 +3496,12 @@ declare module THREE {
     }
 }
 declare module THREE {
+    class LineLoop extends Line {
+        isLineLoop: boolean;
+        constructor(geometry: any, material: any);
+    }
+}
+declare module THREE {
     class LOD extends Object3D {
         levels: any[];
         constructor();
@@ -3505,12 +3511,6 @@ declare module THREE {
         raycast(raycaster?: any, intersects?: any): void;
         update(camera: any): void;
         toJSON(meta: any): any;
-    }
-}
-declare module THREE {
-    class LineLoop extends Line {
-        isLineLoop: boolean;
-        constructor(geometry: any, material: any);
     }
 }
 declare module THREE {
@@ -3597,33 +3597,6 @@ declare module THREE {
         render(scene: any, camera: any): void;
         private onContextLost(event);
         readonly domElement: any;
-    }
-}
-declare module THREE {
-    class WebGLRenderTarget extends EventDispatcher {
-        width: any;
-        height: any;
-        scissor: any;
-        scissorTest: any;
-        viewport: any;
-        texture: any;
-        depthBuffer: any;
-        depthTexture: any;
-        stencilBuffer: any;
-        isWebGLRenderTarget: any;
-        constructor(width: any, height: any, options: any);
-        setSize(width: any, height: any): void;
-        clone(): WebGLRenderTarget;
-        copy(source: any): this;
-        dispose(): void;
-    }
-}
-declare module THREE {
-    class WebGLRenderTargetCube extends WebGLRenderTarget {
-        activeCubeFace: any;
-        activeMipMapLevel: any;
-        isWebGLRenderTargetCube: any;
-        constructor(width: any, height: any, options: any);
     }
 }
 declare module THREE {
@@ -3787,6 +3760,33 @@ declare module THREE {
         readRenderTargetPixels(renderTarget: any, x: any, y: any, width: any, height: any, buffer: any): void;
         copyFramebufferToTexture(position: any, texture: any, level: any): void;
         copyTextureToTexture: (position: any, srcTexture: any, dstTexture: any, level: any) => void;
+    }
+}
+declare module THREE {
+    class WebGLRenderTarget extends EventDispatcher {
+        width: any;
+        height: any;
+        scissor: any;
+        scissorTest: any;
+        viewport: any;
+        texture: any;
+        depthBuffer: any;
+        depthTexture: any;
+        stencilBuffer: any;
+        isWebGLRenderTarget: any;
+        constructor(width: any, height: any, options: any);
+        setSize(width: any, height: any): void;
+        clone(): WebGLRenderTarget;
+        copy(source: any): this;
+        dispose(): void;
+    }
+}
+declare module THREE {
+    class WebGLRenderTargetCube extends WebGLRenderTarget {
+        activeCubeFace: any;
+        activeMipMapLevel: any;
+        isWebGLRenderTargetCube: any;
+        constructor(width: any, height: any, options: any);
     }
 }
 declare module THREE {
@@ -4418,24 +4418,24 @@ declare module THREE {
         texParameteri(target: number, pname: number, param: number): void;
         texSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, type: number, pixels: ArrayBufferView): void;
         uniform1f(location: WebGLUniformLocation, x: number): void;
-        uniform1fv(location: WebGLUniformLocation, v: Float32Array | ArrayLike<number>): void;
+        uniform1fv(location: WebGLUniformLocation, v: Float32Array | number[]): void;
         uniform1i(location: WebGLUniformLocation, x: number): void;
-        uniform1iv(location: WebGLUniformLocation, v: Int32Array | ArrayLike<number>): void;
+        uniform1iv(location: WebGLUniformLocation, v: Int32Array | number[]): void;
         uniform2f(location: WebGLUniformLocation, x: number, y: number): void;
-        uniform2fv(location: WebGLUniformLocation, v: Float32Array | ArrayLike<number>): void;
+        uniform2fv(location: WebGLUniformLocation, v: Float32Array | number[]): void;
         uniform2i(location: WebGLUniformLocation, x: number, y: number): void;
-        uniform2iv(location: WebGLUniformLocation, v: Int32Array | ArrayLike<number>): void;
+        uniform2iv(location: WebGLUniformLocation, v: Int32Array | number[]): void;
         uniform3f(location: WebGLUniformLocation, x: number, y: number, z: number): void;
-        uniform3fv(location: WebGLUniformLocation, v: Float32Array | ArrayLike<number>): void;
+        uniform3fv(location: WebGLUniformLocation, v: Float32Array | number[]): void;
         uniform3i(location: WebGLUniformLocation, x: number, y: number, z: number): void;
-        uniform3iv(location: WebGLUniformLocation, v: Int32Array | ArrayLike<number>): void;
+        uniform3iv(location: WebGLUniformLocation, v: Int32Array | number[]): void;
         uniform4f(location: WebGLUniformLocation, x: number, y: number, z: number, w: number): void;
-        uniform4fv(location: WebGLUniformLocation, v: Float32Array | ArrayLike<number>): void;
+        uniform4fv(location: WebGLUniformLocation, v: Float32Array | Array<number>): void;
         uniform4i(location: WebGLUniformLocation, x: number, y: number, z: number, w: number): void;
-        uniform4iv(location: WebGLUniformLocation, v: Int32Array | ArrayLike<number>): void;
-        uniformMatrix2fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
-        uniformMatrix3fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
-        uniformMatrix4fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | ArrayLike<number>): void;
+        uniform4iv(location: WebGLUniformLocation, v: Int32Array | Array<number>): void;
+        uniformMatrix2fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | Array<number>): void;
+        uniformMatrix3fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | Array<number>): void;
+        uniformMatrix4fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | Array<number>): void;
         useProgram(program: WebGLProgram): void;
         validateProgram(program: WebGLProgram): void;
         vertexAttrib1f(indx: number, x: number): void;
@@ -4745,6 +4745,21 @@ declare module THREE {
         VIEWPORT: number;
         ZERO: number;
     }
+}
+declare module THREE {
+    class WebglContextAttibutes {
+        alpha: any;
+        depth: any;
+        stencil: any;
+        antialias: any;
+        premultipliedAlpha: any;
+        preserveDrawingBuffer: any;
+        powerPreference: any;
+        constructor();
+    }
+}
+declare module THREE {
+    function webGLCreateShader(gl: any, type: any, string: any): any;
 }
 declare module THREE {
     class WebGLExtensionsNode {
@@ -5296,21 +5311,6 @@ declare module THREE {
     class WebGLUtils {
         constructor(gl: any, extensions: any);
     }
-}
-declare module THREE {
-    class WebglContextAttibutes {
-        alpha: any;
-        depth: any;
-        stencil: any;
-        antialias: any;
-        premultipliedAlpha: any;
-        preserveDrawingBuffer: any;
-        powerPreference: any;
-        constructor();
-    }
-}
-declare module THREE {
-    function webGLCreateShader(gl: any, type: any, string: any): any;
 }
 declare module THREE {
     class WebVRManager {
