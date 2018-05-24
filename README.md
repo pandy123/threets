@@ -3,7 +3,7 @@ Threejs was recoded by Typescript. The aim of this work is for typing check of f
 Typing check is useful for typecirpt program.
 
 # how to use
-it is same to threejs. it has the same api and construct with threejs.
+it is same to threejs(https://threejs.org/). it has the same api and construct with threejs.
 
 # how to compile
 ```js
