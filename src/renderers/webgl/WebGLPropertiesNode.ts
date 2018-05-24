@@ -1,24 +1,40 @@
 module THREE {
+   export class WebGLPropertyNode {
+      public shader: any;
+      public program: WebGLProgramNode;
+      public lightsHash;
+      public numClippingPlanes;
+      public numIntersection;
+      public fog;
+      /**存放材料和灯光中涉及的uniformlist */
+      public uniformsList;
+      public __maxMipLevel;
+      public __webglFramebuffer;
+      public __webglTexture;
+      constructor() {
+
+      }
+   }
    export class WebGLPropertiesNode {
-      public properties;
+      public properties: WeakMap<Material | any, WebGLPropertyNode>;
       constructor() {
          this.properties = new WeakMap();
       }
-      public get(object) {
-         var map = this.properties.get(object);
+      public get(material: Material | any): WebGLPropertyNode {
+         var map = this.properties.get(material);
          if (map === undefined) {
-            map = {};
-            this.properties.set(object, map);
+            map = new WebGLPropertyNode();
+            this.properties.set(material, map);
          }
          return map;
       }
 
-      public remove(object) {
-         this.properties.delete(object);
+      public remove(material) {
+         this.properties.delete(material);
       }
 
-      public update(object, key, value) {
-         this.properties.get(object)[key] = value;
+      public update(material, key, value) {
+         this.properties.get(material)[key] = value;
       }
 
       public dispose() {

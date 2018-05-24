@@ -1,4 +1,3 @@
-
 module THREE {
    export class WebGLRenderer {
       private parameters: any;
@@ -596,7 +595,7 @@ module THREE {
        * @param program 
        * @param geometry 
        */
-      public setupVertexAttributes(material, program, geometry) {
+      public setupVertexAttributes(material: Material | any, program: WebGLProgramNode, geometry: BufferGeometry | any) {
          if (geometry && geometry.isInstancedBufferGeometry) {
             if (this.extensions.get('ANGLE_instanced_arrays') === null) {
                console.error('THREE.WebGLRenderer.setupVertexAttributes: using THREE.InstancedBufferGeometry but hardware does not support extension ANGLE_instanced_arrays.');
@@ -623,8 +622,9 @@ module THREE {
 
                   // TODO Attribute may not be available on context restore
                   if (attribute === undefined) continue;
-                  var buffer = attribute.buffer;
-                  var type = attribute.type;
+                  var buffer = attribute.buffer;    // buffer 信息
+                  var type = attribute.type;        // buffer data 数据类型信息
+
                   var bytesPerElement = attribute.bytesPerElement;
                   if (geometryAttribute.isInterleavedBufferAttribute) {
                      var data = geometryAttribute.data;
@@ -1016,13 +1016,13 @@ module THREE {
        * @param object 
        */
       private initMaterial(material, fog, object) {
-         var materialProperties = this.properties.get(material);
+         var glPropertyNode = this.properties.get(material);
          var lights = this.currentRenderState.state.lights;
          var shadowsArray = this.currentRenderState.state.shadowsArray;
          var parameters = this.programCache.getParameters(
             material, lights.state, shadowsArray, fog, this._clipping.numPlanes, this._clipping.numIntersection, object);
          var code = this.programCache.getProgramCode(material, parameters);
-         var program = materialProperties.program;
+         var program = glPropertyNode.program;
          var programChange = true;
          if (program === undefined) {
             // new material
@@ -1030,7 +1030,7 @@ module THREE {
          } else if (program.code !== code) {
             // changed glsl or parameters
             this.releaseMaterialProgramReference(material);
-         } else if (materialProperties.lightsHash !== lights.state.hash) {
+         } else if (glPropertyNode.lightsHash !== lights.state.hash) {
             this.properties.update(material, 'lightsHash', lights.state.hash);
             programChange = false;
          } else if (parameters.shaderID !== undefined) {
@@ -1049,7 +1049,7 @@ module THREE {
                shaderItem.uniforms = UniformsUtils.clone(shader.uniforms);
                shaderItem.vertexShader = shader.vertexShader;
                shaderItem.fragmentShader = shader.fragmentShader;
-               materialProperties.shader = shaderItem;
+               glPropertyNode.shader = shaderItem;
 
             } else {
                shaderItem.name = material.type;
@@ -1057,12 +1057,12 @@ module THREE {
                shaderItem.vertexShader = material.vertexShader;
                shaderItem.fragmentShader = material.fragmentShader;
 
-               materialProperties.shader = shaderItem;
+               glPropertyNode.shader = shaderItem;
             }
-            material.onBeforeCompile(materialProperties.shader, this);
+            material.onBeforeCompile(glPropertyNode.shader, this);
             /////////////////////////创建program-shader编译通过/////////////////////////////////////////////////////////////////
-            program = this.programCache.acquireProgram(material, materialProperties.shader, parameters, code);
-            materialProperties.program = program;
+            program = this.programCache.acquireProgram(material, glPropertyNode.shader, parameters, code);
+            glPropertyNode.program = program;
             material.program = program;
          }
          var programAttributes = program.getAttributes();
@@ -1082,17 +1082,17 @@ module THREE {
                }
             }
          }
-         var uniforms = materialProperties.shader.uniforms;
+         var uniforms = glPropertyNode.shader.uniforms;
          if (!material.isShaderMaterial &&
             !material.isRawShaderMaterial ||
             material.clipping === true) {
-            materialProperties.numClippingPlanes = this._clipping.numPlanes;
-            materialProperties.numIntersection = this._clipping.numIntersection;
+            glPropertyNode.numClippingPlanes = this._clipping.numPlanes;
+            glPropertyNode.numIntersection = this._clipping.numIntersection;
             uniforms.clippingPlanes = this._clipping.uniform;
          }
-         materialProperties.fog = fog;
+         glPropertyNode.fog = fog;
          // store the light setup it was created for
-         materialProperties.lightsHash = lights.state.hash;
+         glPropertyNode.lightsHash = lights.state.hash;
          if (material.lights) {
             // wire up the material to this renderer's lighting state
             uniforms.ambientLightColor.value = lights.state.ambient;
@@ -1109,10 +1109,10 @@ module THREE {
             uniforms.pointShadowMatrix.value = lights.state.pointShadowMatrix;
             // TODO (abelnation): add area lights shadow info to uniforms
          }
-         var progUniforms = materialProperties.program.getUniforms(),
+         var progUniforms = glPropertyNode.program.getUniforms(),
             uniformsList =
                WebGLUniformsNode.seqWithValue(progUniforms.seq, uniforms);
-         materialProperties.uniformsList = uniformsList;
+         glPropertyNode.uniformsList = uniformsList;
       }
 
       /**
@@ -1124,7 +1124,7 @@ module THREE {
        */
       private setProgram(camera, fog, material, object) {
          this._usedTextureUnits = 0;
-         var materialProperties = this.properties.get(material);
+         var glPropertyNode = this.properties.get(material);
          var lights = this.currentRenderState.state.lights;
          if (this._clippingEnabled) {
             if (this._localClippingEnabled || camera !== this._currentCamera) {
@@ -1136,19 +1136,19 @@ module THREE {
                // (#8465, #8379)
                this._clipping.setState(
                   material.clippingPlanes, material.clipIntersection, material.clipShadows,
-                  camera, materialProperties, useCache);
+                  camera, glPropertyNode, useCache);
             }
          }
          if (material.needsUpdate === false) {
-            if (materialProperties.program === undefined) {
+            if (glPropertyNode.program === undefined) {
                material.needsUpdate = true;
-            } else if (material.fog && materialProperties.fog !== fog) {
+            } else if (material.fog && glPropertyNode.fog !== fog) {
                material.needsUpdate = true;
-            } else if (material.lights && materialProperties.lightsHash !== lights.state.hash) {
+            } else if (material.lights && glPropertyNode.lightsHash !== lights.state.hash) {
                material.needsUpdate = true;
-            } else if (materialProperties.numClippingPlanes !== undefined &&
-               (materialProperties.numClippingPlanes !== this._clipping.numPlanes ||
-                  materialProperties.numIntersection !== this._clipping.numIntersection)) {
+            } else if (glPropertyNode.numClippingPlanes !== undefined &&
+               (glPropertyNode.numClippingPlanes !== this._clipping.numPlanes ||
+                  glPropertyNode.numIntersection !== this._clipping.numIntersection)) {
                material.needsUpdate = true;
             }
          }
@@ -1159,9 +1159,9 @@ module THREE {
          var refreshProgram = false;
          var refreshMaterial = false;
          var refreshLights = false;
-         var program = materialProperties.program,
+         var program = glPropertyNode.program,
             p_uniforms = program.getUniforms(),
-            m_uniforms = materialProperties.shader.uniforms;
+            m_uniforms = glPropertyNode.shader.uniforms;
          if (this.state.useProgram(program.program)) {
             refreshProgram = true;
             refreshMaterial = true;
@@ -1303,10 +1303,10 @@ module THREE {
             // TODO (mrdoob): Find a nicer implementation
             if (m_uniforms.ltc_1 !== undefined) m_uniforms.ltc_1.value = (UniformsLib as any).LTC_1;
             if (m_uniforms.ltc_2 !== undefined) m_uniforms.ltc_2.value = (UniformsLib as any).LTC_2;
-            WebGLUniformsNode.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
+            WebGLUniformsNode.upload(this._gl, glPropertyNode.uniformsList, m_uniforms, this);
          }
          if (material.isShaderMaterial && material.uniformsNeedUpdate === true) {
-            WebGLUniformsNode.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
+            WebGLUniformsNode.upload(this._gl, glPropertyNode.uniformsList, m_uniforms, this);
             material.uniformsNeedUpdate = false;
          }
          // common matrices

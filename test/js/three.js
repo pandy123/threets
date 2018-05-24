@@ -20762,18 +20762,21 @@ var THREE;
             var programAttributes = program.getAttributes();
             var materialDefaultAttributeValues = material.defaultAttributeValues;
             for (var name in programAttributes) {
+                // program 根据名字得到 attribute 的地址
                 var programAttribute = programAttributes[name];
                 if (programAttribute >= 0) {
+                    // buffergeometry的attributes 根据名字得到 geometryAttributes，几何数据信息
                     var geometryAttribute = geometryAttributes[name];
                     if (geometryAttribute !== undefined) {
                         var normalized = geometryAttribute.normalized;
                         var size = geometryAttribute.itemSize;
+                        //attribute 存放geometryattribute的 gl buffer信息
                         var attribute = this.attributes.get(geometryAttribute);
                         // TODO Attribute may not be available on context restore
                         if (attribute === undefined)
                             continue;
-                        var buffer = attribute.buffer;
-                        var type = attribute.type;
+                        var buffer = attribute.buffer; // buffer 信息
+                        var type = attribute.type; // buffer data 数据类型信息
                         var bytesPerElement = attribute.bytesPerElement;
                         if (geometryAttribute.isInterleavedBufferAttribute) {
                             var data = geometryAttribute.data;
@@ -21151,12 +21154,12 @@ var THREE;
          * @param object
          */
         initMaterial(material, fog, object) {
-            var materialProperties = this.properties.get(material);
+            var glPropertyNode = this.properties.get(material);
             var lights = this.currentRenderState.state.lights;
             var shadowsArray = this.currentRenderState.state.shadowsArray;
             var parameters = this.programCache.getParameters(material, lights.state, shadowsArray, fog, this._clipping.numPlanes, this._clipping.numIntersection, object);
             var code = this.programCache.getProgramCode(material, parameters);
-            var program = materialProperties.program;
+            var program = glPropertyNode.program;
             var programChange = true;
             if (program === undefined) {
                 // new material
@@ -21166,7 +21169,7 @@ var THREE;
                 // changed glsl or parameters
                 this.releaseMaterialProgramReference(material);
             }
-            else if (materialProperties.lightsHash !== lights.state.hash) {
+            else if (glPropertyNode.lightsHash !== lights.state.hash) {
                 this.properties.update(material, 'lightsHash', lights.state.hash);
                 programChange = false;
             }
@@ -21186,19 +21189,19 @@ var THREE;
                     shaderItem.uniforms = THREE.UniformsUtils.clone(shader.uniforms);
                     shaderItem.vertexShader = shader.vertexShader;
                     shaderItem.fragmentShader = shader.fragmentShader;
-                    materialProperties.shader = shaderItem;
+                    glPropertyNode.shader = shaderItem;
                 }
                 else {
                     shaderItem.name = material.type;
                     shaderItem.uniforms = material.uniforms;
                     shaderItem.vertexShader = material.vertexShader;
                     shaderItem.fragmentShader = material.fragmentShader;
-                    materialProperties.shader = shaderItem;
+                    glPropertyNode.shader = shaderItem;
                 }
-                material.onBeforeCompile(materialProperties.shader, this);
+                material.onBeforeCompile(glPropertyNode.shader, this);
                 /////////////////////////创建program-shader编译通过/////////////////////////////////////////////////////////////////
-                program = this.programCache.acquireProgram(material, materialProperties.shader, parameters, code);
-                materialProperties.program = program;
+                program = this.programCache.acquireProgram(material, glPropertyNode.shader, parameters, code);
+                glPropertyNode.program = program;
                 material.program = program;
             }
             var programAttributes = program.getAttributes();
@@ -21218,17 +21221,17 @@ var THREE;
                     }
                 }
             }
-            var uniforms = materialProperties.shader.uniforms;
+            var uniforms = glPropertyNode.shader.uniforms;
             if (!material.isShaderMaterial &&
                 !material.isRawShaderMaterial ||
                 material.clipping === true) {
-                materialProperties.numClippingPlanes = this._clipping.numPlanes;
-                materialProperties.numIntersection = this._clipping.numIntersection;
+                glPropertyNode.numClippingPlanes = this._clipping.numPlanes;
+                glPropertyNode.numIntersection = this._clipping.numIntersection;
                 uniforms.clippingPlanes = this._clipping.uniform;
             }
-            materialProperties.fog = fog;
+            glPropertyNode.fog = fog;
             // store the light setup it was created for
-            materialProperties.lightsHash = lights.state.hash;
+            glPropertyNode.lightsHash = lights.state.hash;
             if (material.lights) {
                 // wire up the material to this renderer's lighting state
                 uniforms.ambientLightColor.value = lights.state.ambient;
@@ -21245,8 +21248,8 @@ var THREE;
                 uniforms.pointShadowMatrix.value = lights.state.pointShadowMatrix;
                 // TODO (abelnation): add area lights shadow info to uniforms
             }
-            var progUniforms = materialProperties.program.getUniforms(), uniformsList = THREE.WebGLUniformsNode.seqWithValue(progUniforms.seq, uniforms);
-            materialProperties.uniformsList = uniformsList;
+            var progUniforms = glPropertyNode.program.getUniforms(), uniformsList = THREE.WebGLUniformsNode.seqWithValue(progUniforms.seq, uniforms);
+            glPropertyNode.uniformsList = uniformsList;
         }
         /**
          * 设置program
@@ -21257,7 +21260,7 @@ var THREE;
          */
         setProgram(camera, fog, material, object) {
             this._usedTextureUnits = 0;
-            var materialProperties = this.properties.get(material);
+            var glPropertyNode = this.properties.get(material);
             var lights = this.currentRenderState.state.lights;
             if (this._clippingEnabled) {
                 if (this._localClippingEnabled || camera !== this._currentCamera) {
@@ -21266,22 +21269,22 @@ var THREE;
                     // we might want to call this function with some ClippingGroup
                     // object instead of the material, once it becomes feasible
                     // (#8465, #8379)
-                    this._clipping.setState(material.clippingPlanes, material.clipIntersection, material.clipShadows, camera, materialProperties, useCache);
+                    this._clipping.setState(material.clippingPlanes, material.clipIntersection, material.clipShadows, camera, glPropertyNode, useCache);
                 }
             }
             if (material.needsUpdate === false) {
-                if (materialProperties.program === undefined) {
+                if (glPropertyNode.program === undefined) {
                     material.needsUpdate = true;
                 }
-                else if (material.fog && materialProperties.fog !== fog) {
+                else if (material.fog && glPropertyNode.fog !== fog) {
                     material.needsUpdate = true;
                 }
-                else if (material.lights && materialProperties.lightsHash !== lights.state.hash) {
+                else if (material.lights && glPropertyNode.lightsHash !== lights.state.hash) {
                     material.needsUpdate = true;
                 }
-                else if (materialProperties.numClippingPlanes !== undefined &&
-                    (materialProperties.numClippingPlanes !== this._clipping.numPlanes ||
-                        materialProperties.numIntersection !== this._clipping.numIntersection)) {
+                else if (glPropertyNode.numClippingPlanes !== undefined &&
+                    (glPropertyNode.numClippingPlanes !== this._clipping.numPlanes ||
+                        glPropertyNode.numIntersection !== this._clipping.numIntersection)) {
                     material.needsUpdate = true;
                 }
             }
@@ -21292,7 +21295,7 @@ var THREE;
             var refreshProgram = false;
             var refreshMaterial = false;
             var refreshLights = false;
-            var program = materialProperties.program, p_uniforms = program.getUniforms(), m_uniforms = materialProperties.shader.uniforms;
+            var program = glPropertyNode.program, p_uniforms = program.getUniforms(), m_uniforms = glPropertyNode.shader.uniforms;
             if (this.state.useProgram(program.program)) {
                 refreshProgram = true;
                 refreshMaterial = true;
@@ -21445,10 +21448,10 @@ var THREE;
                     m_uniforms.ltc_1.value = THREE.UniformsLib.LTC_1;
                 if (m_uniforms.ltc_2 !== undefined)
                     m_uniforms.ltc_2.value = THREE.UniformsLib.LTC_2;
-                THREE.WebGLUniformsNode.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
+                THREE.WebGLUniformsNode.upload(this._gl, glPropertyNode.uniformsList, m_uniforms, this);
             }
             if (material.isShaderMaterial && material.uniformsNeedUpdate === true) {
-                THREE.WebGLUniformsNode.upload(this._gl, materialProperties.uniformsList, m_uniforms, this);
+                THREE.WebGLUniformsNode.upload(this._gl, glPropertyNode.uniformsList, m_uniforms, this);
                 material.uniformsNeedUpdate = false;
             }
             // common matrices
@@ -22572,12 +22575,22 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
+    class GLBufferNode {
+        constructor() {
+        }
+    }
+    THREE.GLBufferNode = GLBufferNode;
     class WebGLAttributesNode {
         constructor(gl) {
             var buffers = new WeakMap();
             this.gl = gl;
             this.buffers = buffers;
         }
+        /**
+         *
+         * @param attribute
+         * @param bufferType  gl.ARRAY_BUFFER
+         */
         createBuffer(attribute, bufferType) {
             var gl = this.gl;
             var array = attribute.array;
@@ -22611,13 +22624,21 @@ var THREE;
             else if (array instanceof Uint8Array) {
                 type = gl.UNSIGNED_BYTE;
             }
-            return {
+            var buffernode = new GLBufferNode();
+            buffernode = {
                 buffer: buffer,
                 type: type,
                 bytesPerElement: array.BYTES_PER_ELEMENT,
                 version: attribute.version
             };
+            return buffernode;
         }
+        /**
+         * 更新buffer
+         * @param buffer
+         * @param attribute
+         * @param bufferType
+         */
         updateBuffer(buffer, attribute, bufferType) {
             var gl = this.gl;
             var array = attribute.array;
@@ -22639,12 +22660,20 @@ var THREE;
             }
         }
         //
+        /**
+         * 获取glbufferNode
+         * @param attribute
+         */
         get(attribute) {
             var buffers = this.buffers;
             if (attribute.isInterleavedBufferAttribute)
                 attribute = attribute.data;
             return buffers.get(attribute);
         }
+        /**
+         * 删除bufferNode
+         * @param attribute
+         */
         remove(attribute) {
             var buffers = this.buffers;
             var gl = this.gl;
@@ -22656,6 +22685,11 @@ var THREE;
                 buffers.delete(attribute);
             }
         }
+        /**
+         * 更新glbuffer 的 内存 ，根据版本更新buffer
+         * @param attribute
+         * @param bufferType
+         */
         update(attribute, bufferType) {
             var buffers = this.buffers;
             var gl = this.gl;
@@ -22663,7 +22697,8 @@ var THREE;
                 attribute = attribute.data;
             var data = buffers.get(attribute);
             if (data === undefined) {
-                buffers.set(attribute, this.createBuffer(attribute, bufferType));
+                var newbuffer = this.createBuffer(attribute, bufferType);
+                buffers.set(attribute, newbuffer);
             }
             else if (data.version < attribute.version) {
                 this.updateBuffer(data.buffer, attribute, bufferType);
@@ -24309,6 +24344,11 @@ var THREE;
         }
         return chunks.join('\n');
     }
+    /**
+     * 从shader中获取当前激活的attribute
+     * @param gl
+     * @param program
+     */
     function fetchAttributeLocations(gl, program) {
         var attributes = {};
         var n = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
@@ -24317,6 +24357,7 @@ var THREE;
             var name = info.name;
             // console.log( 'THREE.WebGLProgram: ACTIVE VERTEX ATTRIBUTE:', name, i );
             attributes[name] = gl.getAttribLocation(program, name);
+            // 名称和激活编号的map表信息
         }
         return attributes;
     }
@@ -24989,23 +25030,28 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
+    class WebGLPropertyNode {
+        constructor() {
+        }
+    }
+    THREE.WebGLPropertyNode = WebGLPropertyNode;
     class WebGLPropertiesNode {
         constructor() {
             this.properties = new WeakMap();
         }
-        get(object) {
-            var map = this.properties.get(object);
+        get(material) {
+            var map = this.properties.get(material);
             if (map === undefined) {
-                map = {};
-                this.properties.set(object, map);
+                map = new WebGLPropertyNode();
+                this.properties.set(material, map);
             }
             return map;
         }
-        remove(object) {
-            this.properties.delete(object);
+        remove(material) {
+            this.properties.delete(material);
         }
-        update(object, key, value) {
-            this.properties.get(object)[key] = value;
+        update(material, key, value) {
+            this.properties.get(material)[key] = value;
         }
         dispose() {
             this.properties = new WeakMap();
@@ -25716,6 +25762,9 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
+    /**
+     * 颜色测试
+     */
     class ColorBuffer {
         constructor(gl) {
             this.gl = gl;
@@ -25733,6 +25782,14 @@ var THREE;
         setLocked(lock) {
             this.locked = lock;
         }
+        /**
+         * 清除颜色缓存
+         * @param r
+         * @param g
+         * @param b
+         * @param a
+         * @param premultipliedAlpha
+         */
         setClear(r, g, b, a, premultipliedAlpha) {
             if (premultipliedAlpha === true) {
                 r *= a;
@@ -25748,10 +25805,13 @@ var THREE;
         reset() {
             this.locked = null;
             this.currentColorMask;
-            this.currentColorClear.set(-1, 0, 0, 0); // set to invalid state
+            this.currentColorClear.set(1, 0, 0, 0); // set to invalid state
         }
     }
     THREE.ColorBuffer = ColorBuffer;
+    /**
+     * 深度测试
+     */
     class DepthBuffer {
         constructor(gl) {
             this.gl = gl;
@@ -25824,14 +25884,17 @@ var THREE;
             }
         }
         reset() {
-            this.locked;
-            this.currentDepthMask;
-            this.currentDepthFunc;
-            this.currentDepthClear;
+            this.locked = null;
+            this.currentDepthMask = null;
+            this.currentDepthFunc = null;
+            this.currentDepthClear = null;
         }
     }
     THREE.DepthBuffer = DepthBuffer;
     ;
+    /**
+     * 模板测试
+     */
     class StencilBuffer {
         constructor(gl) {
             this.gl = gl;
@@ -25902,6 +25965,9 @@ var THREE;
         }
     }
     THREE.StencilBuffer = StencilBuffer;
+    /**
+     * webgl 状态机管理器
+     */
     class WebGLStateNode {
         constructor(gl, extensions, utils) {
             this.version = 0;
@@ -25985,9 +26051,18 @@ var THREE;
                 this.newAttributes[i] = 0;
             }
         }
+        /**
+         *  开启该attribute
+         * @param attribute :shader 中attribute 的编号
+         */
         enableAttribute(attribute) {
             this.enableAttributeAndDivisor(attribute, 0);
         }
+        /**
+         * 开启attribute
+         * @param attribute
+         * @param meshPerAttribute
+         */
         enableAttributeAndDivisor(attribute, meshPerAttribute) {
             this.newAttributes[attribute] = 1;
             if (this.enabledAttributes[attribute] === 0) {
@@ -26000,6 +26075,9 @@ var THREE;
                 this.attributeDivisors[attribute] = meshPerAttribute;
             }
         }
+        /**
+         * 关闭attribute
+         */
         disableUnusedAttributes() {
             for (var i = 0, l = this.enabledAttributes.length; i !== l; ++i) {
                 if (this.enabledAttributes[i] !== this.newAttributes[i]) {
@@ -26035,6 +26113,10 @@ var THREE;
             }
             return this.compressedTextureFormats;
         }
+        /**
+         * 应用program
+         * @param program
+         */
         useProgram(program) {
             if (this.currentProgram !== program) {
                 this.gl.useProgram(program);
@@ -26095,12 +26177,6 @@ var THREE;
                             }
                     }
                 }
-                // currentBlendEquation;
-                // currentBlendSrc;
-                // currentBlendDst;
-                // currentBlendEquationAlpha;
-                // currentBlendSrcAlpha;
-                // currentBlendDstAlpha;
             }
             else {
                 blendEquationAlpha = blendEquationAlpha || blendEquation;
@@ -27011,14 +27087,6 @@ var THREE;
 (function (THREE) {
     var emptyTexture = new THREE.Texture();
     var emptyCubeTexture = new THREE.CubeTexture();
-    // --- Base for inner nodes (including the root) ---
-    class UniformContainer {
-        constructor() {
-            this.seq = [];
-            this.map = {};
-        }
-    }
-    THREE.UniformContainer = UniformContainer;
     // --- Utilities ---
     // Array Caches (provide typed arrays for temporary by size)
     var arrayCacheF32 = [];
@@ -27355,43 +27423,6 @@ var THREE;
         }
     }
     THREE.getPureArraySetter = getPureArraySetter;
-    // --- Uniform Classes ---
-    class SingleUniform {
-        constructor(id, activeInfo, addr) {
-            this.id = id;
-            this.addr = addr;
-            this.cache = [];
-            this.setValue = getSingularSetter(activeInfo.type);
-            // this.path = activeInfo.name; // DEBUG
-        }
-    }
-    THREE.SingleUniform = SingleUniform;
-    class PureArrayUniform {
-        constructor(id, activeInfo, addr) {
-            this.id = id;
-            this.addr = addr;
-            this.size = activeInfo.size;
-            this.setValue = getPureArraySetter(activeInfo.type);
-            // this.path = activeInfo.name; // DEBUG
-        }
-    }
-    THREE.PureArrayUniform = PureArrayUniform;
-    class StructuredUniform extends UniformContainer {
-        constructor(id) {
-            super();
-            this.id = id;
-        }
-        setValue(gl, value) {
-            // Note: Don't need an extra 'renderer' parameter, since samplers
-            // are not allowed in structured uniforms.
-            var seq = this.seq;
-            for (var i = 0, n = seq.length; i !== n; ++i) {
-                var u = seq[i];
-                u.setValue(gl, value[u.id]);
-            }
-        }
-    }
-    THREE.StructuredUniform = StructuredUniform;
     // --- Top-level ---
     // Parser - builds up the property tree from the path strings
     var RePathPart = /([\w\d_]+)(\])?(\[|\.)?/g;
@@ -27408,6 +27439,12 @@ var THREE;
         container.map[uniformObject.id] = uniformObject;
     }
     THREE.addUniform = addUniform;
+    /**
+     * 存入当前激活的uniform列表
+     * @param activeInfo
+     * @param addr
+     * @param container
+     */
     function parseUniform(activeInfo, addr, container) {
         var path = activeInfo.name, pathLength = path.length;
         // reset RegExp object, because of the early exit of a previous run
@@ -27435,6 +27472,51 @@ var THREE;
         }
     }
     THREE.parseUniform = parseUniform;
+    // --- Uniform Classes ---
+    class SingleUniform {
+        constructor(id, activeInfo, addr) {
+            this.id = id;
+            this.addr = addr;
+            this.cache = [];
+            this.setValue = getSingularSetter(activeInfo.type);
+            // this.path = activeInfo.name; // DEBUG
+        }
+    }
+    THREE.SingleUniform = SingleUniform;
+    class PureArrayUniform {
+        constructor(id, activeInfo, addr) {
+            this.id = id;
+            this.addr = addr;
+            this.size = activeInfo.size;
+            this.setValue = getPureArraySetter(activeInfo.type);
+            // this.path = activeInfo.name; // DEBUG
+        }
+    }
+    THREE.PureArrayUniform = PureArrayUniform;
+    // --- Base for inner nodes (including the root) ---
+    class UniformContainer {
+        constructor() {
+            this.seq = [];
+            this.map = {};
+        }
+    }
+    THREE.UniformContainer = UniformContainer;
+    class StructuredUniform extends UniformContainer {
+        constructor(id) {
+            super();
+            this.id = id;
+        }
+        setValue(gl, value) {
+            // Note: Don't need an extra 'renderer' parameter, since samplers
+            // are not allowed in structured uniforms.
+            var seq = this.seq;
+            for (var i = 0, n = seq.length; i !== n; ++i) {
+                var u = seq[i];
+                u.setValue(gl, value[u.id]);
+            }
+        }
+    }
+    THREE.StructuredUniform = StructuredUniform;
     // Root Container
     class WebGLUniformsNode extends UniformContainer {
         constructor(gl, program, renderer) {
@@ -27453,7 +27535,8 @@ var THREE;
             this.renderer = renderer;
             var n = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
             for (var i = 0; i < n; ++i) {
-                var info = gl.getActiveUniform(program, i), addr = gl.getUniformLocation(program, info.name);
+                var info = gl.getActiveUniform(program, i);
+                var addr = gl.getUniformLocation(program, info.name);
                 parseUniform(info, addr, this);
             }
         }

@@ -2,9 +2,7 @@ module THREE {
    var programIdCount = 0;
 
    function getEncodingComponents(encoding) {
-
       switch (encoding) {
-
          case LinearEncoding:
             return ['Linear', '( value )'];
          case sRGBEncoding:
@@ -27,166 +25,118 @@ module THREE {
    }
 
    function getTexelDecodingFunction(functionName, encoding) {
-
       var components = getEncodingComponents(encoding);
       return 'vec4 ' + functionName + '( vec4 value ) { return ' + components[0] + 'ToLinear' + components[1] + '; }';
-
    }
 
    function getTexelEncodingFunction(functionName, encoding) {
-
       var components = getEncodingComponents(encoding);
       return 'vec4 ' + functionName + '( vec4 value ) { return LinearTo' + components[0] + components[1] + '; }';
 
    }
 
    function getToneMappingFunction(functionName, toneMapping) {
-
       var toneMappingName;
-
       switch (toneMapping) {
-
          case LinearToneMapping:
             toneMappingName = 'Linear';
             break;
-
          case ReinhardToneMapping:
             toneMappingName = 'Reinhard';
             break;
-
          case Uncharted2ToneMapping:
             toneMappingName = 'Uncharted2';
             break;
-
          case CineonToneMapping:
             toneMappingName = 'OptimizedCineon';
             break;
-
          default:
             throw new Error('unsupported toneMapping: ' + toneMapping);
-
       }
-
       return 'vec3 ' + functionName + '( vec3 color ) { return ' + toneMappingName + 'ToneMapping( color ); }';
-
    }
 
    function generateExtensions(extensions, parameters, rendererExtensions) {
 
       extensions = extensions || {};
-
       var chunks = [
          (extensions.derivatives || parameters.envMapCubeUV || parameters.bumpMap || parameters.normalMap || parameters.flatShading) ? '#extension GL_OES_standard_derivatives : enable' : '',
          (extensions.fragDepth || parameters.logarithmicDepthBuffer) && rendererExtensions.get('EXT_frag_depth') ? '#extension GL_EXT_frag_depth : enable' : '',
          (extensions.drawBuffers) && rendererExtensions.get('WEBGL_draw_buffers') ? '#extension GL_EXT_draw_buffers : require' : '',
          (extensions.shaderTextureLOD || parameters.envMap) && rendererExtensions.get('EXT_shader_texture_lod') ? '#extension GL_EXT_shader_texture_lod : enable' : ''
       ];
-
       return chunks.filter(filterEmptyLine).join('\n');
-
    }
 
    function generateDefines(defines) {
-
       var chunks = [];
-
       for (var name in defines) {
-
          var value = defines[name];
-
          if (value === false) continue;
-
          chunks.push('#define ' + name + ' ' + value);
-
       }
-
       return chunks.join('\n');
-
    }
 
+   /**
+    * 从shader中获取当前激活的attribute
+    * @param gl 
+    * @param program 
+    */
    function fetchAttributeLocations(gl, program) {
-
       var attributes = {};
-
       var n = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
-
       for (var i = 0; i < n; i++) {
-
          var info = gl.getActiveAttrib(program, i);
          var name = info.name;
          // console.log( 'THREE.WebGLProgram: ACTIVE VERTEX ATTRIBUTE:', name, i );
          attributes[name] = gl.getAttribLocation(program, name);
+         // 名称和激活编号的map表信息
       }
-
       return attributes;
-
    }
 
    function filterEmptyLine(string) {
-
       return string !== '';
-
    }
 
    function replaceLightNums(string, parameters) {
-
       return string
          .replace(/NUM_DIR_LIGHTS/g, parameters.numDirLights)
          .replace(/NUM_SPOT_LIGHTS/g, parameters.numSpotLights)
          .replace(/NUM_RECT_AREA_LIGHTS/g, parameters.numRectAreaLights)
          .replace(/NUM_POINT_LIGHTS/g, parameters.numPointLights)
          .replace(/NUM_HEMI_LIGHTS/g, parameters.numHemiLights);
-
    }
 
    function replaceClippingPlaneNums(string, parameters) {
-
       return string
          .replace(/NUM_CLIPPING_PLANES/g, parameters.numClippingPlanes)
          .replace(/UNION_CLIPPING_PLANES/g, (parameters.numClippingPlanes - parameters.numClipIntersection));
-
    }
 
    function parseIncludes(string) {
-
       var pattern = /^[ \t]*#include +<([\w\d.]+)>/gm;
 
       function replace(match, include) {
-
          var replace = ShaderChunk[include];
-
          if (replace === undefined) {
-
             throw new Error('Can not resolve #include <' + include + '>');
-
          }
-
          return parseIncludes(replace);
-
       }
-
       return string.replace(pattern, replace);
-
    }
 
    function unrollLoops(string) {
-
       var pattern = /#pragma unroll_loop[\s]+?for \( int i \= (\d+)\; i < (\d+)\; i \+\+ \) \{([\s\S]+?)(?=\})\}/g;
-
       function replace(match, start, end, snippet) {
-
          var unroll = '';
-
          for (var i = parseInt(start); i < parseInt(end); i++) {
-
             unroll += snippet.replace(/\[ i \]/g, '[ ' + i + ' ]');
-
          }
-
          return unroll;
-
       }
-
       return string.replace(pattern, replace);
 
    }
@@ -650,15 +600,10 @@ module THREE {
        * 获取当前shader的uniforms参数列表，带addr信息
        */
       public getUniforms() {
-
          if (this.cachedUniforms === undefined) {
-
             this.cachedUniforms = new WebGLUniformsNode(this.gl, this.program, this.renderer);
-
          }
-
          return this.cachedUniforms;
-
       };
 
       // set up caching for attribute locations

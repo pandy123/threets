@@ -3774,7 +3774,7 @@ declare module THREE {
          * @param program
          * @param geometry
          */
-        setupVertexAttributes(material: any, program: any, geometry: any): void;
+        setupVertexAttributes(material: Material | any, program: WebGLProgramNode, geometry: BufferGeometry | any): void;
         /**
          * 编译
          */
@@ -4409,20 +4409,46 @@ declare module THREE {
     };
 }
 declare module THREE {
+    class GLBufferNode {
+        buffer: WebGLBuffer;
+        type: number;
+        bytesPerElement: any;
+        version: number;
+        constructor();
+    }
     class WebGLAttributesNode {
-        gl: any;
-        buffers: any;
-        constructor(gl: any);
-        createBuffer(attribute: any, bufferType: any): {
-            buffer: any;
-            type: any;
-            bytesPerElement: any;
-            version: any;
-        };
-        updateBuffer(buffer: any, attribute: any, bufferType: any): void;
-        get(attribute: any): any;
-        remove(attribute: any): void;
-        update(attribute: any, bufferType: any): void;
+        gl: WebGLContext;
+        buffers: WeakMap<BufferAttribute, GLBufferNode>;
+        constructor(gl: WebGLContext);
+        /**
+         *
+         * @param attribute
+         * @param bufferType  gl.ARRAY_BUFFER
+         */
+        createBuffer(attribute: BufferAttribute, bufferType: number): GLBufferNode;
+        /**
+         * 更新buffer
+         * @param buffer
+         * @param attribute
+         * @param bufferType
+         */
+        updateBuffer(buffer: WebGLBuffer, attribute: BufferAttribute | any, bufferType: number): void;
+        /**
+         * 获取glbufferNode
+         * @param attribute
+         */
+        get(attribute: BufferAttribute | any): GLBufferNode;
+        /**
+         * 删除bufferNode
+         * @param attribute
+         */
+        remove(attribute: BufferAttribute | any): void;
+        /**
+         * 更新glbuffer 的 内存 ，根据版本更新buffer
+         * @param attribute
+         * @param bufferType
+         */
+        update(attribute: BufferAttribute | any, bufferType: number): void;
     }
 }
 declare module THREE {
@@ -5265,12 +5291,26 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebGLPropertiesNode {
-        properties: any;
+    class WebGLPropertyNode {
+        shader: any;
+        program: WebGLProgramNode;
+        lightsHash: any;
+        numClippingPlanes: any;
+        numIntersection: any;
+        fog: any;
+        /**存放材料和灯光中涉及的uniformlist */
+        uniformsList: any;
+        __maxMipLevel: any;
+        __webglFramebuffer: any;
+        __webglTexture: any;
         constructor();
-        get(object: any): any;
-        remove(object: any): void;
-        update(object: any, key: any, value: any): void;
+    }
+    class WebGLPropertiesNode {
+        properties: WeakMap<Material | any, WebGLPropertyNode>;
+        constructor();
+        get(material: Material | any): WebGLPropertyNode;
+        remove(material: any): void;
+        update(material: any, key: any, value: any): void;
         dispose(): void;
     }
 }
@@ -5405,6 +5445,9 @@ declare module THREE {
     }
 }
 declare module THREE {
+    /**
+     * 颜色测试
+     */
     class ColorBuffer {
         gl: any;
         currentColorMask: any;
@@ -5414,9 +5457,20 @@ declare module THREE {
         constructor(gl: any);
         setMask(colorMask: any): void;
         setLocked(lock: any): void;
+        /**
+         * 清除颜色缓存
+         * @param r
+         * @param g
+         * @param b
+         * @param a
+         * @param premultipliedAlpha
+         */
         setClear(r: any, g: any, b: any, a: any, premultipliedAlpha?: any): void;
         reset(): void;
     }
+    /**
+     * 深度测试
+     */
     class DepthBuffer {
         gl: any;
         currentDepthMask: any;
@@ -5431,6 +5485,9 @@ declare module THREE {
         setClear(depth: any): void;
         reset(): void;
     }
+    /**
+     * 模板测试
+     */
     class StencilBuffer {
         gl: any;
         locked: any;
@@ -5451,6 +5508,9 @@ declare module THREE {
         setClear(stencil: any): void;
         reset(): void;
     }
+    /**
+     * webgl 状态机管理器
+     */
     class WebGLStateNode {
         gl: any;
         extensions: any;
@@ -5460,7 +5520,7 @@ declare module THREE {
         stencilBuffer: any;
         capabilities: any;
         compressedTextureFormats: any;
-        currentProgram: any;
+        currentProgram: WebGLProgram;
         currentBlending: any;
         currentBlendEquation: any;
         currentBlendSrc: any;
@@ -5483,10 +5543,10 @@ declare module THREE {
         currentScissor: any;
         currentViewport: any;
         emptyTextures: any;
-        maxVertexAttributes: any;
-        newAttributes: any;
-        enabledAttributes: any;
-        attributeDivisors: any;
+        maxVertexAttributes: number;
+        newAttributes: Uint8Array;
+        enabledAttributes: Uint8Array;
+        attributeDivisors: Uint8Array;
         constructor(gl: any, extensions: any, utils: any);
         createTexture(type: any, target: any, count: any): any;
         readonly buffers: {
@@ -5495,13 +5555,29 @@ declare module THREE {
             stencil: any;
         };
         initAttributes(): void;
-        enableAttribute(attribute: any): void;
+        /**
+         *  开启该attribute
+         * @param attribute :shader 中attribute 的编号
+         */
+        enableAttribute(attribute: number): void;
+        /**
+         * 开启attribute
+         * @param attribute
+         * @param meshPerAttribute
+         */
         enableAttributeAndDivisor(attribute: any, meshPerAttribute: any): void;
+        /**
+         * 关闭attribute
+         */
         disableUnusedAttributes(): void;
         enable(id: any): void;
         disable(id: any): void;
         getCompressedTextureFormats(): any;
-        useProgram(program: any): boolean;
+        /**
+         * 应用program
+         * @param program
+         */
+        useProgram(program: WebGLProgram): boolean;
         setBlending(blending: any, blendEquation?: any, blendSrc?: any, blendDst?: any, blendEquationAlpha?: any, blendSrcAlpha?: any, blendDstAlpha?: any, premultipliedAlpha?: any): void;
         setMaterial(material: any, frontFaceCW: any): void;
         setFlipSided(flipSided: any): void;
@@ -5604,11 +5680,6 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class UniformContainer {
-        seq: Array<any>;
-        map: any;
-        constructor();
-    }
     function flatten(array: any, nBlocks: any, blockSize: any): any;
     function arraysEqual(a: any, b: any): boolean;
     function copyArray(a: any, b: any): void;
@@ -5638,6 +5709,14 @@ declare module THREE {
     function setValueT1a(gl: any, v: any, renderer: any): void;
     function setValueT6a(gl: any, v: any, renderer: any): void;
     function getPureArraySetter(type: any): typeof setValueT1a;
+    function addUniform(container: WebGLUniformsNode, uniformObject: SingleUniform | PureArrayUniform): void;
+    /**
+     * 存入当前激活的uniform列表
+     * @param activeInfo
+     * @param addr
+     * @param container
+     */
+    function parseUniform(activeInfo: WebGLActiveInfo, addr: WebGLUniformLocation, container: WebGLUniformsNode): void;
     class SingleUniform {
         id: any;
         addr: any;
@@ -5652,13 +5731,16 @@ declare module THREE {
         setValue: any;
         constructor(id: any, activeInfo: any, addr: any);
     }
+    class UniformContainer {
+        seq: Array<any>;
+        map: any;
+        constructor();
+    }
     class StructuredUniform extends UniformContainer {
         id: any;
         constructor(id: any);
         setValue(gl: any, value: any): void;
     }
-    function addUniform(container: any, uniformObject: any): void;
-    function parseUniform(activeInfo: any, addr: any, container: any): void;
     class WebGLUniformsNode extends UniformContainer {
         renderer: any;
         constructor(gl: any, program: any, renderer: any);
