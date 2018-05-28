@@ -508,7 +508,7 @@ var THREE;
                     });
                 }
             }
-            else {
+            else { // repetitive Repeat or PingPong
                 var pingPong = (loop === THREE.LoopPingPong);
                 if (loopCount === -1) {
                     // just started
@@ -2109,11 +2109,11 @@ var THREE;
             }
             // determine versioning scheme
             var versioning = this.Versioning.None;
-            if (targetObject.needsUpdate !== undefined) {
+            if (targetObject.needsUpdate !== undefined) { // material
                 versioning = this.Versioning.NeedsUpdate;
                 this.targetObject = targetObject;
             }
-            else if (targetObject.matrixWorldNeedsUpdate !== undefined) {
+            else if (targetObject.matrixWorldNeedsUpdate !== undefined) { // node transform
                 versioning = this.Versioning.MatrixWorldNeedsUpdate;
                 this.targetObject = targetObject;
             }
@@ -3283,7 +3283,7 @@ var THREE;
             //TODO:
             var m1 = new THREE.Matrix4();
             var vector = new THREE.Vector3();
-            if (x.isVector3) {
+            if (y == null) {
                 vector.copy(x);
             }
             else {
@@ -7565,24 +7565,24 @@ var THREE;
             for (var i = 0, l = outline.length; i < l;) {
                 var action = outline[i++];
                 switch (action) {
-                    case 'm':// moveTo
+                    case 'm': // moveTo
                         x = outline[i++] * scale + offsetX;
                         y = outline[i++] * scale + offsetY;
                         path.moveTo(x, y);
                         break;
-                    case 'l':// lineTo
+                    case 'l': // lineTo
                         x = outline[i++] * scale + offsetX;
                         y = outline[i++] * scale + offsetY;
                         path.lineTo(x, y);
                         break;
-                    case 'q':// quadraticCurveTo
+                    case 'q': // quadraticCurveTo
                         cpx = outline[i++] * scale + offsetX;
                         cpy = outline[i++] * scale + offsetY;
                         cpx1 = outline[i++] * scale + offsetX;
                         cpy1 = outline[i++] * scale + offsetY;
                         path.quadraticCurveTo(cpx1, cpy1, cpx, cpy);
                         break;
-                    case 'b':// bezierCurveTo
+                    case 'b': // bezierCurveTo
                         cpx = outline[i++] * scale + offsetX;
                         cpy = outline[i++] * scale + offsetY;
                         cpx1 = outline[i++] * scale + offsetX;
@@ -8305,7 +8305,7 @@ var THREE;
         getPointAt(u, optionalTarget) {
             return this.getPoint(u, optionalTarget);
         }
-        getTangent() {
+        getTangent( /* t */) {
             var tangent = this.v2.clone().sub(this.v1);
             return tangent.normalize();
         }
@@ -13010,7 +13010,7 @@ var THREE;
                         case 'json':
                             response = JSON.parse(data);
                             break;
-                        default:// 'text' or other
+                        default: // 'text' or other
                             response = data;
                             break;
                     }
@@ -13214,7 +13214,7 @@ var THREE;
                 scope.manager.itemError(url);
             });
         }
-        setCrossOrigin() {
+        setCrossOrigin( /* value */) {
             return this;
         }
         setPath(value) {
@@ -14191,7 +14191,7 @@ var THREE;
                             break;
                         case 'BoxGeometry':
                         case 'BoxBufferGeometry':
-                        case 'CubeGeometry':// backwards compatible
+                        case 'CubeGeometry': // backwards compatible
                             geometry = new THREE.Geometries[data.type](data.width, data.height, data.depth, data.widthSegments, data.heightSegments, data.depthSegments);
                             break;
                         case 'CircleGeometry':
@@ -16215,7 +16215,9 @@ var THREE;
                 // r is THREE.Color, hex or string
                 this.set(r);
             }
-            this.setRGB(r, g, b);
+            else {
+                this.setRGB(r, g, b);
+            }
         }
         set(value) {
             if (value && value instanceof Color) {
@@ -19547,7 +19549,7 @@ var THREE;
                         iPrev = pp.length - 2;
                         tPrev = t0 + pp[iPrev] - pp[iPrev + 1];
                         break;
-                    default:// ZeroCurvatureEnding
+                    default: // ZeroCurvatureEnding
                         // f''(t0) = 0 a.k.a. Natural Spline
                         iPrev = i1;
                         tPrev = t1;
@@ -19565,7 +19567,7 @@ var THREE;
                         iNext = 1;
                         tNext = t1 + pp[1] - pp[0];
                         break;
-                    default:// ZeroCurvatureEnding
+                    default: // ZeroCurvatureEnding
                         // f''(tN) = 0, a.k.a. Natural Spline
                         iNext = i1 - 1;
                         tNext = t0;
@@ -19667,17 +19669,6 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class LineLoop extends THREE.Line {
-        constructor(geometry, material) {
-            super(geometry, material);
-            this.isLineLoop = true;
-            this.type = 'LineLoop';
-        }
-    }
-    THREE.LineLoop = LineLoop;
-})(THREE || (THREE = {}));
-var THREE;
-(function (THREE) {
     class LOD extends THREE.Object3D {
         constructor() {
             super();
@@ -19760,6 +19751,17 @@ var THREE;
         }
     }
     THREE.LOD = LOD;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
+    class LineLoop extends THREE.Line {
+        constructor(geometry, material) {
+            super(geometry, material);
+            this.isLineLoop = true;
+            this.type = 'LineLoop';
+        }
+    }
+    THREE.LineLoop = LineLoop;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -20214,6 +20216,68 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
+    class WebGLRenderTarget extends THREE.EventDispatcher {
+        constructor(width, height, options) {
+            super();
+            this.width = width;
+            this.height = height;
+            this.scissor = new THREE.Vector4(0, 0, width, height);
+            this.scissorTest = false;
+            this.viewport = new THREE.Vector4(0, 0, width, height);
+            options = options || {};
+            if (options.minFilter === undefined)
+                options.minFilter = THREE.LinearFilter;
+            this.texture = new THREE.Texture(undefined, undefined, options.wrapS, options.wrapT, options.magFilter, options.minFilter, options.format, options.type, options.anisotropy, options.encoding);
+            this.texture.generateMipmaps = options.generateMipmaps !== undefined ? options.generateMipmaps : true;
+            this.depthBuffer = options.depthBuffer !== undefined ? options.depthBuffer : true;
+            this.stencilBuffer = options.stencilBuffer !== undefined ? options.stencilBuffer : true;
+            this.depthTexture = options.depthTexture !== undefined ? options.depthTexture : null;
+            this.isWebGLRenderTarget = true;
+        }
+        setSize(width, height) {
+            if (this.width !== width || this.height !== height) {
+                this.width = width;
+                this.height = height;
+                this.dispose();
+            }
+            this.viewport.set(0, 0, width, height);
+            this.scissor.set(0, 0, width, height);
+        }
+        clone() {
+            var target = new WebGLRenderTarget(null, null, null);
+            target.copy(this);
+            return target;
+        }
+        copy(source) {
+            this.width = source.width;
+            this.height = source.height;
+            this.viewport.copy(source.viewport);
+            this.texture = source.texture.clone();
+            this.depthBuffer = source.depthBuffer;
+            this.stencilBuffer = source.stencilBuffer;
+            this.depthTexture = source.depthTexture;
+            return this;
+        }
+        dispose() {
+            this.dispatchEvent({ type: 'dispose' });
+        }
+    }
+    THREE.WebGLRenderTarget = WebGLRenderTarget;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
+    class WebGLRenderTargetCube extends THREE.WebGLRenderTarget {
+        constructor(width, height, options) {
+            super(width, height, options);
+            this.activeCubeFace = 0; // PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5
+            this.activeMipMapLevel = 0;
+            this.isWebGLRenderTargetCube = true;
+        }
+    }
+    THREE.WebGLRenderTargetCube = WebGLRenderTargetCube;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
     class WebGLRenderer {
         constructor(parameters) {
             // tone mapping
@@ -20289,6 +20353,7 @@ var THREE;
             this.renderBufferDirect = function (camera, fog, geometry, material, object, group) {
                 var frontFaceCW = (object.isMesh && object.matrixWorld.determinant() < 0);
                 this.state.setMaterial(material, frontFaceCW);
+                // 创建program，初始化uniform的值
                 var program = this.setProgram(camera, fog, material, object);
                 var geometryProgram = geometry.id + '_' + program.id + '_' + (material.wireframe === true);
                 var updateBuffers = false;
@@ -20316,6 +20381,7 @@ var THREE;
                     renderer.setIndex(attribute);
                 }
                 if (updateBuffers) {
+                    // 更新顶点属性值
                     this.setupVertexAttributes(material, program, geometry);
                     if (index !== null) {
                         this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, attribute.buffer);
@@ -20329,6 +20395,7 @@ var THREE;
                 else if (position !== undefined) {
                     dataCount = position.count;
                 }
+                // 计算顶点个数
                 var rangeStart = geometry.drawRange.start * rangeFactor;
                 var rangeCount = geometry.drawRange.count * rangeFactor;
                 var groupStart = group !== null ? group.start * rangeFactor : 0;
@@ -20338,7 +20405,7 @@ var THREE;
                 var drawCount = Math.max(0, drawEnd - drawStart + 1);
                 if (drawCount === 0)
                     return;
-                //
+                // 设置绘制模式
                 if (object.isMesh) {
                     if (material.wireframe === true) {
                         this.state.setLineWidth(material.wireframeLinewidth * this.getTargetPixelRatio());
@@ -20382,6 +20449,7 @@ var THREE;
                     }
                 }
                 else {
+                    // 渲染
                     renderer.render(drawStart, drawCount);
                 }
             };
@@ -20665,9 +20733,9 @@ var THREE;
         getClearColor() {
             return this.background.getClearColor();
         }
-        setClearColor(...arg) {
+        setClearColor(color, alpha) {
             // this.background.setClearColor.apply(this.background, arguments);
-            this.background.setClearColor(arguments);
+            this.background.setClearColor(color, alpha);
         }
         getClearAlpha() {
             return this.background.getClearAlpha();
@@ -20716,7 +20784,7 @@ var THREE;
             console.log('THREE.WebGLRenderer: Context Lost.');
             this._isContextLost = true;
         }
-        onContextRestore() {
+        onContextRestore( /* event */) {
             console.log('THREE.WebGLRenderer: Context Restored.');
             this._isContextLost = false;
             this.initGLContext();
@@ -20905,6 +20973,7 @@ var THREE;
             this._clippingEnabled = this._clipping.init(this.clippingPlanes, this._localClippingEnabled, camera);
             this.currentRenderList = this.renderLists.get(scene, camera);
             this.currentRenderList.init();
+            // 初始化场景
             this.projectObject(scene, camera, this.sortObjects);
             if (this.sortObjects === true) {
                 this.currentRenderList.sort();
@@ -20931,8 +21000,10 @@ var THREE;
             var transparentObjects = this.currentRenderList.transparent;
             if (scene.overrideMaterial) {
                 var overrideMaterial = scene.overrideMaterial;
+                // 渲染不透明物品
                 if (opaqueObjects.length)
                     this.renderObjects(opaqueObjects, scene, camera, overrideMaterial);
+                // 渲染透明物品
                 if (transparentObjects.length)
                     this.renderObjects(transparentObjects, scene, camera, overrideMaterial);
             }
@@ -21099,7 +21170,7 @@ var THREE;
                     for (var j = 0, jl = cameras.length; j < jl; j++) {
                         var camera2 = cameras[j];
                         if (object.layers.test(camera2.layers)) {
-                            if ('viewport' in camera2) {
+                            if ('viewport' in camera2) { // XR
                                 this.state.viewport(this._currentViewport.copy(camera2.viewport));
                             }
                             else {
@@ -21137,6 +21208,7 @@ var THREE;
             if (object.isImmediateRenderObject) {
                 var frontFaceCW = (object.isMesh && object.matrixWorld.determinant() < 0);
                 this.state.setMaterial(material, frontFaceCW);
+                // 创建program
                 var program = this.setProgram(camera, scene.fog, material, object);
                 this._currentGeometryProgram = '';
                 this.renderObjectImmediate(object, program, material);
@@ -21248,7 +21320,10 @@ var THREE;
                 uniforms.pointShadowMatrix.value = lights.state.pointShadowMatrix;
                 // TODO (abelnation): add area lights shadow info to uniforms
             }
-            var progUniforms = glPropertyNode.program.getUniforms(), uniformsList = THREE.WebGLUniformsNode.seqWithValue(progUniforms.seq, uniforms);
+            // 获取当前激活的uniform列表
+            var progUniforms = glPropertyNode.program.getUniforms();
+            // 找出激活uniform和material和light  uniform相同另存一下
+            var uniformsList = THREE.WebGLUniformsNode.seqWithValue(progUniforms.seq, uniforms);
             glPropertyNode.uniformsList = uniformsList;
         }
         /**
@@ -21289,6 +21364,7 @@ var THREE;
                 }
             }
             if (material.needsUpdate) {
+                // 材料更新uniform值
                 this.initMaterial(material, fog, object);
                 material.needsUpdate = false;
             }
@@ -21448,9 +21524,11 @@ var THREE;
                     m_uniforms.ltc_1.value = THREE.UniformsLib.LTC_1;
                 if (m_uniforms.ltc_2 !== undefined)
                     m_uniforms.ltc_2.value = THREE.UniformsLib.LTC_2;
+                // 将材料和灯光的uniform的值，赋值给激活的uniform；
                 THREE.WebGLUniformsNode.upload(this._gl, glPropertyNode.uniformsList, m_uniforms, this);
             }
             if (material.isShaderMaterial && material.uniformsNeedUpdate === true) {
+                // 将材料和灯光的uniform的值，赋值给激活的uniform；
                 THREE.WebGLUniformsNode.upload(this._gl, glPropertyNode.uniformsList, m_uniforms, this);
                 material.uniformsNeedUpdate = false;
             }
@@ -21835,6 +21913,10 @@ var THREE;
             return this._currentRenderTarget;
         }
         ;
+        /**
+         *
+         * @param renderTarget
+         */
         setRenderTarget(renderTarget) {
             this._currentRenderTarget = renderTarget;
             if (renderTarget && this.properties.get(renderTarget).__webglFramebuffer === undefined) {
@@ -21925,68 +22007,6 @@ var THREE;
         ;
     }
     THREE.WebGLRenderer = WebGLRenderer;
-})(THREE || (THREE = {}));
-var THREE;
-(function (THREE) {
-    class WebGLRenderTarget extends THREE.EventDispatcher {
-        constructor(width, height, options) {
-            super();
-            this.width = width;
-            this.height = height;
-            this.scissor = new THREE.Vector4(0, 0, width, height);
-            this.scissorTest = false;
-            this.viewport = new THREE.Vector4(0, 0, width, height);
-            options = options || {};
-            if (options.minFilter === undefined)
-                options.minFilter = THREE.LinearFilter;
-            this.texture = new THREE.Texture(undefined, undefined, options.wrapS, options.wrapT, options.magFilter, options.minFilter, options.format, options.type, options.anisotropy, options.encoding);
-            this.texture.generateMipmaps = options.generateMipmaps !== undefined ? options.generateMipmaps : true;
-            this.depthBuffer = options.depthBuffer !== undefined ? options.depthBuffer : true;
-            this.stencilBuffer = options.stencilBuffer !== undefined ? options.stencilBuffer : true;
-            this.depthTexture = options.depthTexture !== undefined ? options.depthTexture : null;
-            this.isWebGLRenderTarget = true;
-        }
-        setSize(width, height) {
-            if (this.width !== width || this.height !== height) {
-                this.width = width;
-                this.height = height;
-                this.dispose();
-            }
-            this.viewport.set(0, 0, width, height);
-            this.scissor.set(0, 0, width, height);
-        }
-        clone() {
-            var target = new WebGLRenderTarget(null, null, null);
-            target.copy(this);
-            return target;
-        }
-        copy(source) {
-            this.width = source.width;
-            this.height = source.height;
-            this.viewport.copy(source.viewport);
-            this.texture = source.texture.clone();
-            this.depthBuffer = source.depthBuffer;
-            this.stencilBuffer = source.stencilBuffer;
-            this.depthTexture = source.depthTexture;
-            return this;
-        }
-        dispose() {
-            this.dispatchEvent({ type: 'dispose' });
-        }
-    }
-    THREE.WebGLRenderTarget = WebGLRenderTarget;
-})(THREE || (THREE = {}));
-var THREE;
-(function (THREE) {
-    class WebGLRenderTargetCube extends THREE.WebGLRenderTarget {
-        constructor(width, height, options) {
-            super(width, height, options);
-            this.activeCubeFace = 0; // PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5
-            this.activeMipMapLevel = 0;
-            this.isWebGLRenderTargetCube = true;
-        }
-    }
-    THREE.WebGLRenderTargetCube = WebGLRenderTargetCube;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -22796,13 +22816,23 @@ var THREE;
             this.info = info;
             this.mode = null;
         }
+        /**
+         * 设置渲染模式
+         * @param value
+         */
         setMode(value) {
             this.mode = value;
         }
+        /**
+         * 渲染，并记录渲染过程信息
+         */
         render(start, count) {
             this.gl.drawArrays(this.mode, start, count);
-            this.info.update(count, this.mode);
+            this.info.update(count, this.mode, null);
         }
+        /**
+         * 即使渲染
+         */
         renderInstances(geometry, start, count) {
             var extension = this.extensions.get('ANGLE_instanced_arrays');
             if (extension === null) {
@@ -23681,39 +23711,6 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    class WebglContextAttibutes {
-        constructor() {
-        }
-    }
-    THREE.WebglContextAttibutes = WebglContextAttibutes;
-})(THREE || (THREE = {}));
-var THREE;
-(function (THREE) {
-    function addLineNumbers(string) {
-        var lines = string.split('\n');
-        for (var i = 0; i < lines.length; i++) {
-            lines[i] = (i + 1) + ': ' + lines[i];
-        }
-        return lines.join('\n');
-    }
-    function webGLCreateShader(gl, type, string) {
-        var shader = gl.createShader(type);
-        gl.shaderSource(shader, string);
-        gl.compileShader(shader);
-        if (gl.getShaderParameter(shader, gl.COMPILE_STATUS) === false) {
-            console.error('THREE.WebGLShader: Shader couldn\'t compile.');
-        }
-        if (gl.getShaderInfoLog(shader) !== '') {
-            console.warn('THREE.WebGLShader: gl.getShaderInfoLog()', type === gl.VERTEX_SHADER ? 'vertex' : 'fragment', gl.getShaderInfoLog(shader), addLineNumbers(string));
-        }
-        // --enable-privileged-webgl-extension
-        // console.log( type, gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( shader ) );
-        return shader;
-    }
-    THREE.webGLCreateShader = webGLCreateShader;
-})(THREE || (THREE = {}));
-var THREE;
-(function (THREE) {
     class WebGLExtensionsNode {
         constructor(gl) {
             this.extensions = {};
@@ -23891,6 +23888,19 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
+    class renderRecoder {
+        constructor() {
+            this.frame = 0;
+            this.calls = 0;
+            this.triangles = 0;
+            this.points = 0;
+            this.lines = 0;
+        }
+    }
+    THREE.renderRecoder = renderRecoder;
+    /**
+     * 渲染过程信息
+     */
     class WebGLInfoNode {
         constructor(gl) {
             this.gl = gl;
@@ -23898,14 +23908,11 @@ var THREE;
                 geometries: 0,
                 textures: 0
             };
-            this.render = {
-                frame: 0,
-                calls: 0,
-                triangles: 0,
-                points: 0,
-                lines: 0
-            };
+            this.render = new renderRecoder();
         }
+        /**
+         * 更新渲染过程记录的信息
+         */
         update(count, mode, instanceCount) {
             instanceCount = instanceCount || 1;
             this.render.calls++;
@@ -23934,22 +23941,15 @@ var THREE;
                     break;
             }
         }
+        /**
+         * 重新设置
+         */
         reset() {
             this.render.frame++;
             this.render.calls = 0;
             this.render.triangles = 0;
             this.render.points = 0;
             this.render.lines = 0;
-        }
-        getinstance() {
-            return {
-                memory: this.memory,
-                render: this.render,
-                programs: null,
-                autoReset: true,
-                reset: this.reset,
-                update: this.update
-            };
         }
     }
     THREE.WebGLInfoNode = WebGLInfoNode;
@@ -24027,10 +24027,16 @@ var THREE;
         }
     }
     THREE.LightUniformsCache = LightUniformsCache;
+    class LightsStateManger {
+        constructor() {
+        }
+    }
+    THREE.LightsStateManger = LightsStateManger;
     class WebGLLightsNode {
         constructor() {
             this.cache = new LightUniformsCache();
-            this.state = {
+            var lightsStateManager = new LightsStateManger();
+            lightsStateManager = {
                 id: WebGLLightsNode.count++,
                 hash: '',
                 ambient: [0, 0, 0],
@@ -24046,6 +24052,7 @@ var THREE;
                 pointShadowMatrix: [],
                 hemi: []
             };
+            this.state = lightsStateManager;
             this.vector3 = new THREE.Vector3();
             this.matrix4 = new THREE.Matrix4();
             this.matrix42 = new THREE.Matrix4();
@@ -27542,19 +27549,25 @@ var THREE;
         }
     }
     // Static interface
-    WebGLUniformsNode.upload = function (gl, seq, values, renderer) {
-        for (var i = 0, n = seq.length; i !== n; ++i) {
-            var u = seq[i], v = values[u.id];
+    /**
+     * 把 material的uniform向uniform中传递
+     */
+    WebGLUniformsNode.upload = function (gl, uniformsList, material_uniforms, renderer) {
+        for (var i = 0, n = uniformsList.length; i !== n; ++i) {
+            var u = uniformsList[i], v = material_uniforms[u.id];
             if (v.needsUpdate !== false) {
                 // note: always updating when .needsUpdate is undefined
                 u.setValue(gl, v.value, renderer);
             }
         }
     };
-    WebGLUniformsNode.seqWithValue = function (seq, values) {
+    /**
+     * 找出激活uniforms中与material_uniforms重合的部分
+     */
+    WebGLUniformsNode.seqWithValue = function (active_uniforms, values) {
         var r = [];
-        for (var i = 0, n = seq.length; i !== n; ++i) {
-            var u = seq[i];
+        for (var i = 0, n = active_uniforms.length; i !== n; ++i) {
+            var u = active_uniforms[i];
             if (u.id in values)
                 r.push(u);
         }
@@ -27716,6 +27729,39 @@ var THREE;
         }
     }
     THREE.WebGLUtils = WebGLUtils;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
+    class WebglContextAttibutes {
+        constructor() {
+        }
+    }
+    THREE.WebglContextAttibutes = WebglContextAttibutes;
+})(THREE || (THREE = {}));
+var THREE;
+(function (THREE) {
+    function addLineNumbers(string) {
+        var lines = string.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+            lines[i] = (i + 1) + ': ' + lines[i];
+        }
+        return lines.join('\n');
+    }
+    function webGLCreateShader(gl, type, string) {
+        var shader = gl.createShader(type);
+        gl.shaderSource(shader, string);
+        gl.compileShader(shader);
+        if (gl.getShaderParameter(shader, gl.COMPILE_STATUS) === false) {
+            console.error('THREE.WebGLShader: Shader couldn\'t compile.');
+        }
+        if (gl.getShaderInfoLog(shader) !== '') {
+            console.warn('THREE.WebGLShader: gl.getShaderInfoLog()', type === gl.VERTEX_SHADER ? 'vertex' : 'fragment', gl.getShaderInfoLog(shader), addLineNumbers(string));
+        }
+        // --enable-privileged-webgl-extension
+        // console.log( type, gl.getExtension( 'WEBGL_debug_shaders' ).getTranslatedShaderSource( shader ) );
+        return shader;
+    }
+    THREE.webGLCreateShader = webGLCreateShader;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
@@ -27980,7 +28026,7 @@ var THREE;
         clone() {
             return new Fog(this.color, this.near, this.far);
         }
-        toJSON() {
+        toJSON( /* meta */) {
             return {
                 type: 'Fog',
                 color: this.color.getHex(),
@@ -28003,7 +28049,7 @@ var THREE;
         clone() {
             return new FogExp2(this.color, this.density);
         }
-        toJSON() {
+        toJSON( /* meta */) {
             return {
                 type: 'FogExp2',
                 color: this.color.getHex(),

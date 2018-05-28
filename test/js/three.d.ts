@@ -3537,12 +3537,6 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class LineLoop extends Line {
-        isLineLoop: boolean;
-        constructor(geometry: any, material: any);
-    }
-}
-declare module THREE {
     class LOD extends Object3D {
         levels: any[];
         constructor();
@@ -3552,6 +3546,12 @@ declare module THREE {
         raycast(raycaster?: any, intersects?: any): void;
         update(camera: any): void;
         toJSON(meta: any): any;
+    }
+}
+declare module THREE {
+    class LineLoop extends Line {
+        isLineLoop: boolean;
+        constructor(geometry: any, material: any);
     }
 }
 declare module THREE {
@@ -3641,6 +3641,33 @@ declare module THREE {
     }
 }
 declare module THREE {
+    class WebGLRenderTarget extends EventDispatcher {
+        width: any;
+        height: any;
+        scissor: any;
+        scissorTest: any;
+        viewport: any;
+        texture: any;
+        depthBuffer: any;
+        depthTexture: any;
+        stencilBuffer: any;
+        isWebGLRenderTarget: any;
+        constructor(width: any, height: any, options: any);
+        setSize(width: any, height: any): void;
+        clone(): WebGLRenderTarget;
+        copy(source: any): this;
+        dispose(): void;
+    }
+}
+declare module THREE {
+    class WebGLRenderTargetCube extends WebGLRenderTarget {
+        activeCubeFace: any;
+        activeMipMapLevel: any;
+        isWebGLRenderTargetCube: any;
+        constructor(width: any, height: any, options: any);
+    }
+}
+declare module THREE {
     class WebGLRenderer {
         private parameters;
         private _canvas;
@@ -3703,7 +3730,7 @@ declare module THREE {
         textures: any;
         background: any;
         morphtargets: any;
-        bufferRenderer: any;
+        bufferRenderer: WebGLBufferRendererNode;
         indexedBufferRenderer: any;
         spriteRenderer: any;
         utils: any;
@@ -3745,7 +3772,7 @@ declare module THREE {
         setScissor(x: any, y: any, width: any, height: any): void;
         setScissorTest(boolean: any): void;
         getClearColor(): any;
-        setClearColor(...arg: any[]): void;
+        setClearColor(color: any, alpha: any): void;
         getClearAlpha(): any;
         setClearAlpha(): void;
         clear(color?: any, depth?: any, stencil?: any): void;
@@ -3952,37 +3979,14 @@ declare module THREE {
         */
         setTextureCube(texture: any, slot: any): void;
         getRenderTarget(): any;
+        /**
+         *
+         * @param renderTarget
+         */
         setRenderTarget(renderTarget: any): void;
         readRenderTargetPixels(renderTarget: any, x: any, y: any, width: any, height: any, buffer: any): void;
         copyFramebufferToTexture(position: any, texture: any, level: any): void;
         copyTextureToTexture: (position: any, srcTexture: any, dstTexture: any, level: any) => void;
-    }
-}
-declare module THREE {
-    class WebGLRenderTarget extends EventDispatcher {
-        width: any;
-        height: any;
-        scissor: any;
-        scissorTest: any;
-        viewport: any;
-        texture: any;
-        depthBuffer: any;
-        depthTexture: any;
-        stencilBuffer: any;
-        isWebGLRenderTarget: any;
-        constructor(width: any, height: any, options: any);
-        setSize(width: any, height: any): void;
-        clone(): WebGLRenderTarget;
-        copy(source: any): this;
-        dispose(): void;
-    }
-}
-declare module THREE {
-    class WebGLRenderTargetCube extends WebGLRenderTarget {
-        activeCubeFace: any;
-        activeMipMapLevel: any;
-        isWebGLRenderTargetCube: any;
-        constructor(width: any, height: any, options: any);
     }
 }
 declare module THREE {
@@ -4473,13 +4477,23 @@ declare module THREE {
 }
 declare module THREE {
     class WebGLBufferRendererNode {
-        mode: any;
-        gl: any;
+        mode: number;
+        gl: WebGLContext;
         extensions: any;
-        info: any;
+        info: WebGLInfoNode;
         constructor(gl: any, extensions: any, info: any);
+        /**
+         * 设置渲染模式
+         * @param value
+         */
         setMode(value: any): void;
+        /**
+         * 渲染，并记录渲染过程信息
+         */
         render(start: any, count: any): void;
+        /**
+         * 即使渲染
+         */
         renderInstances(geometry: any, start: any, count: any): void;
     }
 }
@@ -4969,21 +4983,6 @@ declare module THREE {
     }
 }
 declare module THREE {
-    class WebglContextAttibutes {
-        alpha: any;
-        depth: any;
-        stencil: any;
-        antialias: any;
-        premultipliedAlpha: any;
-        preserveDrawingBuffer: any;
-        powerPreference: any;
-        constructor();
-    }
-}
-declare module THREE {
-    function webGLCreateShader(gl: any, type: any, string: any): any;
-}
-declare module THREE {
     class WebGLExtensionsNode {
         gl: any;
         extensions: any;
@@ -5021,21 +5020,30 @@ declare module THREE {
     }
 }
 declare module THREE {
+    class renderRecoder {
+        frame: number;
+        calls: number;
+        triangles: number;
+        points: number;
+        lines: number;
+        constructor();
+    }
+    /**
+     * 渲染过程信息
+     */
     class WebGLInfoNode {
         memory: any;
-        gl: any;
+        gl: WebGLContext;
         render: any;
-        constructor(gl: any);
-        update(count: any, mode: any, instanceCount: any): void;
+        constructor(gl: WebGLContext);
+        /**
+         * 更新渲染过程记录的信息
+         */
+        update(count: number, mode: number, instanceCount?: number): void;
+        /**
+         * 重新设置
+         */
         reset(): void;
-        getinstance(): {
-            memory: any;
-            render: any;
-            programs: any;
-            autoReset: boolean;
-            reset: () => void;
-            update: (count: any, mode: any, instanceCount: any) => void;
-        };
     }
 }
 declare module THREE {
@@ -5043,6 +5051,23 @@ declare module THREE {
         lights: {};
         constructor();
         get(light: any): any;
+    }
+    class LightsStateManger {
+        id: any;
+        hash: any;
+        ambient: any;
+        directional: any;
+        directionalShadowMap: any;
+        directionalShadowMatrix: any;
+        spot: any;
+        spotShadowMap: any;
+        spotShadowMatrix: any;
+        rectArea: any;
+        point: any;
+        pointShadowMap: any;
+        pointShadowMatrix: any;
+        hemi: any;
+        constructor();
     }
     class WebGLLightsNode {
         static count: number;
@@ -5746,14 +5771,35 @@ declare module THREE {
         constructor(gl: any, program: any, renderer: any);
         setValue: (gl: any, name: any, value: any) => void;
         setOptional: (gl: any, object: any, name: any) => void;
-        static upload: (gl: any, seq: any, values: any, renderer: any) => void;
-        static seqWithValue: (seq: any, values: any) => any[];
+        /**
+         * 把 material的uniform向uniform中传递
+         */
+        static upload: (gl: WebGLContext, uniformsList: any, material_uniforms: any, renderer: any) => void;
+        /**
+         * 找出激活uniforms中与material_uniforms重合的部分
+         */
+        static seqWithValue: (active_uniforms: any, values: any) => any[];
     }
 }
 declare module THREE {
     class WebGLUtils {
         constructor(gl: any, extensions: any);
     }
+}
+declare module THREE {
+    class WebglContextAttibutes {
+        alpha: any;
+        depth: any;
+        stencil: any;
+        antialias: any;
+        premultipliedAlpha: any;
+        preserveDrawingBuffer: any;
+        powerPreference: any;
+        constructor();
+    }
+}
+declare module THREE {
+    function webGLCreateShader(gl: any, type: any, string: any): any;
 }
 declare module THREE {
     class WebVRManager {
