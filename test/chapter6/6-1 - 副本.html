@@ -15,7 +15,7 @@
 
 <body>
 
-    <script src="../js/three.js"></script>
+    <script src="js/three.js"></script>
 
     <script>
 
@@ -35,16 +35,18 @@
             camera.position.z = 400;
             scene = new THREE.Scene();
 
-            var geometry = new THREE.BoxGeometry(150, 150, 150);
-            // 纹理坐标怎么弄
-            var loader = new THREE.TextureLoader();
 
-            // 纹理坐标怎么弄
-            texture = loader.load("textures/2.jpg", function (t) {
+            var geometry = new THREE.PlaneGeometry(500, 300, 1, 1);
+            geometry.vertices[0].uv = new THREE.Vector2(0, 0);
+            geometry.vertices[1].uv = new THREE.Vector2(2, 0);
+            geometry.vertices[2].uv = new THREE.Vector2(2, 2);
+            geometry.vertices[3].uv = new THREE.Vector2(0, 2);
+
+            texture = THREE.ImageUtils.loadTexture("textures/a.jpg", null, function (t) {
 
             });
             var material = new THREE.MeshBasicMaterial({ map: texture });
-            mesh = new THREE.Mesh(geometry, material);
+            var mesh = new THREE.Mesh(geometry, material);
             scene.add(mesh);
 
             //
@@ -59,8 +61,6 @@
         }
 
         function animate() {
-            mesh.rotation.y -= 0.01;
-            mesh.rotation.x -= 0.01;
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
         }

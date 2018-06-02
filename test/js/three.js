@@ -16208,6 +16208,7 @@ var THREE;
 (function (THREE) {
     class Color {
         constructor(r, g, b) {
+            this.isColor = true;
             this.r = null;
             this.g = null;
             this.b = null;
@@ -21623,7 +21624,9 @@ var THREE;
                 if (uvScaleMap.matrixAutoUpdate === true) {
                     uvScaleMap.updateMatrix();
                 }
-                uniforms.uvTransform.value.copy(uvScaleMap.matrix);
+                if (uvScaleMap.matrix) {
+                    uniforms.uvTransform.value.copy(uvScaleMap.matrix);
+                }
             }
         }
         /**
@@ -23603,6 +23606,9 @@ var THREE;
         }
         texImage2D(target, level, internalformat, width, height, border, format, type, pixels) {
             this.gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+        }
+        texImage2D1(target, level, internalformat, format, type, pixels) {
+            this.gl.texImage2D(target, level, internalformat, format, type, pixels);
         }
         texParameterf(target, pname, param) {
             this.gl.texParameterf(target, pname, param);
@@ -26317,7 +26323,12 @@ var THREE;
         }
         texImage2D() {
             try {
-                this.gl.texImage2D.apply(this.gl, arguments);
+                if (arguments.length > 6) {
+                    this.gl.texImage2D.apply(this.gl, arguments);
+                }
+                else {
+                    this.gl.texImage2D1.apply(this.gl, arguments);
+                }
             }
             catch (error) {
                 console.error('THREE.WebGLState:', error);
@@ -26912,9 +26923,9 @@ var THREE;
             this.generateMipmaps = true;
             this.premultiplyAlpha = false;
             this.flipY = true;
-            this.unpackAlignment = 4; // valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
+            this.unpackAlignment = 4;
+            // valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
             // Values of encoding !== THREE.LinearEncoding only supported on map, envMap and emissiveMap.
-            //
             // Also changing the encoding after already used by a Material will not automatically make the Material
             // update.  You need to explicitly call Material.needsUpdate to trigger it to recompile.
             this.encoding = encoding !== undefined ? encoding : THREE.LinearEncoding;

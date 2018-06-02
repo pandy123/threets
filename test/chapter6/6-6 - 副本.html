@@ -13,17 +13,22 @@
     </style>
 </head>
 
-<body>
+<body onload="start();">
 
-    <script src="../js/three.js"></script>
+    <script src="js/three.js"></script>
+    <script src="./clock.js"></script>
 
     <script>
 
         var camera, scene, renderer;
         var mesh;
+        var texture;
 
-        init();
-        animate();
+        function start() {
+            clock();
+            init();
+            animate();
+        }
 
         function init() {
 
@@ -35,21 +40,15 @@
             camera.position.z = 400;
             scene = new THREE.Scene();
 
-            var geometry = new THREE.BoxGeometry(150, 150, 150);
-            // 纹理坐标怎么弄
-            var loader = new THREE.TextureLoader();
-
-            // 纹理坐标怎么弄
-            texture = loader.load("textures/2.jpg", function (t) {
-
-            });
+            var geometry = new THREE.CubeGeometry(150, 150, 150);
+            texture = new THREE.Texture(canvas);
             var material = new THREE.MeshBasicMaterial({ map: texture });
+            texture.needsUpdate = true;
             mesh = new THREE.Mesh(geometry, material);
             scene.add(mesh);
 
             //
             window.addEventListener('resize', onWindowResize, false);
-
         }
 
         function onWindowResize() {
@@ -59,6 +58,7 @@
         }
 
         function animate() {
+            texture.needsUpdate = true;
             mesh.rotation.y -= 0.01;
             mesh.rotation.x -= 0.01;
             requestAnimationFrame(animate);

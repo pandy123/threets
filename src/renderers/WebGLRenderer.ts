@@ -1406,7 +1406,9 @@ module THREE {
                         if (uvScaleMap.matrixAutoUpdate === true) {
                               uvScaleMap.updateMatrix();
                         }
-                        uniforms.uvTransform.value.copy(uvScaleMap.matrix);
+                        if (uvScaleMap.matrix) {
+                              uniforms.uvTransform.value.copy(uvScaleMap.matrix);
+                        }
                   }
             }
 

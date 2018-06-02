@@ -34,6 +34,7 @@ module THREE {
             public r: number;
             public g: number;
             public b: number;
+            public isColor = true;
             constructor(r?: any, g?: number, b?: number) {
                   this.r = null as any;
                   this.g = null as any;

@@ -94,7 +94,7 @@
 		<span class="c">Nearest</span>
 	</div>
 
-	<script src="../js/three.js"></script>
+	<script src="js/three.js"></script>
 
 	<script src="../js/Detector.js"></script>
 	<script src="../js/stats.js"></script>
@@ -219,17 +219,10 @@
 
 			};
 
-			var loader = new THREE.TextureLoader();
-
-			// 纹理坐标怎么弄
-			texture = loader.load("textures/a.jpg", function (t) {
-
-			});
-
-			var texturePainting = loader.load("textures/4.jpg", callbackPainting);
-			var texturePainting2 = new THREE.Texture();
-			var materialPainting = new THREE.MeshBasicMaterial({ color: 0xffffff, map: texturePainting });
-			var materialPainting2 = new THREE.MeshBasicMaterial({ color: 0xffccaa, map: texturePainting2 });
+			var texturePainting = THREE.ImageUtils.loadTexture("textures/4.jpg", THREE.UVMapping, callbackPainting),
+				texturePainting2 = new THREE.Texture(),
+				materialPainting = new THREE.MeshBasicMaterial({ color: 0xffffff, map: texturePainting }),
+				materialPainting2 = new THREE.MeshBasicMaterial({ color: 0xffccaa, map: texturePainting2 });
 
 			texturePainting2.minFilter = texturePainting2.magFilter = THREE.NearestFilter;
 			texturePainting.minFilter = texturePainting.magFilter = THREE.LinearFilter;
@@ -278,9 +271,9 @@
 
 			camera.lookAt(scene.position);
 
-			//renderer.enableScissorTest(false);
+			renderer.enableScissorTest(false);
 			renderer.clear();
-			//renderer.enableScissorTest(true);
+			renderer.enableScissorTest(true);
 
 			//renderer.setViewport( 0, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT );
 			renderer.setScissor(0, 0, SCREEN_WIDTH / 2 - 2, SCREEN_HEIGHT);

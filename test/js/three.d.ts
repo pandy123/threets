@@ -2961,6 +2961,7 @@ declare module THREE {
         r: number;
         g: number;
         b: number;
+        isColor: boolean;
         constructor(r?: any, g?: number, b?: number);
         set(value: Color): this;
         setScalar(scalar: number): this;
@@ -4650,6 +4651,7 @@ declare module THREE {
         stencilOp(fail: number, zfail: number, zpass: number): void;
         stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number): void;
         texImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, format: number, type: number, pixels: ArrayBufferView): void;
+        texImage2D1(target: number, level: number, internalformat: number, format: number, type: number, pixels: ImageBitmap | ImageData | HTMLVideoElement | HTMLImageElement | HTMLCanvasElement): void;
         texParameterf(target: number, pname: number, param: number): void;
         texParameteri(target: number, pname: number, param: number): void;
         texSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, type: number, pixels: ArrayBufferView): void;
