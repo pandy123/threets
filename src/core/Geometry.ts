@@ -5,10 +5,10 @@ module THREE {
       public uuid: string;
       public name: string;
       public type: string;
-      public vertices: any;
+      public vertices: Array<Vector3>;
       public colors: any;
-      public faces: any;
-      public faceVertexUvs: any;
+      public faces: Array<Face3>;
+      public faceVertexUvs: Array<Array<Array<Vector2>>>;
       public morphTargets: any;
       public morphNormals: any;
       public skinWeights: any;
@@ -37,8 +37,8 @@ module THREE {
          this.type = 'Geometry';
          this.vertices = [];
          this.colors = [];
-         this.faces = [];
-         this.faceVertexUvs = [[]];
+         this.faces = new Array<Face3>();
+         this.faceVertexUvs = new Array<Array<Array<Vector2>>>();
          this.morphTargets = [];
          this.morphNormals = [];
          this.skinWeights = [];

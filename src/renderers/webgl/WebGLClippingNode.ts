@@ -26,7 +26,7 @@ module THREE {
             this.numPlanes = 0;
         }
 
-        public init(planes, enableLocalClipping, camera) {
+        public init(planes, enableLocalClipping, camera):boolean {
 
             var enabled =
                 planes.length !== 0 ||
@@ -43,7 +43,7 @@ module THREE {
 
             return enabled;
 
-        };
+        }
 
         public beginShadows() {
 

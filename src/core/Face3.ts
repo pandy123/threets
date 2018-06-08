@@ -1,28 +1,31 @@
 
 module THREE {
    export class Face3 {
+      // Geometry sortFacesByMaterialIndex 排序使用
+      public _id :number;
+      
+      //point index;
+      public a:number;
+      public b:number;
+      public c:number;
 
-      public a;
-      public b;
-      public c;
+      public normal:Vector3;
+      public vertexNormals:Array<Vector3>;
 
-      public normal;
-      public vertexNormals;
+      public color:Color;
+      public vertexColors:Array<Color>;
 
-      public color;
-      public vertexColors;
+      public materialIndex:number;
 
-      public materialIndex;
-
-      constructor(a?, b?, c?, normal?, color?, materialIndex?) {
+      constructor(a?:number, b?:number, c?:number, normal?:Vector3 | Array<Vector3>, color?:Color|Array<Color>, materialIndex?:number) {
          this.a = a;
          this.b = b;
          this.c = c;
 
-         this.normal = (normal && normal.isVector3) ? normal : new Vector3(null, null, null);
+         this.normal = (normal && (normal as any).isVector3) ? normal as Vector3 : new Vector3(null, null, null);
          this.vertexNormals = Array.isArray(normal) ? normal : [];
 
-         this.color = (color && color.isColor) ? color : new Color(null, null, null);
+         this.color = (color && (color as any).isColor) ? color as Color : new Color(null, null, null);
          this.vertexColors = Array.isArray(color) ? color : [];
 
          this.materialIndex = materialIndex !== undefined ? materialIndex : 0;
