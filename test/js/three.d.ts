@@ -1080,15 +1080,16 @@ declare module THREE {
 }
 declare module THREE {
     class Face3 {
-        a: any;
-        b: any;
-        c: any;
-        normal: any;
-        vertexNormals: any;
-        color: any;
-        vertexColors: any;
-        materialIndex: any;
-        constructor(a?: any, b?: any, c?: any, normal?: any, color?: any, materialIndex?: any);
+        _id: number;
+        a: number;
+        b: number;
+        c: number;
+        normal: Vector3;
+        vertexNormals: Array<Vector3>;
+        color: Color;
+        vertexColors: Array<Color>;
+        materialIndex: number;
+        constructor(a?: number, b?: number, c?: number, normal?: Vector3 | Array<Vector3>, color?: Color | Array<Color>, materialIndex?: number);
         clone(): Face3;
         copy(source: any): this;
     }
@@ -1100,10 +1101,10 @@ declare module THREE {
         uuid: string;
         name: string;
         type: string;
-        vertices: any;
+        vertices: Array<Vector3>;
         colors: any;
-        faces: any;
-        faceVertexUvs: any;
+        faces: Array<Face3>;
+        faceVertexUvs: Array<Array<Array<Vector2>>>;
         morphTargets: any;
         morphNormals: any;
         skinWeights: any;
@@ -1263,6 +1264,65 @@ declare module THREE {
         static area(contour: any): number;
         static isClockWise(pts: any): boolean;
         static triangulateShape(contour: any, holes: any): any[];
+    }
+}
+declare module THREE {
+    class ThreeBSP {
+        matrix: THREE.Matrix4;
+        tree: BSP.Node;
+        constructor(geometryOrNodeOrMesh: Geometry | BSP.Node | Mesh);
+        subtract(other_tree: ThreeBSP): ThreeBSP;
+        union(other_tree: any): ThreeBSP;
+        intersect(other_tree: any): ThreeBSP;
+        toGeometry(): Geometry;
+        toMesh(material: any): Mesh;
+    }
+    namespace BSP {
+        class Polygon {
+            vertices: Array<Vertex>;
+            normal: any;
+            w: any;
+            constructor(vertices?: Array<Vertex>, normal?: any, w?: any);
+            calculateProperties(): this;
+            clone(): Polygon;
+            flip(): this;
+            classifyVertex(vertex: any): 0 | 1 | 2;
+            classifySide(polygon: any): 0 | 1 | 2 | 3;
+            splitPolygon(polygon: any, coplanar_front: any, coplanar_back: any, front: any, back: any): void;
+        }
+        class Vertex {
+            x: number;
+            y: number;
+            z: number;
+            normal: Vector3;
+            uv: Vector2;
+            constructor(x: any, y: any, z: any, normal: any, uv: any);
+            clone(): Vertex;
+            add(vertex: any): this;
+            subtract(vertex: any): this;
+            multiplyScalar(scalar: any): this;
+            cross(vertex: any): this;
+            normalize(): this;
+            dot(vertex: any): number;
+            lerp(a: any, t: any): this;
+            interpolate(other: any, t: any): Vertex;
+            applyMatrix4(m: any): this;
+        }
+        class Node {
+            faces: any;
+            polygons: any;
+            front: any;
+            back: any;
+            divider: any;
+            constructor(polygons?: any);
+            isConvex(polygons: any): boolean;
+            build(polygons: any): void;
+            allPolygons(): any;
+            clone(): Node;
+            invert(): this;
+            clipPolygons(polygons: any): any;
+            clipTo(node: any): void;
+        }
     }
 }
 declare module THREE {
@@ -4534,7 +4594,7 @@ declare module THREE {
         numPlanes: any;
         numIntersection: any;
         constructor();
-        init(planes: any, enableLocalClipping: any, camera: any): any;
+        init(planes: any, enableLocalClipping: any, camera: any): boolean;
         beginShadows(): void;
         endShadows(): void;
         setState(planes: any, clipIntersection: any, clipShadows: any, camera: any, cache: any, fromCache: any): void;
