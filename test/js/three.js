@@ -5519,7 +5519,7 @@ var THREE;
             this.vertices = [];
             this.colors = [];
             this.faces = new Array();
-            this.faceVertexUvs = new Array();
+            this.faceVertexUvs = [[]];
             this.morphTargets = [];
             this.morphNormals = [];
             this.skinWeights = [];
@@ -7162,6 +7162,7 @@ var THREE;
             //   this.Node = Node;
             if (geometryOrNodeOrMesh instanceof THREE.Geometry) {
                 this.matrix = new THREE.Matrix4();
+                geometry = geometryOrNodeOrMesh;
             }
             else if (geometryOrNodeOrMesh instanceof THREE.Mesh) {
                 // #todo: add hierarchy support

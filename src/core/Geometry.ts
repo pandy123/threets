@@ -38,7 +38,7 @@ module THREE {
          this.vertices = [];
          this.colors = [];
          this.faces = new Array<Face3>();
-         this.faceVertexUvs = new Array<Array<Array<Vector2>>>();
+         this.faceVertexUvs = [[]];
          this.morphTargets = [];
          this.morphNormals = [];
          this.skinWeights = [];

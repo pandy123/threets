@@ -26,6 +26,7 @@ module THREE {
          //   this.Node = Node;
          if (geometryOrNodeOrMesh instanceof Geometry) {
             this.matrix = new THREE.Matrix4();
+            geometry = geometryOrNodeOrMesh;
          } else if (geometryOrNodeOrMesh instanceof Mesh) {
             // #todo: add hierarchy support
             geometryOrNodeOrMesh.updateMatrix();
