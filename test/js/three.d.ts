@@ -1267,6 +1267,12 @@ declare module THREE {
     }
 }
 declare module THREE {
+    enum RelationEnum {
+        COPLANAR = 0,
+        FRONT = 1,
+        BACK = 2,
+        SPANNING = 3,
+    }
     class ThreeBSP {
         matrix: THREE.Matrix4;
         tree: BSP.Node;
@@ -1280,15 +1286,15 @@ declare module THREE {
     namespace BSP {
         class Polygon {
             vertices: Array<Vertex>;
-            normal: any;
-            w: any;
+            normal: Vertex;
+            w: number;
             constructor(vertices?: Array<Vertex>, normal?: any, w?: any);
-            calculateProperties(): this;
+            calculateProperties(): Polygon;
             clone(): Polygon;
-            flip(): this;
-            classifyVertex(vertex: any): 0 | 1 | 2;
-            classifySide(polygon: any): 0 | 1 | 2 | 3;
-            splitPolygon(polygon: any, coplanar_front: any, coplanar_back: any, front: any, back: any): void;
+            flip(): Polygon;
+            classifyVertex(vertex: Vertex): RelationEnum;
+            classifySide(polygon: Polygon): RelationEnum;
+            splitPolygon(polygon: Polygon, coplanar_front: Array<Polygon>, coplanar_back: Array<Polygon>, front: Array<Polygon>, back: Array<Polygon>): void;
         }
         class Vertex {
             x: number;
@@ -1296,31 +1302,31 @@ declare module THREE {
             z: number;
             normal: Vector3;
             uv: Vector2;
-            constructor(x: any, y: any, z: any, normal: any, uv: any);
+            constructor(x: number, y: number, z: number, normal?: Vector3, uv?: Vector2);
             clone(): Vertex;
-            add(vertex: any): this;
-            subtract(vertex: any): this;
-            multiplyScalar(scalar: any): this;
-            cross(vertex: any): this;
-            normalize(): this;
-            dot(vertex: any): number;
-            lerp(a: any, t: any): this;
-            interpolate(other: any, t: any): Vertex;
-            applyMatrix4(m: any): this;
+            add(vertex: Vertex): Vertex;
+            subtract(vertex: Vertex): Vertex;
+            multiplyScalar(scalar: number): Vertex;
+            cross(vertex: Vertex): Vertex;
+            normalize(): Vertex;
+            dot(vertex: Vertex): number;
+            lerp(a: Vertex, t: number): Vertex;
+            interpolate(other: Vertex, t: number): Vertex;
+            applyMatrix4(m: Matrix4): Vertex;
         }
         class Node {
             faces: any;
-            polygons: any;
-            front: any;
-            back: any;
-            divider: any;
-            constructor(polygons?: any);
-            isConvex(polygons: any): boolean;
-            build(polygons: any): void;
-            allPolygons(): any;
+            polygons: Array<Polygon>;
+            front: Node;
+            back: Node;
+            divider: Polygon;
+            constructor(polygons?: Array<Polygon>);
+            isConvex(polygons: Array<Polygon>): boolean;
+            build(polygons: Array<Polygon>): void;
+            allPolygons(): Array<Polygon>;
             clone(): Node;
-            invert(): this;
-            clipPolygons(polygons: any): any;
+            invert(): Node;
+            clipPolygons(polygons: Array<Polygon>): Array<Polygon>;
             clipTo(node: any): void;
         }
     }

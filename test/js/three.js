@@ -7143,7 +7143,14 @@ var THREE;
 })(THREE || (THREE = {}));
 var THREE;
 (function (THREE) {
-    const EPSILON = 1e-5, COPLANAR = 0, FRONT = 1, BACK = 2, SPANNING = 3;
+    const EPSILON = 1e-5;
+    let RelationEnum;
+    (function (RelationEnum) {
+        RelationEnum[RelationEnum["COPLANAR"] = 0] = "COPLANAR";
+        RelationEnum[RelationEnum["FRONT"] = 1] = "FRONT";
+        RelationEnum[RelationEnum["BACK"] = 2] = "BACK";
+        RelationEnum[RelationEnum["SPANNING"] = 3] = "SPANNING";
+    })(RelationEnum = THREE.RelationEnum || (THREE.RelationEnum = {}));
     class ThreeBSP {
         constructor(geometryOrNodeOrMesh) {
             // Convert THREE.Geometry to ThreeBSP
@@ -7236,7 +7243,8 @@ var THREE;
             this.tree = new BSP.Node(polygons);
         }
         subtract(other_tree) {
-            var a = this.tree.clone(), b = other_tree.tree.clone();
+            var a = this.tree.clone();
+            var b = other_tree.tree.clone();
             a.invert();
             a.clipTo(b);
             b.clipTo(a);
@@ -7250,7 +7258,8 @@ var THREE;
             return ret;
         }
         union(other_tree) {
-            var a = this.tree.clone(), b = other_tree.tree.clone();
+            var a = this.tree.clone();
+            var b = other_tree.tree.clone();
             a.clipTo(b);
             b.clipTo(a);
             b.invert();
@@ -7262,7 +7271,8 @@ var THREE;
             return ret;
         }
         intersect(other_tree) {
-            var a = this.tree.clone(), b = other_tree.tree.clone();
+            var a = this.tree.clone();
+            var b = other_tree.tree.clone();
             a.invert();
             b.clipTo(a);
             b.invert();
@@ -7294,7 +7304,7 @@ var THREE;
                 polygon = polygons[i];
                 polygon_vertice_count = polygon.vertices.length;
                 for (j = 2; j < polygon_vertice_count; j++) {
-                    verticeUvs = [];
+                    verticeUvs = new Array();
                     vertex = polygon.vertices[0];
                     verticeUvs.push(new THREE.Vector2(vertex.uv.x, vertex.uv.y));
                     vertex = new THREE.Vector3(vertex.x, vertex.y, vertex.z);
@@ -7336,7 +7346,8 @@ var THREE;
             return geometry;
         }
         toMesh(material) {
-            var geometry = this.toGeometry(), mesh = new THREE.Mesh(geometry, material);
+            var geometry = this.toGeometry();
+            var mesh = new THREE.Mesh(geometry, material);
             mesh.position.setFromMatrixPosition(this.matrix);
             mesh.rotation.setFromRotationMatrix(this.matrix);
             return mesh;
@@ -7359,7 +7370,9 @@ var THREE;
                 }
             }
             calculateProperties() {
-                var a = this.vertices[0], b = this.vertices[1], c = this.vertices[2];
+                var a = this.vertices[0];
+                var b = this.vertices[1];
+                var c = this.vertices[2];
                 this.normal = b.clone().subtract(a).cross(c.clone().subtract(a)).normalize();
                 this.w = this.normal.clone().dot(a);
                 return this;
@@ -7388,64 +7401,79 @@ var THREE;
             classifyVertex(vertex) {
                 var side_value = this.normal.dot(vertex) - this.w;
                 if (side_value < -EPSILON) {
-                    return BACK;
+                    return RelationEnum.BACK;
                 }
                 else if (side_value > EPSILON) {
-                    return FRONT;
+                    return RelationEnum.FRONT;
                 }
                 else {
-                    return COPLANAR;
+                    return RelationEnum.COPLANAR;
                 }
             }
             classifySide(polygon) {
-                var i, vertex, classification, num_positive = 0, num_negative = 0, vertice_count = polygon.vertices.length;
+                var i;
+                var vertex;
+                var classification;
+                var num_positive = 0;
+                var num_negative = 0;
+                var vertice_count = polygon.vertices.length;
                 for (i = 0; i < vertice_count; i++) {
                     vertex = polygon.vertices[i];
                     classification = this.classifyVertex(vertex);
-                    if (classification === FRONT) {
+                    if (classification === RelationEnum.FRONT) {
                         num_positive++;
                     }
-                    else if (classification === BACK) {
+                    else if (classification === RelationEnum.BACK) {
                         num_negative++;
                     }
                 }
                 if (num_positive > 0 && num_negative === 0) {
-                    return FRONT;
+                    return RelationEnum.FRONT;
                 }
                 else if (num_positive === 0 && num_negative > 0) {
-                    return BACK;
+                    return RelationEnum.BACK;
                 }
                 else if (num_positive === 0 && num_negative === 0) {
-                    return COPLANAR;
+                    return RelationEnum.COPLANAR;
                 }
                 else {
-                    return SPANNING;
+                    return RelationEnum.SPANNING;
                 }
             }
             splitPolygon(polygon, coplanar_front, coplanar_back, front, back) {
                 var classification = this.classifySide(polygon);
-                if (classification === COPLANAR) {
+                if (classification === RelationEnum.COPLANAR) {
                     (this.normal.dot(polygon.normal) > 0 ? coplanar_front : coplanar_back).push(polygon);
                 }
-                else if (classification === FRONT) {
+                else if (classification === RelationEnum.FRONT) {
                     front.push(polygon);
                 }
-                else if (classification === BACK) {
+                else if (classification === RelationEnum.BACK) {
                     back.push(polygon);
                 }
                 else {
-                    var vertice_count, i, j, ti, tj, vi, vj, t, v, f = [], b = [];
+                    var vertice_count;
+                    var i;
+                    var j;
+                    var ti;
+                    var tj;
+                    var vi;
+                    var vj;
+                    var t;
+                    var v;
+                    var f = new Array();
+                    var b = new Array();
                     for (i = 0, vertice_count = polygon.vertices.length; i < vertice_count; i++) {
                         j = (i + 1) % vertice_count;
                         vi = polygon.vertices[i];
                         vj = polygon.vertices[j];
                         ti = this.classifyVertex(vi);
                         tj = this.classifyVertex(vj);
-                        if (ti != BACK)
+                        if (ti != RelationEnum.BACK)
                             f.push(vi);
-                        if (ti != FRONT)
+                        if (ti != RelationEnum.FRONT)
                             b.push(vi);
-                        if ((ti | tj) === SPANNING) {
+                        if ((ti | tj) === RelationEnum.SPANNING) {
                             t = (this.w - this.normal.dot(vi)) / this.normal.dot(vj.clone().subtract(vi));
                             v = vi.interpolate(vj, t);
                             f.push(v);
@@ -7490,7 +7518,9 @@ var THREE;
                 return this;
             }
             cross(vertex) {
-                var x = this.x, y = this.y, z = this.z;
+                var x = this.x;
+                var y = this.y;
+                var z = this.z;
                 this.x = y * vertex.z - z * vertex.y;
                 this.y = z * vertex.x - x * vertex.z;
                 this.z = x * vertex.y - y * vertex.x;
@@ -7517,7 +7547,9 @@ var THREE;
             }
             applyMatrix4(m) {
                 // input: THREE.Matrix4 affine matrix
-                var x = this.x, y = this.y, z = this.z;
+                var x = this.x;
+                var y = this.y;
+                var z = this.z;
                 var e = m.elements;
                 this.x = e[0] * x + e[4] * y + e[8] * z + e[12];
                 this.y = e[1] * x + e[5] * y + e[9] * z + e[13];
@@ -7528,8 +7560,11 @@ var THREE;
         BSP.Vertex = Vertex;
         class Node {
             constructor(polygons) {
-                var i, polygon_count, front = [], back = [];
-                this.polygons = [];
+                var i;
+                var polygon_count;
+                var front = new Array();
+                var back = new Array();
+                this.polygons = new Array();
                 this.front = this.back = undefined;
                 if (!(polygons instanceof Array) || polygons.length === 0)
                     return;
@@ -7545,10 +7580,11 @@ var THREE;
                 }
             }
             isConvex(polygons) {
-                var i, j;
+                var i;
+                var j;
                 for (i = 0; i < polygons.length; i++) {
                     for (j = 0; j < polygons.length; j++) {
-                        if (i !== j && polygons[i].classifySide(polygons[j]) !== BACK) {
+                        if (i !== j && polygons[i].classifySide(polygons[j]) !== RelationEnum.BACK) {
                             return false;
                         }
                     }
@@ -7556,7 +7592,10 @@ var THREE;
                 return true;
             }
             build(polygons) {
-                var i, polygon_count, front = [], back = [];
+                var i;
+                var polygon_count;
+                var front = new Array();
+                var back = new Array();
                 if (!this.divider) {
                     this.divider = polygons[0].clone();
                 }
@@ -7593,7 +7632,9 @@ var THREE;
                 return node;
             }
             invert() {
-                var i, polygon_count, temp;
+                var i;
+                var polygon_count;
+                var temp;
                 for (i = 0, polygon_count = this.polygons.length; i < polygon_count; i++) {
                     this.polygons[i].flip();
                 }
@@ -7608,11 +7649,14 @@ var THREE;
                 return this;
             }
             clipPolygons(polygons) {
-                var i, polygon_count, front, back;
+                var i;
+                var polygon_count;
+                var front;
+                var back;
                 if (!this.divider)
                     return polygons.slice();
-                front = [];
-                back = [];
+                front = new Array();
+                back = new Array();
                 for (i = 0, polygon_count = polygons.length; i < polygon_count; i++) {
                     this.divider.splitPolygon(polygons[i], front, back, front, back);
                 }
@@ -7621,7 +7665,7 @@ var THREE;
                 if (this.back)
                     back = this.back.clipPolygons(back);
                 else
-                    back = [];
+                    back = new Array();
                 return front.concat(back);
             }
             clipTo(node) {

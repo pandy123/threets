@@ -1,9 +1,11 @@
 module THREE {
-   const EPSILON = 1e-5,
+   const EPSILON = 1e-5;
+   export enum RelationEnum {
       COPLANAR = 0,
       FRONT = 1,
       BACK = 2,
-      SPANNING = 3;
+      SPANNING = 3
+   }
    export class ThreeBSP {
       public matrix: THREE.Matrix4;
       public tree: BSP.Node;
@@ -102,9 +104,9 @@ module THREE {
          this.tree = new BSP.Node(polygons);
       }
 
-      public subtract(other_tree: ThreeBSP) {
-         var a = this.tree.clone(),
-            b = other_tree.tree.clone();
+      public subtract(other_tree: ThreeBSP): ThreeBSP {
+         var a: BSP.Node = this.tree.clone();
+         var b: BSP.Node = other_tree.tree.clone();
 
          a.invert();
          a.clipTo(b);
@@ -119,9 +121,9 @@ module THREE {
          return ret;
       }
 
-      public union(other_tree) {
-         var a = this.tree.clone(),
-            b = other_tree.tree.clone();
+      public union(other_tree): ThreeBSP {
+         var a: BSP.Node = this.tree.clone();
+         var b: BSP.Node = other_tree.tree.clone();
 
          a.clipTo(b);
          b.clipTo(a);
@@ -134,9 +136,9 @@ module THREE {
          return ret;
       }
 
-      public intersect(other_tree) {
-         var a = this.tree.clone(),
-            b = other_tree.tree.clone();
+      public intersect(other_tree): ThreeBSP {
+         var a: BSP.Node = this.tree.clone();
+         var b: BSP.Node = other_tree.tree.clone();
 
          a.invert();
          b.clipTo(a);
@@ -150,7 +152,7 @@ module THREE {
          return ret;
       }
 
-      public toGeometry() {
+      public toGeometry(): Geometry {
          var i: number;
          var j: number;
          var matrix: Matrix4 = new Matrix4().getInverse(this.matrix);
@@ -158,12 +160,12 @@ module THREE {
          var polygons = this.tree.allPolygons();
          var polygon_count: number = polygons.length;
          var polygon;
-         var polygon_vertice_count;
+         var polygon_vertice_count: number;
          var vertice_dict = {};
-         var vertex_idx_a;
-         var vertex_idx_b;
-         var vertex_idx_c;
-         var vertex;
+         var vertex_idx_a: number;
+         var vertex_idx_b: number;
+         var vertex_idx_c: number;
+         var vertex: any;
          var face: Face3;
          var verticeUvs: Array<Vector2>;
 
@@ -172,7 +174,7 @@ module THREE {
             polygon_vertice_count = polygon.vertices.length;
 
             for (j = 2; j < polygon_vertice_count; j++) {
-               verticeUvs = [];
+               verticeUvs = new Array<Vector2>();
 
                vertex = polygon.vertices[0];
                verticeUvs.push(new Vector2(vertex.uv.x, vertex.uv.y));
@@ -223,9 +225,9 @@ module THREE {
          return geometry;
       }
 
-      public toMesh(material) {
-         var geometry = this.toGeometry(),
-            mesh = new THREE.Mesh(geometry, material);
+      public toMesh(material): Mesh {
+         var geometry: THREE.Geometry = this.toGeometry();
+         var mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
 
          mesh.position.setFromMatrixPosition(this.matrix);
          mesh.rotation.setFromRotationMatrix(this.matrix);
@@ -236,8 +238,8 @@ module THREE {
    export namespace BSP {
       export class Polygon {
          public vertices: Array<Vertex>;
-         public normal: any;
-         public w: any;
+         public normal: Vertex;
+         public w: number;
          constructor(vertices?: Array<Vertex>, normal?, w?) {
             if (!(vertices instanceof Array)) {
                vertices = new Array<Vertex>();
@@ -251,10 +253,10 @@ module THREE {
             }
          }
 
-         public calculateProperties() {
-            var a = this.vertices[0],
-               b = this.vertices[1],
-               c = this.vertices[2];
+         public calculateProperties(): Polygon {
+            var a: Vertex = this.vertices[0];
+            var b: Vertex = this.vertices[1];
+            var c: Vertex = this.vertices[2];
 
             this.normal = b.clone().subtract(a).cross(
                c.clone().subtract(a)
@@ -265,7 +267,7 @@ module THREE {
             return this;
          }
 
-         public clone() {
+         public clone(): Polygon {
             var i: number;
             var vertice_count: number;
             var polygon: BSP.Polygon = new Polygon();
@@ -278,7 +280,7 @@ module THREE {
             return polygon;
          }
 
-         public flip() {
+         public flip(): Polygon {
             var i: number;
             var vertices: Array<Vertex> = new Array<Vertex>();
             this.normal.multiplyScalar(-1);
@@ -292,67 +294,77 @@ module THREE {
             return this;
          }
 
-         public classifyVertex(vertex) {
-            var side_value = this.normal.dot(vertex) - this.w;
+         public classifyVertex(vertex: Vertex): RelationEnum {
+            var side_value: number = this.normal.dot(vertex) - this.w;
 
             if (side_value < -EPSILON) {
-               return BACK;
+               return RelationEnum.BACK;
             } else if (side_value > EPSILON) {
-               return FRONT;
+               return RelationEnum.FRONT;
             } else {
-               return COPLANAR;
+               return RelationEnum.COPLANAR;
             }
          }
 
-         public classifySide(polygon) {
-            var i, vertex, classification,
-               num_positive = 0,
-               num_negative = 0,
-               vertice_count = polygon.vertices.length;
+         public classifySide(polygon: Polygon): RelationEnum {
+            var i: number;
+            var vertex: Vertex;
+            var classification: RelationEnum;
+            var num_positive: number = 0;
+            var num_negative: number = 0;
+            var vertice_count: number = polygon.vertices.length;
 
             for (i = 0; i < vertice_count; i++) {
                vertex = polygon.vertices[i];
                classification = this.classifyVertex(vertex);
-               if (classification === FRONT) {
+               if (classification === RelationEnum.FRONT) {
                   num_positive++;
-               } else if (classification === BACK) {
+               } else if (classification === RelationEnum.BACK) {
                   num_negative++;
                }
             }
 
             if (num_positive > 0 && num_negative === 0) {
-               return FRONT;
+               return RelationEnum.FRONT;
             } else if (num_positive === 0 && num_negative > 0) {
-               return BACK;
+               return RelationEnum.BACK;
             } else if (num_positive === 0 && num_negative === 0) {
-               return COPLANAR;
+               return RelationEnum.COPLANAR;
             } else {
-               return SPANNING;
+               return RelationEnum.SPANNING;
             }
          }
 
-         public splitPolygon(polygon, coplanar_front, coplanar_back, front, back) {
-            var classification = this.classifySide(polygon);
+         public splitPolygon(polygon: Polygon, coplanar_front: Array<Polygon>, coplanar_back: Array<Polygon>, front: Array<Polygon>, back: Array<Polygon>) {
+            var classification: RelationEnum = this.classifySide(polygon);
 
-            if (classification === COPLANAR) {
+            if (classification === RelationEnum.COPLANAR) {
 
                (this.normal.dot(polygon.normal) > 0 ? coplanar_front : coplanar_back).push(polygon);
 
-            } else if (classification === FRONT) {
+            } else if (classification === RelationEnum.FRONT) {
 
                front.push(polygon);
 
-            } else if (classification === BACK) {
+            } else if (classification === RelationEnum.BACK) {
 
                back.push(polygon);
 
             } else {
 
-               var vertice_count,
-                  i, j, ti, tj, vi, vj,
-                  t, v,
-                  f = [],
-                  b = [];
+               var vertice_count: number;
+               var i: number;
+               var j: number;
+               var ti: RelationEnum;
+               var tj: RelationEnum;
+               var vi: Vertex;
+               var vj: Vertex;
+
+               var t: number;
+               var v: Vertex;
+
+               var f: Array<Vertex> = new Array<Vertex>();
+               var b: Array<Vertex> = new Array<Vertex>();
 
                for (i = 0, vertice_count = polygon.vertices.length; i < vertice_count; i++) {
 
@@ -362,9 +374,9 @@ module THREE {
                   ti = this.classifyVertex(vi);
                   tj = this.classifyVertex(vj);
 
-                  if (ti != BACK) f.push(vi);
-                  if (ti != FRONT) b.push(vi);
-                  if ((ti | tj) === SPANNING) {
+                  if (ti != RelationEnum.BACK) f.push(vi);
+                  if (ti != RelationEnum.FRONT) b.push(vi);
+                  if ((ti | tj) === RelationEnum.SPANNING) {
                      t = (this.w - this.normal.dot(vi)) / this.normal.dot(vj.clone().subtract(vi));
                      v = vi.interpolate(vj, t);
                      f.push(v);
@@ -384,7 +396,7 @@ module THREE {
          public z: number;
          public normal: Vector3;
          public uv: Vector2;
-         constructor(x, y, z, normal, uv) {
+         constructor(x: number, y: number, z: number, normal?: Vector3, uv?: Vector2) {
             this.x = x;
             this.y = y;
             this.z = z;
@@ -392,35 +404,35 @@ module THREE {
             this.uv = uv || new Vector2();
          }
 
-         clone() {
+         public clone(): Vertex {
             return new Vertex(this.x, this.y, this.z, this.normal.clone(), this.uv.clone());
          }
 
-         add(vertex) {
+         public add(vertex: Vertex): Vertex {
             this.x += vertex.x;
             this.y += vertex.y;
             this.z += vertex.z;
             return this;
          }
 
-         subtract(vertex) {
+         public subtract(vertex: Vertex): Vertex {
             this.x -= vertex.x;
             this.y -= vertex.y;
             this.z -= vertex.z;
             return this;
          }
 
-         multiplyScalar(scalar) {
+         public multiplyScalar(scalar: number): Vertex {
             this.x *= scalar;
             this.y *= scalar;
             this.z *= scalar;
             return this;
          }
 
-         cross(vertex) {
-            var x = this.x,
-               y = this.y,
-               z = this.z;
+         public cross(vertex: Vertex): Vertex {
+            var x: number = this.x;
+            var y: number = this.y;
+            var z: number = this.z;
 
             this.x = y * vertex.z - z * vertex.y;
             this.y = z * vertex.x - x * vertex.z;
@@ -429,8 +441,8 @@ module THREE {
             return this;
          }
 
-         normalize() {
-            var length = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+         public normalize(): Vertex {
+            var length: number = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
 
             this.x /= length;
             this.y /= length;
@@ -439,11 +451,11 @@ module THREE {
             return this;
          }
 
-         dot(vertex) {
+         public dot(vertex: Vertex): number {
             return this.x * vertex.x + this.y * vertex.y + this.z * vertex.z;
          }
 
-         lerp(a, t) {
+         public lerp(a: Vertex, t: number): Vertex {
             this.add(
                a.clone().subtract(this).multiplyScalar(t)
             );
@@ -459,15 +471,17 @@ module THREE {
             return this;
          }
 
-         interpolate(other, t) {
+         public interpolate(other: Vertex, t: number): Vertex {
             return this.clone().lerp(other, t);
          }
 
-         applyMatrix4(m) {
+         public applyMatrix4(m: Matrix4): Vertex {
 
             // input: THREE.Matrix4 affine matrix
 
-            var x = this.x, y = this.y, z = this.z;
+            var x: number = this.x;
+            var y: number = this.y;
+            var z: number = this.z;
 
             var e = m.elements;
 
@@ -481,16 +495,17 @@ module THREE {
       }
       export class Node {
          public faces: any;
-         public polygons: any;
-         public front: any;
-         public back: any;
-         public divider: any;
-         constructor(polygons?) {
-            var i, polygon_count,
-               front = [],
-               back = [];
+         public polygons: Array<Polygon>;
+         public front: Node;
+         public back: Node;
+         public divider: Polygon;
+         constructor(polygons?: Array<Polygon>) {
+            var i: number;
+            var polygon_count: number;
+            var front = new Array<Polygon>();
+            var back = new Array<Polygon>();
 
-            this.polygons = [];
+            this.polygons = new Array<Polygon>();
             this.front = this.back = undefined;
 
             if (!(polygons instanceof Array) || polygons.length === 0) return;
@@ -510,11 +525,12 @@ module THREE {
             }
          }
 
-         isConvex(polygons) {
-            var i, j;
+         public isConvex(polygons: Array<Polygon>): boolean {
+            var i: number;
+            var j: number;
             for (i = 0; i < polygons.length; i++) {
                for (j = 0; j < polygons.length; j++) {
-                  if (i !== j && polygons[i].classifySide(polygons[j]) !== BACK) {
+                  if (i !== j && polygons[i].classifySide(polygons[j]) !== RelationEnum.BACK) {
                      return false;
                   }
                }
@@ -522,10 +538,11 @@ module THREE {
             return true;
          }
 
-         build(polygons) {
-            var i, polygon_count,
-               front = [],
-               back = [];
+         public build(polygons: Array<Polygon>) {
+            var i: number;
+            var polygon_count: number;
+            var front = new Array<Polygon>();
+            var back = new Array<Polygon>();
 
             if (!this.divider) {
                this.divider = polygons[0].clone();
@@ -546,14 +563,14 @@ module THREE {
             }
          }
 
-         allPolygons() {
+         public allPolygons(): Array<Polygon> {
             var polygons = this.polygons.slice();
             if (this.front) polygons = polygons.concat(this.front.allPolygons());
             if (this.back) polygons = polygons.concat(this.back.allPolygons());
             return polygons;
          }
 
-         clone() {
+         public clone(): Node {
             var node = new Node();
 
             node.divider = this.divider.clone();
@@ -566,8 +583,10 @@ module THREE {
             return node;
          }
 
-         invert() {
-            var i, polygon_count, temp;
+         public invert(): Node {
+            var i: number;
+            var polygon_count: number;
+            var temp: Node;
 
             for (i = 0, polygon_count = this.polygons.length; i < polygon_count; i++) {
                this.polygons[i].flip();
@@ -584,14 +603,16 @@ module THREE {
             return this;
          }
 
-         clipPolygons(polygons) {
-            var i, polygon_count,
-               front, back;
+         public clipPolygons(polygons: Array<Polygon>): Array<Polygon> {
+            var i: number;
+            var polygon_count: number;
+            var front: Array<Polygon>;
+            var back: Array<Polygon>;
 
             if (!this.divider) return polygons.slice();
 
-            front = [];
-            back = [];
+            front = new Array<Polygon>();
+            back = new Array<Polygon>();
 
             for (i = 0, polygon_count = polygons.length; i < polygon_count; i++) {
                this.divider.splitPolygon(polygons[i], front, back, front, back);
@@ -599,12 +620,12 @@ module THREE {
 
             if (this.front) front = this.front.clipPolygons(front);
             if (this.back) back = this.back.clipPolygons(back);
-            else back = [];
+            else back = new Array<Polygon>();
 
             return front.concat(back);
          }
 
-         clipTo(node) {
+         public clipTo(node) {
             this.polygons = node.clipPolygons(this.polygons);
             if (this.front) this.front.clipTo(node);
             if (this.back) this.back.clipTo(node);
